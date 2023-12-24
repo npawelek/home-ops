@@ -44,7 +44,7 @@ spec:
     serviceMonitor:
       enabled: true
     podAnnotations:
-      secret.reloader.stakater.com/reload: external-dns-secret,external-dns-credentials-secret
+      secret.reloader.stakater.com/reload: external-dns-secret
     extraVolumeMounts:
       - mountPath: /.aws
         name: credential-config
