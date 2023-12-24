@@ -17,6 +17,12 @@ tasks:
     dir: "{{.ANSIBLE_DIR}}"
     cmd: ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yaml
 
+  storage:
+    desc: Prepare nodes for Longhorn
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/hosts.yaml {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-storage.yaml
+
   rollout-update:
     desc: Preform operating system updates and rollout restart the cluster
     dir: "{{.ANSIBLE_DIR}}"

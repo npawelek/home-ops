@@ -1,0 +1,43 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: &name kubernetes-replicator
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: *name
+      version: 2.9.2
+      sourceRef:
+        kind: HelmRepository
+        name: mittwald
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    fullnameOverride: *name
+    image:
+      repository: quay.io/mittwald/kubernetes-replicator
+      tag: v2.9.2@sha256:57ac433eeea7b1c989859979a599803b2194ef83fd03f0b4cb2b2b5c2c4325b8
+    args:
+      - -resync-period=5m
+    grantClusterAdmin: false
+    serviceAccount:
+      create: true
+      name: *name
+      privileges:
+        - apiGroups: [""]
+          resources: ["namespaces"]
+        - apiGroups: [""]
+          resources: ["secrets", "configmaps"]
+        - apiGroups: ["rbac.authorization.k8s.io"]
+          resources: ["roles", "rolebindings"]

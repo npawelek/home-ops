@@ -2,7 +2,7 @@
 - name: Set addon facts
   ansible.builtin.set_fact:
     addon_name: hajimari
-    addon_namespace: default
+    addon_namespace: hajimari
 
 - name: Ensure directories exist for {{ addon_namespace }}/{{ addon_name }}
   when: item.state == 'directory'

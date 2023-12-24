@@ -16,6 +16,10 @@
   when: kubernetes_dashboard.enabled | default(false)
   ansible.builtin.include_tasks: kubernetes_dashboard.yaml
 
+- name: Process addon kubernetes-replicator
+  when: kubernetes_replicator.enabled | default(false)
+  ansible.builtin.include_tasks: kubernetes_replicator.yaml
+
 - name: Process addon kube-prometheus-stack
   when: kube_prometheus_stack.enabled | default(false)
   ansible.builtin.include_tasks: kube_prometheus_stack.yaml

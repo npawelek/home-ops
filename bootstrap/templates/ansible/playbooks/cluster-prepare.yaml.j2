@@ -19,13 +19,43 @@
 
     - name: Packages
       block:
+        - name: Packages | Enable backports for newer kernel
+          ansible.builtin.apt_repository:
+            repo: "deb http://deb.debian.org/debian bookworm-backports main non-free-firmware"
+            state: present
+            filename: debian-backports
         - name: Packages | Install
           ansible.builtin.apt:
-            name: apt-transport-https,ca-certificates,conntrack,curl,dirmngr,gdisk,gnupg,hdparm,htop,
-              iptables,iputils-ping,ipvsadm,libseccomp2,lm-sensors,neofetch,net-tools,nfs-common,
-              nvme-cli,open-iscsi,parted,psmisc,python3,python3-apt,python3-kubernetes,python3-yaml,
-              smartmontools,socat,software-properties-common,unzip,util-linux
+            name: "{% raw %}{{ packages.base | default([]) }}{% endraw %}"
             install_recommends: false
+        - name: Packages | Perform a full-upgrade
+          ansible.builtin.apt:
+            upgrade: full
+        - name: Packages | Remove leaf packages
+          ansible.builtin.apt:
+            autoremove: true
+            clean: true
+
+    - name: Intel Media Packages
+      notify: Reboot
+      block:
+        # https://dgpu-docs.intel.com/driver/client/overview.html#client-intel-package-repository-configuration
+        - name: Packages | Install Intel signing key
+          ansible.builtin.apt_key:
+            url: https://repositories.intel.com/gpu/intel-graphics.key
+            state: present
+            keyring: /usr/share/keyrings/intel-graphics.gpg
+        - name: Packages | Install Intel GPU client repository
+          ansible.builtin.apt_repository:
+            repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu jammy client"
+            state: present
+            filename: intel-gpu
+        - name: Packages | Install Intel iGPU packages
+          ansible.builtin.apt:
+            name: "{% raw %}{{ packages.gpu | default([]) }}{% endraw %}"
+            state: latest
+            install_recommends: false
+      when: "'Intel' in ansible_board_vendor"
 
     - name: User Configuration
       block:
@@ -124,6 +154,47 @@
               fs.inotify.max_queued_events: 65536
               fs.inotify.max_user_watches: 524288
               fs.inotify.max_user_instances: 8192
+        - name: System Configuration | Ensure htop config path
+          ansible.builtin.file:
+            path: "{% raw %}{{ item.path }}{% endraw %}/.config/htop"
+            state: directory
+            owner: "{% raw %}{{ item.user }}{% endraw %}"
+            group: "{% raw %}{{ item.user }}{% endraw %}"
+            mode: 0700
+          loop:
+            - { user: "{% raw %}{{ ansible_user }}{% endraw %}", path: "/home/{% raw %}{{ ansible_user }}{% endraw %}" }
+            - { user: root, path: /root }
+        - name: System Configuration | Drop htoprc config
+          ansible.builtin.template:
+            src: htoprc.j2
+            dest: "{% raw %}{{ item.path }}{% endraw %}/.config/htop/htoprc"
+            owner: "{% raw %}{{ item.user }}{% endraw %}"
+            group: "{% raw %}{{ item.user }}{% endraw %}"
+            mode: 0664
+          loop:
+            - { user: "{% raw %}{{ ansible_user }}{% endraw %}", path: "/home/{% raw %}{{ ansible_user }}{% endraw %}" }
+            - { user: root, path: /root }
+        - name: System Configuration | Check CPU scaling governor
+          ansible.builtin.command: cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+          changed_when: false
+          register: cpu_governor
+        - name: System Configuration | Set performance mode
+          ansible.builtin.shell: echo performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+          when: cpu_governor.stdout != "performance"
+        - name: System Configuration | Ensure cpufrequtils is set to performance
+          ansible.builtin.lineinfile:
+            path: /etc/init.d/cpufrequtils
+            regexp: '^GOVERNOR='
+            line: GOVERNOR="performance"
+            state: present
+          when: cpu_governor.stdout != "performance"
+        - name: System Configuration | Validate the sudoers file before saving
+          ansible.builtin.lineinfile:
+            path: "/etc/sudoers.d/{% raw %}{{ ansible_user }}{% endraw %}"
+            state: present
+            regexp: "^{% raw %}{{ ansible_user }}{% endraw %} ALL="
+            line: "{% raw %}{{ ansible_user }}{% endraw %} ALL=(ALL) NOPASSWD:ALL"
+            validate: /usr/sbin/visudo -cf %s
 
   handlers:
     - name: Reboot

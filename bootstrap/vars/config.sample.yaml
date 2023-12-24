@@ -22,19 +22,16 @@ bootstrap_acme_email:
 # and push your changes to Github.
 bootstrap_acme_production_enabled: false
 
+# AWS-related credentials
+bootstrap_aws_region:
+bootstrap_aws_domain:
+bootstrap_certmanager_aws_access_key:
+bootstrap_certmanager_aws_secret_access_key:
+bootstrap_externaldns_aws_access_key:
+bootstrap_externaldns_aws_secret_access_key:
+
 # Flux github webhook token (openssl rand -hex 12)
 bootstrap_flux_github_webhook_token:
-
-# Cloudflare domain
-bootstrap_cloudflare_domain:
-# Cloudflare API Token (not API Key)
-bootstrap_cloudflare_token:
-# Cloudflared Account Tag (cat ~/.cloudflared/*.json | jq -r .AccountTag)
-bootstrap_cloudflare_account_tag:
-# Cloudflared Tunnel Secret (cat ~/.cloudflared/*.json | jq -r .TunnelSecret)
-bootstrap_cloudflare_tunnel_secret:
-# Cloudflared Tunnel ID (cat ~/.cloudflared/*.json | jq -r .TunnelID)
-bootstrap_cloudflare_tunnel_id:
 
 # CIDR your nodes are on (e.g. 192.168.1.0/24)
 bootstrap_node_cidr:

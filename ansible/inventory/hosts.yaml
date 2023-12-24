@@ -1,0 +1,19 @@
+---
+kubernetes:
+  children:
+    master:
+      hosts:
+        k04-master:
+          ansible_user: debian
+          ansible_host: 192.168.0.24
+        k05-master:
+          ansible_user: debian
+          ansible_host: 192.168.0.25
+        k06-master:
+          ansible_user: debian
+          ansible_host: 192.168.0.26
+    worker:
+      hosts:
+        karakum:
+          ansible_user: debian
+          ansible_host: 192.168.0.31

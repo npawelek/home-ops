@@ -14,12 +14,23 @@ tasks:
     vars:
       DEPS: >-
         age
+        awscli
         cilium-cli
-        cloudflared
+        findutils
         fluxcd/tap/flux
+        gawk
         helm
+        ipcalc
+        jq
         kubernetes-cli
         kustomize
+        pre-commit
+        prettier
         sops
         stern
+        terraform
+        terragrunt
+        tflint
+        tmux
+        yamllint
         yq

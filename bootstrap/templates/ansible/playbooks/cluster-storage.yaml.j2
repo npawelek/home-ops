@@ -1,0 +1,61 @@
+---
+- hosts: worker
+  become: true
+  gather_facts: true
+  any_errors_fatal: true
+  pre_tasks:
+    - name: Pausing for 5 seconds...
+      ansible.builtin.pause:
+        seconds: 5
+  tasks:
+    - name: Longhorn Storage Preparation
+      block:
+        - name: Longhorn Storage | Install Longhorn packages | Ubuntu | Older Systems
+          ansible.builtin.apt:
+            name: "{% raw %}{{ packages.longhorn_packages | default([]) }}{% endraw %}"
+            state: latest
+            update_cache: true
+            install_recommends: false
+        - name: Longhorn Storage | Create a new primary partition on Longhorn NVMe drive | Older Systems
+          ansible.builtin.parted:
+            device: /dev/sdb
+            number: 1
+            label: gpt
+            state: present
+        - name: Longhorn Storage | Create xfs filesystem | Older Systems
+          ansible.builtin.filesystem:
+            fstype: xfs
+            dev: /dev/sdb1
+        - name: Longhorn Storage | Create Longhorn mount directory | Older Systems
+          ansible.builtin.file:
+            path: /var/lib/longhorn
+            state: directory
+            mode: 0755
+        - name: Longhorn Storage | Mount NVMe drive to Longhorn directory | Older Systems
+          ansible.builtin.mount:
+            path: /var/lib/longhorn
+            src: /dev/sdb1
+            fstype: xfs
+            opts: defaults
+            dump: "0"
+            passno: "2"
+            state: mounted
+        - name: Longhorn Storage | Check for pre-existing node label
+          ansible.builtin.command: "kubectl get node {% raw %}{{ inventory_hostname }}{% endraw %} -ojsonpath='{.metadata.labels}'"
+          delegate_to: k04-master
+          register: longhorn_node_label
+          changed_when: false
+        - name: Longhorn Storage | Label node in Kubernetes
+          ansible.builtin.command: "kubectl label node {% raw %}{{ inventory_hostname }}{% endraw %} node.longhorn.io/create-default-disk=true"
+          delegate_to: k04-master
+          when:
+            - longhorn_node_label is defined
+            - "'node.longhorn.io/create-default-disk' not in longhorn_node_label.stdout"
+      when:
+        - inventory_hostname == 'karakum'
+
+  handlers:
+    - name: Reboot
+      ansible.builtin.reboot:
+        msg: Rebooting nodes
+        reboot_timeout: 3600

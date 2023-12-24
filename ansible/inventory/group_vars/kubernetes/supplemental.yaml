@@ -1,0 +1,8 @@
+---
+timezone: "America/Chicago"
+github_username: "npawelek"
+coredns_addr: "10.96.0.10"
+kube_vip_addr: "192.168.0.51"
+cluster_cidr: "10.32.0.0/12"
+service_cidr: "10.96.0.0/12"
+node_cidr: "192.168.0.0/24"
