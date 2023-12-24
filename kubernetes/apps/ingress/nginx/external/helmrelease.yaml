@@ -70,7 +70,7 @@ spec:
           namespaceSelector:
             any: true
       extraArgs:
-        default-ssl-certificate: "ingress/${SECRET_DOMAIN/./-}-staging-tls"
+        default-ssl-certificate: "ingress/${SECRET_DOMAIN/./-}-production-tls"
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
