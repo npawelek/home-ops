@@ -10,7 +10,7 @@
   tasks:
     - name: Longhorn Storage Preparation
       block:
-        - name: Longhorn Storage | Install Longhorn packages | Ubuntu | Older Systems
+        - name: Longhorn Storage | Install Longhorn packages | Older Systems
           ansible.builtin.apt:
             name: "{% raw %}{{ packages.longhorn_packages | default([]) }}{% endraw %}"
             state: latest
