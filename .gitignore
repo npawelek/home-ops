@@ -12,3 +12,9 @@ kubeconfig
 .venv*
 # Taskfile
 .tasks
+# Terraform
+.terraform
+.terraform.tfstate*
+.terraform.lock*
+terraform.tfstate*
+backend.tf

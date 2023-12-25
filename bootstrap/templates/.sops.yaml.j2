@@ -9,6 +9,10 @@ creation_rules:
     key_groups:
       - age:
           - "{{ bootstrap_age_public_key }}"
+  - path_regex: terraform/.*\.sops\.ya?ml
+    key_groups:
+      - age:
+          - "age16m88gc43aqkcnrftkrx3j938vgu6xl4v3jjt7jk4f39xvm5ck48qzj5696"
   # https://github.com/ansible-collections/community.sops/issues/153
   - path_regex: /dev/stdin
     key_groups:
