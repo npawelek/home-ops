@@ -49,6 +49,7 @@ data:
           enabled: true
           className: internal
           annotations:
+            external-dns.alpha.kubernetes.io/target: "internal.${SECRET_DOMAIN}"
             hajimari.io/icon: simple-icons:cilium
           hosts:
             - "hubble.${SECRET_DOMAIN}"

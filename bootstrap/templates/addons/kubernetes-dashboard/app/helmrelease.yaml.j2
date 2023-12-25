@@ -32,6 +32,7 @@ spec:
       enabled: true
       className: internal
       annotations:
+        external-dns.alpha.kubernetes.io/target: "internal.${SECRET_DOMAIN}"
         hajimari.io/icon: mdi:kubernetes
       hosts:
         - &host "kubernetes.${SECRET_DOMAIN}"
