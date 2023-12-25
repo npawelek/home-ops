@@ -31,3 +31,6 @@
 
     - name: Template Kubernetes addon configuration
       ansible.builtin.include_tasks: tasks/addons/main.yaml
+
+    - name: Template Terraform configuration
+      ansible.builtin.include_tasks: tasks/terraform/main.yaml
