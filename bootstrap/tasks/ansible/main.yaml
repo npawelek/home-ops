@@ -1,5 +1,5 @@
 ---
-- name: Ensure Kubernetes directories exist
+- name: Ensure Ansible directories exist
   when: item.state == 'directory'
   ansible.builtin.file:
     path: "{{ repository_path }}/ansible/{{ item.path }}"
