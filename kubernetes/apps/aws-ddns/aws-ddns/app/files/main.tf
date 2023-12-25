@@ -1,0 +1,86 @@
+terraform {
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "5.31.0"
+    }
+    http = {
+      source  = "hashicorp/http"
+      version = "3.4.1"
+    }
+  }
+}
+
+variable "AWS_DOMAIN" {
+  type        = string
+  description = "Use the defined domain within TF_VAR_AWS_DOMAIN environment variable"
+}
+
+variable "INGRESS_INTERNAL" {
+  type        = string
+  description = "Use the defined domain within TF_VAR_INGRESS_INTERNAL environment variable"
+}
+
+variable "INGRESS_EXTERNAL" {
+  type        = string
+  description = "Use the defined domain within TF_VAR_INGRESS_EXTERNAL environment variable"
+}
+
+provider "aws" {}
+
+data "aws_route53_zone" "domain" {
+  name = var.AWS_DOMAIN
+}
+
+data "http" "ipv4" {
+  url = "http://checkip.amazonaws.com"
+}
+
+resource "aws_route53_record" "ipv4" {
+  zone_id = data.aws_route53_zone.domain.zone_id
+  name    = "ipv4"
+  type    = "A"
+  ttl     = 1
+  records = [chomp(data.http.ipv4.response_body)]
+}
+
+resource "aws_route53_record" "vpn" {
+  zone_id = data.aws_route53_zone.domain.zone_id
+  name    = "vpn"
+  type    = "A"
+  ttl     = 300
+  records = [chomp(data.http.ipv4.response_body)]
+}
+
+resource "aws_route53_record" "video" {
+  zone_id = data.aws_route53_zone.domain.zone_id
+  name    = "video"
+  type    = "A"
+  ttl     = 300
+  records = [chomp(data.http.ipv4.response_body)]
+}
+
+resource "aws_route53_record" "req" {
+  zone_id = data.aws_route53_zone.domain.zone_id
+  name    = "req"
+  type    = "A"
+  ttl     = 300
+  records = [chomp(data.http.ipv4.response_body)]
+}
+
+resource "aws_route53_record" "internal" {
+  zone_id = data.aws_route53_zone.domain.zone_id
+  name    = "internal"
+  type    = "A"
+  ttl     = 300
+  records = [var.INGRESS_INTERNAL]
+}
+
+resource "aws_route53_record" "external" {
+  zone_id = data.aws_route53_zone.domain.zone_id
+  name    = "external"
+  type    = "A"
+  ttl     = 300
+  records = [var.INGRESS_EXTERNAL]
+}

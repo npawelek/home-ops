@@ -34,6 +34,7 @@
     - bootstrap_terraform_aws_secret_access_key
     - bootstrap_terraform_state_kms_arn
     - bootstrap_terraform_state_s3_bucket
+    - bootstrap_terraform_state_s3_key
     - bootstrap_timezone
 - name: Verify bootstrap node names are valid
   ansible.builtin.assert:

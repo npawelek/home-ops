@@ -1,0 +1,70 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: aws-ddns
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 1.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    restartPolicy: OnFailure
+    controller:
+      type: cronjob
+      cronjob:
+        concurrencyPolicy: Forbid
+        schedule: "*/15 * * * *"
+        successfulJobsHistory: 1
+        ttlSecondsAfterFinished: 7200
+    image:
+      repository: public.ecr.aws/hashicorp/terraform
+      tag: 1.6.6@sha256:9a42ea97ea25b363f4c65be25b9ca52b1e511ea5bf7d56050a506ad2daa7af9d
+    command:
+      - /bin/sh
+      - /app/aws-ddns.sh
+    envFrom:
+      - secretRef:
+          name: aws-ddns-secret
+    service:
+      main:
+        enabled: false
+    persistence:
+      config:
+        enabled: true
+        type: configMap
+        name: aws-ddns-configmap
+        subPath: aws-ddns.sh
+        mountPath: /app/aws-ddns.sh
+        defaultMode: 0775
+        readOnly: true
+      terraform:
+        enabled: true
+        type: configMap
+        name: tf-configmap
+        subPath: main.tf
+        mountPath: /app/main.tf
+        defaultMode: 0644
+        readOnly: true
+      backend:
+        enabled: true
+        type: secret
+        name: aws-ddns-secret-backend
+        subPath: backend.tf
+        mountPath: /app/backend.tf
+        readOnly: true
