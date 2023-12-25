@@ -34,6 +34,7 @@ spec:
     extraArgs:
       - --aws-zone-type=public
       - --ingress-class=external
+      - --ingress-class=internal
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
     policy: sync
