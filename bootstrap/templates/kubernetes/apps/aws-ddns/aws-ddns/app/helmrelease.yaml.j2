@@ -30,7 +30,7 @@ spec:
       cronjob:
         concurrencyPolicy: Forbid
         schedule: "*/15 * * * *"
-        successfulJobsHistory: 1
+        successfulJobsHistory: 8
         ttlSecondsAfterFinished: 7200
     image:
       repository: public.ecr.aws/hashicorp/terraform
