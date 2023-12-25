@@ -71,6 +71,7 @@ spec:
             any: true
       extraArgs:
         default-ssl-certificate: "ingress/${SECRET_DOMAIN/./-}-production-tls"
+      # TODO(ingress-nginx): re-enable topology constraints once additional nodes are added
       # topologySpreadConstraints:
       #   - maxSkew: 1
       #     topologyKey: kubernetes.io/hostname
