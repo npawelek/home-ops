@@ -27,8 +27,13 @@
     - bootstrap_k8s_gateway_addr
     - bootstrap_kube_vip_addr
     - bootstrap_local_path_provisioner_path
+    - bootstrap_nfs_racknas
     - bootstrap_node_cidr
     - bootstrap_service_cidr
+    - bootstrap_terraform_aws_access_key
+    - bootstrap_terraform_aws_secret_access_key
+    - bootstrap_terraform_state_kms_arn
+    - bootstrap_terraform_state_s3_bucket
     - bootstrap_timezone
 - name: Verify bootstrap node names are valid
   ansible.builtin.assert:
