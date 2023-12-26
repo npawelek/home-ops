@@ -26,18 +26,21 @@ spec:
   values:
     restartPolicy: OnFailure
     controller:
-      type: cronjob
-      cronjob:
-        concurrencyPolicy: Forbid
-        schedule: "*/15 * * * *"
-        successfulJobsHistory: 8
-        ttlSecondsAfterFinished: 7200
+      type: deployment
+      # type: cronjob
+      # cronjob:
+      #   concurrencyPolicy: Forbid
+      #   schedule: "*/15 * * * *"
+      #   successfulJobsHistory: 8
+      #   ttlSecondsAfterFinished: 7200
     image:
       repository: public.ecr.aws/hashicorp/terraform
       tag: 1.6.6@sha256:9a42ea97ea25b363f4c65be25b9ca52b1e511ea5bf7d56050a506ad2daa7af9d
     command:
       - /bin/sh
-      - /app/aws-ddns.sh
+      - -c
+      - "sleep 1h"
+      # - /app/aws-ddns.sh
     envFrom:
       - secretRef:
           name: aws-ddns-secret
