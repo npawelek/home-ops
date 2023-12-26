@@ -8,7 +8,7 @@ spec:
   secretTemplate:
     annotations:
       replicator.v1.mittwald.de/replication-allowed: "true"
-      replicator.v1.mittwald.de/replication-allowed-namespaces: "longhorn-system"
+      replicator.v1.mittwald.de/replication-allowed-namespaces: "longhorn-system,auth"
   duration: 2160h
   renewBefore: 576h
   privateKey:
