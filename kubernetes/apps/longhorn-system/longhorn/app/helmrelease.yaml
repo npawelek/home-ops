@@ -58,11 +58,3 @@ spec:
         hajimari.io/icon: cow
         hajimari.io/group: services
         hajimari.io/appName: longhorn
-    # Fix 1.5.0 upgrade issue
-    # https://github.com/longhorn/longhorn/issues/6246
-    longhornConversionWebhook:
-      replicas: 0
-    longhornAdmissionWebhook:
-      replicas: 0
-    longhornRecoveryBackend:
-      replicas: 0
