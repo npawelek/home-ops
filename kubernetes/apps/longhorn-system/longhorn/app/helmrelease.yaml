@@ -55,3 +55,4 @@ spec:
         # nginx.ingress.kubernetes.io/auth-snippet: |
         #     proxy_set_header X-Forwarded-Host $http_host;
         hajimari.io/icon: simple-icons:rancher
+        hajimari.io/enable: "true"

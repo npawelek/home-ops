@@ -98,6 +98,7 @@ data:
           external-dns.alpha.kubernetes.io/target: "internal.${SECRET_DOMAIN}"
           hajimari.io/appName: Prometheus
           hajimari.io/icon: simple-icons:prometheus
+          hajimari.io/enable: "true"
         pathType: Prefix
         hosts:
           - "prometheus.${SECRET_DOMAIN}"
