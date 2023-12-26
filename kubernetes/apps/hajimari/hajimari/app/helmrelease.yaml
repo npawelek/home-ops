@@ -30,7 +30,7 @@ spec:
       alwaysTargetBlank: true
       showGreeting: false
       showAppGroups: false
-      showAppStatus: false
+      showAppStatus: true
       showBookmarkGroups: false
       showGlobalBookmarks: false
       showAppUrls: false
@@ -72,6 +72,18 @@ spec:
               url: http://192.168.10.146
             - name: HDHomeRun
               url: http://192.168.20.98/
+      defaultSearchProvider: Kagi
+      searchProviders:
+        - name: Kagi
+          token: k
+          icon: simple-icons:keras
+          searchUrl: https://kagi.com/search?q={query}
+          url: https://kagi.com
+        - name: DuckDuckGo
+          token: d
+          icon: simple-icons:duckduckgo
+          searchUrl: https://duckduckgo.com/?q={query}
+          url: https://duckduckgo.com
     ingress:
       main:
         enabled: true
