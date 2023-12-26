@@ -1,8 +1,2 @@
-!age.key
-!kubeconfig
-!bootstrap/vars/addons.yaml
-!bootstrap/vars/config.yaml
-!terraform/aws/.terraform**
-!terraform/aws/.terraform.lock.hcl
-!terraform/aws/backend.tf
-**
+.venv/**
+.git/**
