@@ -1,0 +1,89 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: authentik
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: authentik
+      version: 2023.10.5
+      sourceRef:
+        kind: HelmRepository
+        name: authentik
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    - kind: Secret
+      name: authentik-secret
+      valuesKey: secretKey
+      targetPath: authentik.secret_key
+    - kind: Secret
+      name: authentik-secret
+      valuesKey: postgresqlPassword
+      targetPath: postgresql.postgresqlPassword
+    - kind: Secret
+      name: authentik-secret
+      valuesKey: postgresqlPassword
+      targetPath: authentik.postgresql.password
+  values:
+    image:
+      repository: ghcr.io/goauthentik/server
+      tag: 2023.10.5
+      # digest:
+    replicas: 1
+    worker:
+      replicas: 1
+    env:
+      TZ: "${TIMEZONE}"
+    ingress:
+      enabled: true
+      ingressClassName: internal
+      annotations:
+        nginx.ingress.kubernetes.io/whitelist-source-range: |
+          10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+        hajimari.io/icon: mdi:account-lock
+      hosts:
+        - host: &host auth.${SECRET_DOMAIN}
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - hosts:
+            - *host
+    prometheus:
+      serviceMonitor:
+        create: true
+    authentik:
+      log_level: debug
+      postgresql:
+        name: "authentik"
+        user: "authentik"
+      email:
+        from: "authentik@${SECRET_DOMAIN}"
+        username: "${SECRET_AWS_SMTP_USERNAME}"
+        password: "${SECRET_AWS_SMTP_PASSWORD}"
+        host: email-smtp.us-east-1.amazonaws.com
+        port: 587
+        use_tls: true
+      error_reporting:
+        enabled: false
+        send_pii: false
+    postgresql:
+      enabled: true
+      postgresqlMaxConnections: 500
+      postgresqlUsername: "authentik"
+      postgresqlDatabase: "authentik"
+    redis:
+      enabled: true
+      architecture: standalone
