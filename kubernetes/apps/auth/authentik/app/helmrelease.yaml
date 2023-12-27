@@ -40,7 +40,7 @@ spec:
     image:
       repository: ghcr.io/goauthentik/server
       tag: 2023.10.5
-      # digest:
+      digest: "sha256:f019439323ae8ffb88771584641072ffb64079a895d8d15ee7ada2da210de2a1"
     replicas: 1
     worker:
       replicas: 1
