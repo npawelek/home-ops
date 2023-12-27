@@ -13,13 +13,15 @@
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prIgnoreNotification"],
+  "timezone": "America/Chicago",
   "rebaseWhen": "conflicted",
-  "schedule": ["on saturday"],
+  "assignees": ["@npawelek"],
   "flux": {
     "fileMatch": [
       "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
       "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+      "(^|/)terraform/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
     ]
   },
   "helm-values": {
@@ -238,7 +240,8 @@
       "fileMatch": [
         "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
         "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
+        "(^|/)terraform/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
       ],
       "matchStrings": [
         // Example: `k3s_release_version: "v1.27.3+k3s1"`

@@ -25,3 +25,8 @@ area/taskfile:
   - changed-files:
       - any-glob-to-any-file: .taskfiles/**/*
       - any-glob-to-any-file: Taskfile*
+area/terraform:
+  - changed-files:
+      - any-glob-to-any-file: terraform/**/*
+      - any-glob-to-any-file: boostrap/templates/terraform/**/*
+      - any-glob-to-any-file: bootstrap/tasks/terraform/**/*
