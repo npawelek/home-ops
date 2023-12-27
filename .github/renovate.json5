@@ -6,7 +6,6 @@
     ":disableRateLimiting",
     ":dependencyDashboard",
     ":semanticCommits",
-    ":automergeDigest",
     ":automergeBranch",
     "helpers:pinGitHubActionDigests"
   ],
@@ -56,7 +55,7 @@
       "automerge": true,
       "automergeType": "branch",
       "ignoreTests": true,
-      "matchUpdateTypes": ["minor", "patch", "digest"]
+      "matchUpdateTypes": ["minor", "patch"]
     },
     // groups
     {
