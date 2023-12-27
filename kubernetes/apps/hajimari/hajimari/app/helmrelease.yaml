@@ -25,7 +25,7 @@ spec:
     keepHistory: false
   values:
     hajimari:
-      title: Apps
+      title: Hajimari
       darkTheme: "chalk"
       alwaysTargetBlank: true
       showGreeting: false
