@@ -15,16 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: Scan for broken links
-        uses: lycheeverse/lychee-action@v1
+        uses: lycheeverse/lychee-action@ec3ed119d4f44ad2673a7232460dc7dff59d2421 # v1
         with:
           args: --verbose --no-progress --exclude-mail './**/*.md'
           output: /tmp/results.md
 
       - name: Update Issue
-        uses: peter-evans/create-issue-from-file@v4
+        uses: peter-evans/create-issue-from-file@433e51abf769039ee20ba1293a088ca19d573b7f # v4
         with:
           title: Link Checker Dashboard 🔗
           issue-number: "${{ env.WORKFLOW_ISSUE_NUMBER }}"
