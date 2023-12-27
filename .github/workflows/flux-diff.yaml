@@ -29,9 +29,9 @@ jobs:
           path: "${{ matrix.path }}"
           resource: "${{ matrix.resource }}"
 
-      - if: ${{ steps.diff.outputs.diff != '' }}
-        name: Add comment
+      - name: Add comment
         uses: mshick/add-pr-comment@v2
+        if: ${{ steps.diff.outputs.diff != '' }}
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           message-id: "${{ github.event.pull_request.number }}/${{ matrix.path }}/${{ matrix.resource }}"
