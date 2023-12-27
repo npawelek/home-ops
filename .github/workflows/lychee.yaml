@@ -8,6 +8,7 @@ on:
 
 env:
   WORKFLOW_ISSUE_NUMBER: 1061
+  ISSUE_LABEL: lint/lychee
 
 jobs:
   lychee:
@@ -22,6 +23,7 @@ jobs:
         with:
           args: --verbose --no-progress --exclude-mail './**/*.md'
           output: /tmp/results.md
+          labels: "${{ env.ISSUE_LABEL }}"
 
       - name: Update Issue
         uses: peter-evans/create-issue-from-file@433e51abf769039ee20ba1293a088ca19d573b7f # v4
@@ -29,3 +31,4 @@ jobs:
           title: Link Checker Dashboard 🔗
           issue-number: "${{ env.WORKFLOW_ISSUE_NUMBER }}"
           content-filepath: /tmp/results.md
+          labels: "${{ env.ISSUE_LABEL }}"

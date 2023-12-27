@@ -39,3 +39,5 @@
 # Uncategorized
 - name: hold/upstream
   color: "ee0701"
+- name: lint/lychee
+  color: "201e39"
