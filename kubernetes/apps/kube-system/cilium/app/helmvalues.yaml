@@ -49,7 +49,7 @@ data:
           className: internal
           annotations:
             nginx.ingress.kubernetes.io/whitelist-source-range: |
-              10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+                10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
             # This should be the in-cluster DNS name for the authentik outpost service
             # as when the external URL is specified here, nginx will overwrite some crucial headers
             nginx.ingress.kubernetes.io/auth-url: |-
