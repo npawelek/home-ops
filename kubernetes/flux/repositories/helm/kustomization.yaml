@@ -19,6 +19,7 @@ resources:
   - ./longhorn.yaml
   - ./metrics-server.yaml
   - ./mittwald.yaml
+  - ./netfetch.yaml
   - ./node-feature-discovery.yaml
   - ./piraeus.yaml
   - ./prometheus-community.yaml
