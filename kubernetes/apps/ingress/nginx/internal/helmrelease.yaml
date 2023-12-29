@@ -69,7 +69,7 @@ spec:
         client-body-timeout: 120
         client-header-timeout: 120
         custom-http-errors: 400,401,403,404,500,502,503,504
-        enable-brotli: "true"
+        enable-brotli: "false"
         enable-real-ip: "true"
         enable-ocsp: "true"
         force-ssl-redirect: "true"
