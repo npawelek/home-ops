@@ -27,7 +27,7 @@ spec:
     replicaCount: 1
     image:
       repository: deggja/netfetch
-      tag: latest@sha256:a1edad40bc67ffd7813e64efd0945a18f59dc06756e0f5844a717ce97537c38c
+      tag: latest@sha256:a2d4a02fa184de98ad994bb99ba642f1b1ccc6d6d6d49a821db75a746a40038d
     serviceAccount:
       create: true
     rbac:
