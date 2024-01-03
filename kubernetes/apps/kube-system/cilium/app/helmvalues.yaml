@@ -18,6 +18,11 @@ data:
       socketPath: /var/run/k3s/containerd/containerd.sock
     endpointRoutes:
       enabled: true
+    devices:
+      - eth0
+      - eno1
+    hostFirewall:
+      enabled: true
     hubble:
       enabled: true
       metrics:
