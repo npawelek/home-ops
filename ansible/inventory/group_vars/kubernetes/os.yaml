@@ -27,6 +27,7 @@ packages:
     - neofetch
     - net-tools
     - nfs-common
+    - ntp
     - nvme-cli
     - open-iscsi
     - parted
