@@ -18,6 +18,10 @@ data:
       socketPath: /var/run/k3s/containerd/containerd.sock
     endpointRoutes:
       enabled: true
+    encryption:
+      enabled: true
+      type: wireguard
+      nodeEncryption: true
     devices:
       - eth0
     hostFirewall:
