@@ -91,6 +91,8 @@ data:
         enabled: true
         annotations:
           grafana_folder: Cilium
+    policyAuditMode: true
+    policyEnforcementMode: always
     prometheus:
       enabled: true
       serviceMonitor:
