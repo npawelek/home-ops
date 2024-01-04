@@ -1,0 +1,36 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-host-cilium
+spec:
+  description: "Allow cilium ports on hosts"
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  ingress:
+    - fromEntities:
+        - health
+      toPorts:
+        - ports:
+            - port: "4240" # cilium healthcheck
+              protocol: TCP
+    - fromEntities:
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "4244" # hubble-peer
+              protocol: TCP
+  egress:
+    - toEntities:
+        - health
+      toPorts:
+        - ports:
+            - port: "4240" # cilium healthcheck
+              protocol: TCP
+    - toEntities:
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "4244" # hubble-peer
+              protocol: TCP

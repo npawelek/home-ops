@@ -1,0 +1,46 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-host-telemetry
+spec:
+  description: "Allow telemetry on hosts"
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  ingress:
+    - fromEntities:
+        - remote-node
+        - host
+      toPorts:
+        - ports:
+            - port: "2381" # etcd metrics
+              protocol: TCP
+            - port: "9100" # node exporter
+              protocol: TCP
+            - port: "9962" # cilium metrics
+              protocol: TCP
+            - port: "9965" # hubble metrics
+              protocol: TCP
+            - port: "10257" # kube-controller-manager metrics
+              protocol: TCP
+            - port: "10259" # kube-scheduler metrics
+              protocol: TCP
+  egress:
+    - toEntities:
+        - remote-node
+        - host
+      toPorts:
+        - ports:
+            - port: "2381" # etcd metrics
+              protocol: TCP
+            - port: "9100" # node exporter
+              protocol: TCP
+            - port: "9962" # cilium metrics
+              protocol: TCP
+            - port: "9965" # hubble metrics
+              protocol: TCP
+            - port: "10257" # kube-controller-manager metrics
+              protocol: TCP
+            - port: "10259" # kube-scheduler metrics
+              protocol: TCP

@@ -1,0 +1,59 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-host-k3s
+spec:
+  description: "Allow k3s ports on hosts"
+  nodeSelector:
+    matchLabels:
+      node-role.kubernetes.io/control-plane: "true"
+  ingress:
+    # from VIP to apiserver
+    - fromCIDR:
+        - 192.168.0.51/32
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+    # kubelet
+    - fromEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP
+    # etcd
+    - fromEntities:
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "2379"
+              protocol: TCP
+            - port: "2380"
+              protocol: TCP
+  egress:
+    # to VIP
+    - toCIDR:
+        - 192.168.0.51/32
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+    # kubelet
+    - toEntities:
+        - remote-node
+        - host
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP
+    # etcd
+    - toEntities:
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "2379"
+              protocol: TCP
+            - port: "2380"
+              protocol: TCP

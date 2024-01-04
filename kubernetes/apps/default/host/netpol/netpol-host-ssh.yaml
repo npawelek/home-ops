@@ -1,0 +1,21 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-host-ssh
+spec:
+  description: "Allow SSH on hosts"
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  ingress:
+    - fromCIDR:
+        - 192.168.0.0/24
+        - 192.168.30.99/32
+        - 192.168.30.100/32
+        - 192.168.30.101/32
+        - 192.168.30.102/32
+      toPorts:
+        - ports:
+            - port: "22"
+              protocol: TCP

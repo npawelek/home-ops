@@ -1,0 +1,172 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-nginx-internal
+  namespace: ingress
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: nginx-internal
+  ingress:
+    - fromCIDRSet:
+        - cidr: 192.168.0.0/24
+        - cidr: 192.168.30.50/32
+        - cidr: 192.168.30.51/32
+        - cidr: 192.168.30.99/32
+        - cidr: 192.168.30.100/32
+        - cidr: 192.168.30.101/32
+        - cidr: 192.168.30.102/32
+        - cidr: 192.168.30.201/32
+        - cidr: 192.168.30.202/32
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
+    - fromCIDRSet:
+        - cidr: 192.168.10.0/24
+        - cidr: 192.168.20.0/24
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+    - fromCIDRSet:
+        - cidr: 192.168.20.49/32
+        - cidr: 192.168.20.50/32
+        - cidr: 192.168.20.51/32
+        - cidr: 192.168.20.52/32
+        - cidr: 192.168.20.53/32
+        - cidr: 192.168.20.54/32
+        - cidr: 192.168.20.193/32
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    - fromCIDRSet:
+        - cidr: 192.168.90.0/24
+        - cidr: 192.168.40.101/32
+        - cidr: 192.168.40.102/32
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: prometheus
+            io.kubernetes.pod.namespace: monitoring
+      toPorts:
+        - ports:
+            - port: "10254"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: home-assistant
+            io.kubernetes.pod.namespace: home-automation
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: nginx-internal
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: adguard
+            app.kubernetes.io/name: adguard-home
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    - toCIDRSet:
+        - cidr: 192.168.0.10/32
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: auth
+            app.kubernetes.io/name: authentik
+      toPorts:
+        - ports:
+            - port: "9000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: flux-system
+            app.kubernetes.io/name: weave-gitops
+      toPorts:
+        - ports:
+            - port: "9001"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: hajimari
+            app.kubernetes.io/name: hajimari
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: longhorn-system
+            app.kubernetes.io/name: longhorn
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: kubernetes-dashboard
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app.kubernetes.io/name: grafana
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: monitoring
+            app: kube-prometheus-stack-prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            app.kubernetes.io/name: hubble-ui
+      toPorts:
+        - ports:
+            - port: "8081"
+              protocol: TCP
