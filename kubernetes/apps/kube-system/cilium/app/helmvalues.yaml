@@ -19,9 +19,7 @@ data:
     endpointRoutes:
       enabled: true
     encryption:
-      enabled: true
-      type: wireguard
-      nodeEncryption: true
+      enabled: false
     devices:
       - eth0
     hostFirewall:
