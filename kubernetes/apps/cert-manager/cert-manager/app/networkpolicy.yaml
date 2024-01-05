@@ -21,6 +21,13 @@ spec:
         - ports:
             - port: "9402"
               protocol: TCP
+    - fromEntities:
+        - remote-node
+        - host
+      toPorts:
+        - ports:
+            - port: "10250"
+              protocol: TCP
   egress:
     - toEndpoints:
         - matchLabels:
