@@ -17,9 +17,12 @@ spec:
               protocol: TCP
     - fromEntities:
         - remote-node
+        - host
       toPorts:
         - ports:
             - port: "4244" # hubble-peer
+              protocol: TCP
+            - port: "4245" # hubble-relay
               protocol: TCP
   egress:
     - toEntities:
@@ -30,7 +33,10 @@ spec:
               protocol: TCP
     - toEntities:
         - remote-node
+        - host
       toPorts:
         - ports:
             - port: "4244" # hubble-peer
+              protocol: TCP
+            - port: "4245" # hubble-relay
               protocol: TCP
