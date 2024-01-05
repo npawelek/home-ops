@@ -1,0 +1,40 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-authentik-postgresql
+  namespace: auth
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgresql
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: authentik
+            io.kubernetes.pod.namespace: auth
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: adguard
+            app.kubernetes.io/name: adguard-home
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP

@@ -4,3 +4,6 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./secret.sops.yaml
+  - ./netpol-authentik-postgresql.yaml
+  - ./netpol-authentik-redis.yaml
+  - ./netpol-authentik.yaml
