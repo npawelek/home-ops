@@ -1,0 +1,15 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-flux-scraping
+  namespace: flux-system
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP

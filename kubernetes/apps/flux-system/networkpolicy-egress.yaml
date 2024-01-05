@@ -1,0 +1,14 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-flux-egress
+  namespace: flux-system
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - {}
+  egress:
+    - toEntities:
+        - all
