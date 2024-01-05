@@ -5,6 +5,7 @@ resources:
   - ./networkpolicy-admission-webhook.yaml
   - ./networkpolicy-backing-image-data-source.yaml
   - ./networkpolicy-backing-image-manager.yaml
+  - ./networkpolicy-backupstore.yaml
   - ./networkpolicy-conversion-webhook.yaml
   - ./networkpolicy-instance-manager.yaml
   - ./networkpolicy-manager.yaml
