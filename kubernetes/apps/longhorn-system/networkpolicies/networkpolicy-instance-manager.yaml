@@ -1,0 +1,23 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-longhorn-instance-manager
+  namespace: longhorn-system
+spec:
+  endpointSelector:
+    matchLabels:
+      longhorn.io/component: instance-manager
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app: longhorn-manager
+    - fromEndpoints:
+        - matchLabels:
+            longhorn.io/component: instance-manager
+    - fromEndpoints:
+        - matchLabels:
+            longhorn.io/component: backing-image-manager
+    - fromEndpoints:
+        - matchLabels:
+            longhorn.io/component: backing-image-data-source

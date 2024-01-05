@@ -1,0 +1,33 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-longhorn-manager
+  namespace: longhorn-system
+spec:
+  endpointSelector:
+    matchLabels:
+      app: longhorn-manager
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app: longhorn-manager
+    - fromEndpoints:
+        - matchLabels:
+            app: longhorn-ui
+    - fromEndpoints:
+        - matchLabels:
+            app: longhorn-csi-plugin
+    - fromEndpoints:
+        - matchLabels:
+            longhorn.io/managed-by: longhorn-manager
+          matchExpressions:
+            - key: recurring-job.longhorn.io
+              operator: Exists
+    - fromEndpoints:
+        - matchExpressions:
+            - key: longhorn.io/job-task
+              operator: Exists
+    - fromEndpoints:
+        - matchLabels:
+            app: longhorn-driver-deployer
