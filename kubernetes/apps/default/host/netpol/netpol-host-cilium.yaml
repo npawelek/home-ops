@@ -7,7 +7,7 @@ spec:
   description: "Allow cilium ports on hosts"
   nodeSelector:
     matchLabels:
-      kubernetes.io/os: linux
+      ccnp: "true"
   ingress:
     - fromEntities:
         - health

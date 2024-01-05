@@ -5,6 +5,7 @@ resources:
   - ./netpol-host-cilium.yaml
   - ./netpol-host-cluster-access.yaml
   - ./netpol-host-icmp.yaml
+  - ./netpol-host-internet.yaml
   - ./netpol-host-k3s.yaml
   - ./netpol-host-ssh.yaml
   - ./netpol-host-telemetry.yaml
