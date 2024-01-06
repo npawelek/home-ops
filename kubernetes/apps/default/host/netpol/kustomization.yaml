@@ -7,5 +7,6 @@ resources:
   - ./netpol-host-icmp.yaml
   - ./netpol-host-internet.yaml
   - ./netpol-host-k3s.yaml
+  - ./netpol-host-nfs.yaml
   - ./netpol-host-ssh.yaml
   - ./netpol-host-telemetry.yaml

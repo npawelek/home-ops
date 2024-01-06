@@ -1,0 +1,35 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-host-nfs
+spec:
+  description: "Allow nfs egress from hosts"
+  nodeSelector:
+    matchLabels:
+      ccnp: "true"
+  egress:
+    - toCIDR:
+        - 192.168.0.151/32
+      toPorts:
+        - ports:
+            - port: "111"
+              protocol: TCP
+            - port: "111"
+              protocol: UDP
+            - port: "892"
+              protocol: TCP
+            - port: "892"
+              protocol: UDP
+            - port: "662"
+              protocol: TCP
+            - port: "662"
+              protocol: UDP
+            - port: "2049"
+              protocol: TCP
+            - port: "2049"
+              protocol: UDP
+            - port: "4045"
+              protocol: TCP
+            - port: "4045"
+              protocol: UDP
