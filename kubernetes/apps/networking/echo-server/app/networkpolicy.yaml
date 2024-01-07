@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-echo-server
+  namespace: networking
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: echo-server
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: nginx-external
+            io.kubernetes.pod.namespace: ingress
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
