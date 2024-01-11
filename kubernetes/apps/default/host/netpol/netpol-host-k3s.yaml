@@ -40,6 +40,13 @@ spec:
         - ports:
             - port: "6443"
               protocol: TCP
+    # to kube-apiserver
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
     # kubelet
     - toEntities:
         - remote-node
