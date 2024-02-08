@@ -58,9 +58,6 @@ spec:
       # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap
       config:
         block-user-agents: "GPTBot,~*GPTBot*,ChatGPT-User,~*ChatGPT-User*,Google-Extended,~*Google-Extended*,CCBot,~*CCBot*,Omgilibot,~*Omgilibot*,FacebookBot,~*FacebookBot*" # taken from https://github.com/superseriousbusiness/gotosocial/blob/main/internal/web/robots.go
-        client-body-buffer-size: 100M
-        client-body-timeout: 120
-        client-header-timeout: 120
         custom-http-errors: 400,401,403,404,500,502,503,504
         enable-brotli: "true"
         enable-real-ip: "true"
@@ -85,6 +82,10 @@ spec:
           "http_user_agent": "$http_user_agent"}
         proxy-body-size: 0
         proxy-buffer-size: 16k
+        large-client-header-buffers: "4 8k"
+        client-body-buffer-size: 100M
+        client-body-timeout: 120
+        client-header-timeout: 120
         ssl-protocols: TLSv1.3 TLSv1.2
       metrics:
         enabled: true

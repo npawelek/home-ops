@@ -54,6 +54,13 @@ spec:
         nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
         nginx.org/websocket-services: authentik
         nginx.ingress.kubernetes.io/enable-global-auth: "false"
+        # nginx.ingress.kubernetes.io/client-body-buffer-size: "32k"
+        # nginx.ingress.kubernetes.io/client-header-buffer-size: "32k"
+        # nginx.ingress.kubernetes.io/large-client-header-buffers: "4 32k"
+        # nginx.ingress.kubernetes.io/proxy-buffer-size: "32k"
+        # nginx.ingress.kubernetes.io/server-snippet: |
+        #   client_header_buffer_size 32k;
+        #   large_client_header_buffers 4 32k;
         hajimari.io/icon: mdi:account-lock
         hajimari.io/enable: "true"
       hosts:

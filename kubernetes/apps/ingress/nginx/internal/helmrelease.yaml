@@ -65,9 +65,6 @@ spec:
           proxy_set_header X-Forwarded-Host $http_host;
         whitelist-source-range: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
         block-user-agents: "GPTBot,~*GPTBot*,ChatGPT-User,~*ChatGPT-User*,Google-Extended,~*Google-Extended*,CCBot,~*CCBot*,Omgilibot,~*Omgilibot*,FacebookBot,~*FacebookBot*" # taken from https://github.com/superseriousbusiness/gotosocial/blob/main/internal/web/robots.go
-        client-body-buffer-size: 100M
-        client-body-timeout: 120
-        client-header-timeout: 120
         custom-http-errors: 400,401,403,404,500,502,503,504
         enable-brotli: "false"
         enable-real-ip: "true"
@@ -92,6 +89,10 @@ spec:
           "http_user_agent": "$http_user_agent"}
         proxy-body-size: 0
         proxy-buffer-size: 16k
+        large-client-header-buffers: "4 8k"
+        client-body-buffer-size: 100M
+        client-body-timeout: 120
+        client-header-timeout: 120
         ssl-protocols: TLSv1.3 TLSv1.2
       metrics:
         enabled: true
