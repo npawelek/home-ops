@@ -34,7 +34,7 @@ spec:
         ttlSecondsAfterFinished: 7200
     image:
       repository: public.ecr.aws/hashicorp/terraform
-      tag: 1.8.3@sha256:56234a3337d81a28595a4b08abc14db9da91a5ac1596817cbec0d681f2fc5374
+      tag: 1.9.0@sha256:03a02bdccc125ccb519f360710be1aaf1264181329b4b0484822fcc23329302a
     command:
       - /bin/sh
       - /app/aws-ddns.sh
