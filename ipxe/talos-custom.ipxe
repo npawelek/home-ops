@@ -1,0 +1,119 @@
+#!ipxe
+# Talos Linux - Custom Factory Builds
+# https://factory.talos.dev
+
+:start
+:talos_custom
+set os Talos Custom
+set os_arch ${arch}
+iseq ${os_arch} x86_64 && set os_arch amd64 ||
+iseq ${os_arch} aarch64 && set os_arch arm64 ||
+
+isset ${talos_platform} || set talos_platform metal
+
+# Force local boot domain for Talos assets
+set talos_base http://192.168.0.9/
+
+menu ${os} - Select Version
+item --gap Talos Versions:
+item v1_11_5 ${space} v1.11.5 (Latest)
+item --gap Options:
+item talos_version_custom ${space} Custom version
+item back ${space} Back to main menu
+choose --default v1_11_5 --timeout 10000 target && goto ${target}
+
+:v1_11_5
+set talos_version v1.11.5
+goto build_menu
+
+:talos_version_custom
+echo -n Enter Talos version (e.g., v1.11.5): && read talos_version
+goto build_menu
+
+:build_menu
+menu ${os} - Factory Builds (${talos_version})
+item --gap Select Build Type:
+item intel_igpu ${space} Intel iGPU (i915, intel-ucode, nvme-cli)
+item intel_igpu_arc ${space} Intel iGPU + Arc (i915, intel-ucode, mei, nvme-cli)
+item amd_igpu ${space} AMD iGPU (amdgpu, amd-ucode, nvme-cli)
+item rpi_arm64 ${space} Raspberry Pi (ARM64)
+item --gap Parameters:
+item talos_config_url ${space} Set userdata.yaml URL: ${talos_config_url}
+item --gap Options:
+item back_version ${space} Back to version selection
+item back ${space} Back to main menu
+choose --default back_version --timeout 10000 target && goto ${target}
+
+:back_version
+clear talos_version
+goto talos_custom
+
+:intel_igpu
+set kernel_file intel-igpu-kernel-amd64
+set initramfs_file intel-igpu-initramfs-amd64.xz
+set os_name Talos Intel iGPU
+set extensions siderolabs/i915, siderolabs/intel-ucode, siderolabs/nvme-cli, siderolabs/util-linux-tools
+goto talos_boot
+
+:intel_igpu_arc
+set kernel_file intel-arc-kernel-amd64
+set initramfs_file intel-arc-initramfs-amd64.xz
+set os_name Talos Intel iGPU+Arc
+set extensions siderolabs/i915, siderolabs/intel-ucode, siderolabs/mei, siderolabs/nvme-cli, siderolabs/util-linux-tools
+goto talos_boot
+
+:amd_igpu
+set kernel_file amd-igpu-kernel-amd64
+set initramfs_file amd-igpu-initramfs-amd64.xz
+set os_name Talos AMD iGPU
+set extensions siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/nvme-cli, siderolabs/util-linux-tools
+goto talos_boot
+
+:rpi_arm64
+set kernel_file rpi-kernel-arm64
+set initramfs_file rpi-initramfs-arm64.xz
+set os_name Talos Raspberry Pi
+set extensions siderolabs/util-linux-tools
+set os_arch arm64
+goto talos_boot
+
+:talos_config_url
+echo -n Set userdata.yaml URL: && read talos_config_url
+clear menu
+goto talos_custom
+
+:talos_version_set
+echo -n Set Talos version (e.g., v1.11.5): && read talos_version
+clear menu
+goto talos_custom
+
+:talos_boot
+isset ${talos_config_url} && set talos_config talos.config=${talos_config_url} ||
+
+echo ${cls}
+echo ========================================
+echo ${os_name} ${talos_version}
+echo ========================================
+echo Extensions: ${extensions}
+echo Platform: ${talos_platform}
+echo Architecture: ${os_arch}
+isset ${talos_config_url} && echo Config: ${talos_config_url} ||
+echo ========================================
+echo
+
+set boot_params printk.devkmsg=on slab_nomerge pti=on console=ttyS0 console=tty0 init_on_alloc=1 init_on_free=1 consoleblank=0 nvme_core.io_timeout=4294967295 ima_template=ima-ng ima_appraise=fix ima_hash=sha512 ipv6.disable=1 net.ifnames=0 talos.platform=${talos_platform} ${talos_config} initrd=initramfs.magic ${cmdline}
+
+imgfree
+kernel ${talos_base}talos/${talos_version}/${kernel_file} ${boot_params}
+initrd ${talos_base}talos/${talos_version}/${initramfs_file}
+
+echo Booting with the following kernel args:
+echo ${boot_params}
+echo
+echo MD5sums:
+md5sum ${kernel_file} ${initramfs_file}
+boot
+
+:back
+clear menu
+exit 0

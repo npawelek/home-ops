@@ -28,17 +28,68 @@ Does this sound cool to you? If so, continue to read on! 👇
 
 ## 🚀 Let's Go!
 
-There are **5 stages** outlined below for completing this project, make sure you follow the stages in order.
+There is **1 prerequisite** and **5 stages** outlined below for completing this project.
+
+### Prerequisites - Network (PXE) Boot
+
+UniFi remains broken because it **doesn't support proper PXE configuration via the UI**. In order to use UniFi as the primary DHCP, and enable network boot, you must configure it exclusively from the UI. Below is a reference configuration for booting across differing types of clients:
+
+```sh
+ssh udmp
+
+cat << EOF > /run/dnsmasq.dhcp.conf.d/pxe.conf
+# dnsmasq configuration for netboot.xyz
+# PXE Server: 192.168.0.9
+#
+dhcp-boot=netboot.xyz.kpxe,,192.168.0.9
+
+dhcp-vendorclass=BIOS,PXEClient:Arch:00000
+dhcp-vendorclass=UEFI32,PXEClient:Arch:00006
+dhcp-vendorclass=UEFI,PXEClient:Arch:00007
+dhcp-vendorclass=UEFI64,PXEClient:Arch:00009
+
+dhcp-boot=net:UEFI32,netboot.xyz.efi,,192.168.0.9
+dhcp-boot=net:BIOS,netboot.xyz.kpxe,,192.168.0.9
+dhcp-boot=net:UEFI64,netboot.xyz.efi,,192.168.0.9
+dhcp-boot=net:UEFI,netboot.xyz.efi,,192.168.0.9
+EOF
+
+# Bounce dnsmasq
+kill $(cat /run/dnsmasq-main.pid)
+```
+
+> [!TODO]
+> Still need to determine persistence on UniFi as this will reset upon reboot or UI changes.
+
+#### Custom Talos PXE Boot
+
+This repo includes custom iPXE configurations for netboot.xyz with hardware-specific Talos builds:
+
+1. **Generate schematics and download assets**:
+   ```bash
+   pip install requests pyyaml
+   python3 ipxe/generate-schematics.py
+   ```
+   This creates schematic IDs and outputs a command to download all assets.
+
+2. **Deploy to netboot.xyz**: Copy the generated command output and run it on your netboot.xyz server to download kernel/initramfs files.
+
+3. **Add to menu**: Copy `ipxe/talos-custom.ipxe` to your netboot.xyz menus and add a menu entry pointing to it.
+
+See [ipxe/README.md](./ipxe/README.md) for detailed setup instructions.
 
 ### Stage 1: Machine Preparation
 
-> [!IMPORTANT]
-> If you have **3 or more nodes** it is recommended to make 3 of them controller nodes for a highly available control plane. This project configures **all nodes** to be able to run workloads. **Worker nodes** are therefore **optional**.
->
-> **Minimum system requirements**
-> | Role    | Cores    | Memory        | System Disk               |
-> |---------|----------|---------------|---------------------------|
-> | Control/Worker | 4 | 16GB | 256GB SSD/NVMe |
+| Name      | Role   | OS    | Cores | Memory | System Disk | Data Disk | Architecture | Vendor |
+|-----------|--------|-------|-------|--------|-------------|-----------|--------------|--------|
+| talos-m1  | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A       | amd64        | Intel  |
+| talos-m2  | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A       | amd64        | Intel  |
+| talos-m3  | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A       | amd64        | Intel  |
+| rocinante | Worker | Talos | 8     | 64GB   | 120GB SSD   | 1TB NVMe  | amd64        | AMD    |
+| donnager  | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe  | amd64        | Intel  |
+| hammurabi | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe  | amd64        | Intel  |
+| pella     | Worker | Talos | 20    | 128GB  | 240GB SSD   | 2TB NVMe  | amd64        | Intel  |
+
 
 1. Head over to the [Talos Linux Image Factory](https://factory.talos.dev) and follow the instructions. Be sure to only choose the **bare-minimum system extensions** as some might require additional configuration and prevent Talos from booting without it. You can always add system extensions after Talos is installed and working.
 
