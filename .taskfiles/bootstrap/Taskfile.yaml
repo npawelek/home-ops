@@ -6,6 +6,7 @@ tasks:
   talos:
     desc: Bootstrap the Talos cluster
     dir: '{{.TALOS_DIR}}'
+    shell: bash
     cmds:
       - '[ -f talsecret.sops.yaml ] || talhelper gensecret | sops --filename-override talos/talsecret.sops.yaml --encrypt /dev/stdin > talsecret.sops.yaml'
       - talhelper genconfig
@@ -20,6 +21,7 @@ tasks:
 
   apps:
     desc: Bootstrap apps into the Talos cluster
+    shell: bash
     cmd: bash {{.SCRIPTS_DIR}}/bootstrap-apps.sh
     preconditions:
       - msg: Unsupported bash version, run `brew install bash` to upgrade
