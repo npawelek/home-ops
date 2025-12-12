@@ -65,8 +65,6 @@ tasks:
         sh: test -f {{.TEMPLATE_CONFIG_FILE}}
       - msg: File nodes.yaml not found, did you run `task init`?
         sh: test -f {{.TEMPLATE_NODE_CONFIG_FILE}}
-      - msg: File cloudflare-tunnel.json not found, see the README for information on creating it.
-        sh: test -f {{.ROOT_DIR}}/cloudflare-tunnel.json
 
   validate-schemas:
     internal: true

@@ -12,10 +12,10 @@ With this approach, you'll gain a solid foundation to build and manage your Kube
 
 ## ✨ Features
 
-A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/talos) and an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider, [sops](https://github.com/getsops/sops) to manage secrets and [cloudflared](https://github.com/cloudflare/cloudflared) to access applications external to your local network.
+A Kubernetes cluster deployed with [Talos Linux](https://github.com/siderolabs/talos) and an opinionated implementation of [Flux](https://github.com/fluxcd/flux2) using [GitHub](https://github.com/) as the Git provider, [sops](https://github.com/getsops/sops) to manage secrets.
 
-- **Required:** Some knowledge of [Containers](https://opencontainers.org/), [YAML](https://noyaml.com/), [Git](https://git-scm.com/), and a **Cloudflare account** with a **domain**.
-- **Included components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [envoy-gateway](https://github.com/envoyproxy/gateway), [external-dns](https://github.com/kubernetes-sigs/external-dns) and [cloudflared](https://github.com/cloudflare/cloudflared).
+- **Required:** Some knowledge of [Containers](https://opencontainers.org/), [YAML](https://noyaml.com/), and [Git](https://git-scm.com/).
+- **Included components:** [flux](https://github.com/fluxcd/flux2), [cilium](https://github.com/cilium/cilium), [cert-manager](https://github.com/cert-manager/cert-manager), [spegel](https://github.com/spegel-org/spegel), [reloader](https://github.com/stakater/Reloader), [envoy-gateway](https://github.com/envoyproxy/gateway), and [external-dns](https://github.com/kubernetes-sigs/external-dns).
 
 **Other features include:**
 
@@ -80,46 +80,29 @@ See [ipxe/README.md](./ipxe/README.md) for detailed setup instructions.
 
 ### Stage 1: Machine Preparation
 
-| Name      | Role   | OS    | Cores | Memory | System Disk | Data Disk | Architecture | Vendor |
-|-----------|--------|-------|-------|--------|-------------|-----------|--------------|--------|
-| talos-m1  | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A       | amd64        | Intel  |
-| talos-m2  | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A       | amd64        | Intel  |
-| talos-m3  | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A       | amd64        | Intel  |
-| rocinante | Worker | Talos | 8     | 64GB   | 120GB SSD   | 1TB NVMe  | amd64        | AMD    |
-| donnager  | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe  | amd64        | Intel  |
-| hammurabi | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe  | amd64        | Intel  |
-| pella     | Worker | Talos | 20    | 128GB  | 240GB SSD   | 2TB NVMe  | amd64        | Intel  |
+| Name      | Role   | OS    | Cores | Memory | System Disk | Data Disk  | Architecture | Vendor |
+|-----------|--------|-------|-------|--------|-------------|------------|--------------|--------|
+| m1        | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A        | amd64        | Intel  |
+| m2        | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A        | amd64        | Intel  |
+| m3        | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A        | amd64        | Intel  |
+| karakum   | Worker | Talos | 4     | 32GB   | 120GB SSD   | 500GB NVMe | amd64        | Intel  |
+| rocinante | Worker | Talos | 8     | 64GB   | 120GB SSD   | 1TB NVMe   | amd64        | AMD    |
+| donnager  | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe   | amd64        | Intel  |
+| hammurabi | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe   | amd64        | Intel  |
+| pella     | Worker | Talos | 20    | 128GB  | 240GB SSD   | 2TB NVMe   | amd64        | Intel  |
 
 
-1. Head over to the [Talos Linux Image Factory](https://factory.talos.dev) and follow the instructions. Be sure to only choose the **bare-minimum system extensions** as some might require additional configuration and prevent Talos from booting without it. You can always add system extensions after Talos is installed and working.
+1. PXE boot custom Talos for all nodes.
 
-2. This will eventually lead you to download a Talos Linux ISO (or for SBCs a RAW) image. Make sure to note the **schematic ID** you will need this later on.
-
-3. Flash the Talos ISO or RAW image to a USB drive and boot from it on your nodes.
-
-4. Verify with `nmap` that your nodes are available on the network. (Replace `192.168.1.0/24` with the network your nodes are on.)
-
-    ```sh
-    nmap -Pn -n -p 50000 192.168.1.0/24 -vv | grep 'Discovered'
-    ```
+2. Verify that all nodes are available on the network.
 
 ### Stage 2: Local Workstation
 
-> [!TIP]
-> It is recommended to set the visibility of your repository to `Public` so you can easily request help if you get stuck.
+1. **Install** the [Mise CLI](https://mise.jdx.dev/getting-started.html#installing-mise-cli) on your workstation.
 
-1. Create a new repository by clicking the green `Use this template` button at the top of this page, then clone the new repo you just created and `cd` into it. Alternatively you can us the [GitHub CLI](https://cli.github.com/) ...
+2. **Activate** Mise in your shell by following the [activation guide](https://mise.jdx.dev/getting-started.html#activate-mise).
 
-    ```sh
-    export REPONAME="home-ops"
-    gh repo create $REPONAME --template onedr0p/cluster-template --disable-wiki --public --clone && cd $REPONAME
-    ```
-
-2. **Install** the [Mise CLI](https://mise.jdx.dev/getting-started.html#installing-mise-cli) on your workstation.
-
-3. **Activate** Mise in your shell by following the [activation guide](https://mise.jdx.dev/getting-started.html#activate-mise).
-
-4. Use `mise` to install the **required** CLI tools:
+3. Use `mise` to install the **required** CLI tools:
 
     ```sh
     mise trust
@@ -128,37 +111,16 @@ See [ipxe/README.md](./ipxe/README.md) for detailed setup instructions.
     ```
 
    📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
-
    📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
 
-5. Logout of GitHub Container Registry (GHCR) as this may cause authorization problems when using the public registry:
+4. Logout of GitHub Container Registry (GHCR) as this may cause authorization problems when using the public registry:
 
     ```sh
     docker logout ghcr.io
     helm registry logout ghcr.io
     ```
 
-### Stage 3: Cloudflare configuration
-
-> [!WARNING]
-> If any of the commands fail with `command not found` or `unknown command` it means `mise` is either not install or configured incorrectly.
-
-1. Create a Cloudflare API token for use with cloudflared and external-dns by reviewing the official [documentation](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) and following the instructions below.
-
-   - Click the blue `Use template` button for the `Edit zone DNS` template.
-   - Name your token `kubernetes`
-   - Under `Permissions`, click `+ Add More` and add permissions `Zone - DNS - Edit` and `Account - Cloudflare Tunnel - Read`
-   - Limit the permissions to a specific account and/or zone resources and then click `Continue to Summary` and then `Create Token`.
-   - **Save this token somewhere safe**, you will need it later on.
-
-2. Create the Cloudflare Tunnel:
-
-    ```sh
-    cloudflared tunnel login
-    cloudflared tunnel create --credentials-file cloudflare-tunnel.json kubernetes
-    ```
-
-### Stage 4: Cluster configuration
+### Stage 3: Cluster configuration
 
 1. Generate the config files from the sample files:
 
@@ -183,9 +145,6 @@ See [ipxe/README.md](./ipxe/README.md) for detailed setup instructions.
     git commit -m "chore: initial commit :rocket:"
     git push
     ```
-
-> [!TIP]
-> Using a **private repository**? Make sure to paste the public key from `github-deploy.key.pub` into the deploy keys section of your GitHub repository settings. This will make sure Flux has read/write access to your repository.
 
 ### Stage 5: Bootstrap Talos, Kubernetes, and Flux
 
@@ -292,7 +251,7 @@ By default Flux will periodically check your git repository for changes. In-orde
 2. Piece together the full URL with the webhook path appended:
 
     ```text
-    https://flux-webhook.${cloudflare_domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
+    https://flux-webhook.${cluster_domain}/hook/12ebd1e363c641dc3c2e430ecf3cee2b3c7a5ac9e1234506f6f5f3ce1230e123
     ```
 
 3. Navigate to the settings of your repository on Github, under "Settings/Webhooks" press the "Add webhook" button. Fill in the webhook URL and your token from `github-push-token.txt`, Content type: `application/json`, Events: Choose Just the push event, and save.

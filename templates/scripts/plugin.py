@@ -47,48 +47,6 @@ def age_key(key_type: str, file_path: str = 'age.key') -> str:
         raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
 
 
-# Return cloudflare tunnel fields from cloudflare-tunnel.json
-def cloudflare_tunnel_id(file_path: str = 'cloudflare-tunnel.json') -> str:
-    try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-        tunnel_id = data.get("TunnelID")
-        if tunnel_id is None:
-            raise KeyError(f"Missing 'TunnelID' key in {file_path}")
-        return tunnel_id
-
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except json.JSONDecodeError:
-        raise ValueError(f"Could not decode JSON file: {file_path}")
-    except KeyError as e:
-        raise KeyError(f"Error in JSON structure: {e}")
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
-
-
-# Return cloudflare tunnel fields from cloudflare-tunnel.json in TUNNEL_TOKEN format
-def cloudflare_tunnel_secret(file_path: str = 'cloudflare-tunnel.json') -> str:
-    try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-        transformed_data = {
-            "a": data["AccountTag"],
-            "t": data["TunnelID"],
-            "s": data["TunnelSecret"]
-        }
-        json_string = json.dumps(transformed_data, separators=(',', ':'))
-        return base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
-
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except json.JSONDecodeError:
-        raise ValueError(f"Could not decode JSON file: {file_path}")
-    except KeyError as e:
-        raise KeyError(f"Missing key in JSON file {file_path}: {e}")
-    except Exception as e:
-        raise RuntimeError(f"Unexpected error while processing {file_path}: {e}")
-
 
 # Return the GitHub deploy key from github-deploy.key
 def github_deploy_key(file_path: str = 'github-deploy.key') -> str:
@@ -160,8 +118,6 @@ class Plugin(makejinja.plugin.Plugin):
     def functions(self) -> makejinja.plugin.Functions:
         return [
             age_key,
-            cloudflare_tunnel_id,
-            cloudflare_tunnel_secret,
             github_deploy_key,
             github_push_token,
             talos_patches
