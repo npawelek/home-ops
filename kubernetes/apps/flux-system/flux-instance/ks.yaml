@@ -12,7 +12,6 @@ spec:
     substituteFrom:
       - name: cluster-secrets
         kind: Secret
-        namespace: flux-system
   prune: true
   sourceRef:
     kind: GitRepository
