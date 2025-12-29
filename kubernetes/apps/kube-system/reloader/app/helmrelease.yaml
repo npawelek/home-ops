@@ -15,3 +15,8 @@ spec:
       podMonitor:
         enabled: true
         namespace: "{{ .Release.Namespace }}"
+      deployment:
+        tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+            effect: NoSchedule
