@@ -29,6 +29,9 @@ spec:
       - --crd-source-kind=DNSEndpoint
       - --gateway-name=envoy-internal
       - --gateway-namespace=gateway
+      - --aws-zone-type=public
+      - --txt-ttl=60
+      - --ttl=60
     triggerLoopOnEvent: true
     policy: sync
     sources: ["crd", "gateway-httproute"]
