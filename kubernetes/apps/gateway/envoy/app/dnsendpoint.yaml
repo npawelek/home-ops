@@ -1,0 +1,11 @@
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: internal-gateway
+spec:
+  endpoints:
+    - dnsName: internal.${SECRET_DOMAIN}
+      recordType: A
+      targets:
+        - ${CLUSTER_GATEWAY_INTERNAL_ADDR}
