@@ -1,0 +1,33 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-domain
+  namespace: gateway
+spec:
+  secretName: ${SECRET_DOMAIN/./-}-production-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+    - "${SECRET_DOMAIN}"
+    - "*.${SECRET_DOMAIN}"
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: auth-domain
+  namespace: gateway
+spec:
+  secretName: auth-${SECRET_DOMAIN/./-}-production-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+    - "auth.${SECRET_DOMAIN}"
+  privateKey:
+    algorithm: ECDSA
+    size: 256
