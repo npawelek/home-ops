@@ -237,6 +237,11 @@ task talos:apply-node IP=? MODE=?
 > [!TIP]
 > Ensure the `talosVersion` and `kubernetesVersion` in `talenv.yaml` are up-to-date with the version you wish to upgrade to.
 
+Prerequisites:
+1. Validate that compatibility of talos and kubernetes versions
+2. Upgrade the client tools in mise before the upgrade
+3. Validate cilium compatibility with the kubernetes version being upgraded
+
 ```sh
 # Upgrade node to a newer Talos version
 task talos:upgrade-node IP=?
