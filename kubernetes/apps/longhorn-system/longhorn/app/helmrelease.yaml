@@ -69,5 +69,5 @@ spec:
               sectionName: https
           rules:
             - backendRefs:
-                - name: longhorn-ui
+                - name: longhorn-frontend
                   port: 80
