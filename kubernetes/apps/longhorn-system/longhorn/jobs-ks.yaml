@@ -14,4 +14,6 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: longhorn-system
-  wait: false
+  wait: true
+  retryInterval: 1m
+  timeout: 5m
