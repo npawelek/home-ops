@@ -4,6 +4,17 @@ clusterName: kubernetes
 talosVersion: "${talosVersion}"
 kubernetesVersion: "${kubernetesVersion}"
 
+# Talos Image Schematics:
+# control plane/karakum
+  # Intel (i915): cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4
+  #   Extensions: i915, intel-ucode, iscsi-tools, nfs-utils, nvme-cli, util-linux-tools
+# rocinante
+  # AMD: d80218498550d80d3e32ceca0fca55b508fe06b3a6bd6669f20084da89be9b97
+  #   Extensions: amd-ucode, amdgpu, iscsi-tools, nfs-utils, nvme-cli, util-linux-tools
+# donnager/hammurabi/pella
+  # Intel (xe/arc): b94b3b66e35530bde70d4d27edd468ecfaca1a8c22d03e0c029a9cdbfe8f9ede
+  #   Extensions: intel-ucode, iscsi-tools, mei, nfs-utils, nvme-cli, util-linux-tools, xe
+
 endpoint: https://192.168.0.75:6443
 additionalApiServerCertSans: &sans
   - "127.0.0.1"
@@ -23,7 +34,7 @@ nodes:
     installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/1e89203b107b80616fae01886dc6113dcd89a638d27a2cf2cbe8750858002e5d
+    talosImageURL: factory.talos.dev/installer/cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -42,7 +53,7 @@ nodes:
     installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/1e89203b107b80616fae01886dc6113dcd89a638d27a2cf2cbe8750858002e5d
+    talosImageURL: factory.talos.dev/installer/cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -61,7 +72,7 @@ nodes:
     installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/1e89203b107b80616fae01886dc6113dcd89a638d27a2cf2cbe8750858002e5d
+    talosImageURL: factory.talos.dev/installer/cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -80,8 +91,10 @@ nodes:
     installDisk: "/dev/sda"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/1e89203b107b80616fae01886dc6113dcd89a638d27a2cf2cbe8750858002e5d
+    talosImageURL: factory.talos.dev/installer/cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4
     controlPlane: false
+    patches:
+      - "@./patches/nodes/karakum-longhorn-volume.yaml"
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "b8:ae:ed:ec:4c:89"
@@ -106,4 +119,3 @@ controlPlane:
   patches:
     - "@./patches/controller/cluster.yaml"
     - "@./patches/controller/machine-kubelet-taints.yaml"
-
