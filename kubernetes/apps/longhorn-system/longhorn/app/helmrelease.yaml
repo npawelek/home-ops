@@ -40,6 +40,7 @@ spec:
       # TODO: Change to false when additional worker nodes are added
       replicaSoftAntiAffinity: true  # Allow replicas on same node (needed for single node)
       storageMinimalAvailablePercentage: 10
+      storageReservedPercentageForDefaultDisk: 10
 
     # Webhook configuration - adjust replicas as needed
     longhornConversionWebhook:

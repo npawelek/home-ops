@@ -4,4 +4,5 @@ name: longhorn
 provisioning:
   diskSelector:
     match: disk.dev_path == "/dev/sdb"
-  maxSize: 450GB
+  grow: true
+  maxSize: 500GB
