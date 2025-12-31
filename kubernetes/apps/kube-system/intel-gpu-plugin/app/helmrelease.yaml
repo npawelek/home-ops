@@ -1,0 +1,66 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: intel-gpu-plugin
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: intel-gpu-plugin
+  interval: 1h
+  values:
+    controllers:
+      intel-gpu-plugin:
+        type: daemonset
+        strategy: RollingUpdate
+
+        containers:
+          app:
+            image:
+              repository: intel/intel-gpu-plugin
+              tag: 0.34.1
+            args:
+              - -shared-dev-num
+              - "3"
+            env:
+              - name: NODE_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+            securityContext:
+              privileged: true
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 128Mi
+    defaultPodOptions:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: Exists
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+    persistence:
+      devdri:
+        type: hostPath
+        hostPath: /dev/dri
+        globalMounts:
+          - path: /dev/dri
+      sysfs:
+        type: hostPath
+        hostPath: /sys/class/drm
+        globalMounts:
+          - path: /sys/class/drm
+            readOnly: true
+      kubeletsockets:
+        type: hostPath
+        hostPath: /var/lib/kubelet/device-plugins
+        globalMounts:
+          - path: /var/lib/kubelet/device-plugins
