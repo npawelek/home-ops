@@ -55,6 +55,7 @@ spec:
                 - "46d0" # UHD Graphics
                 - "46d1" # UHD Graphics
                 - "46d2" # UHD Graphics
+                - "46d4" # UHD Graphics (N150)
     # Raptor Lake (13th/14th Gen)
     - name: intel.xe.raptorlake
       labels:
