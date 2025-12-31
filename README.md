@@ -254,54 +254,6 @@ task talos:upgrade-k8s
 # e.g. task talos:upgrade-k8s
 ```
 
-## 🤖 Renovate
-
-[Renovate](https://www.mend.io/renovate) is a tool that automates dependency management. It is designed to scan your repository around the clock and open PRs for out-of-date dependencies it finds. Common dependencies it can discover are Helm charts, container images, GitHub Actions and more! In most cases merging a PR will cause Flux to apply the update to your cluster.
-
-To enable Renovate, click the 'Configure' button over at their [Github app page](https://github.com/apps/renovate) and select your repository. Renovate creates a "Dependency Dashboard" as an issue in your repository, giving an overview of the status of all updates. The dashboard has interactive checkboxes that let you do things like advance scheduling or reattempt update PRs you closed without merging.
-
-The base Renovate configuration in your repository can be viewed at [.renovaterc.json5](.renovaterc.json5). By default it is scheduled to be active with PRs every weekend, but you can [change the schedule to anything you want](https://docs.renovatebot.com/presets-schedule), or remove it if you want Renovate to open PRs immediately.
-
-## 🐛 Debugging
-
-Below is a general guide on trying to debug an issue with an resource or application. For example, if a workload/resource is not showing up or a pod has started but in a `CrashLoopBackOff` or `Pending` state. These steps do not include a way to fix the problem as the problem could be one of many different things.
-
-1. Check if the Flux resources are up-to-date and in a ready state:
-
-   📍 _Run `task reconcile` to force Flux to sync your Git repository state_
-
-    ```sh
-    flux get sources git -A
-    flux get ks -A
-    flux get hr -A
-    ```
-
-2. Do you see the pod of the workload you are debugging:
-
-    ```sh
-    kubectl -n <namespace> get pods -o wide
-    ```
-
-3. Check the logs of the pod if its there:
-
-    ```sh
-    kubectl -n <namespace> logs <pod-name> -f
-    ```
-
-4. If a resource exists try to describe it to see what problems it might have:
-
-    ```sh
-    kubectl -n <namespace> describe <resource> <name>
-    ```
-
-5. Check the namespace events:
-
-    ```sh
-    kubectl -n <namespace> get events --sort-by='.metadata.creationTimestamp'
-    ```
-
-Resolving problems that you have could take some tweaking of your YAML manifests in order to get things working, other times it could be a external factor like permissions on a NFS server. If you are unable to figure out your problem see the support sections below.
-
 ## 🧹 Tidy up
 
 Once your cluster is fully configured and you no longer need to run `task configure`, it's a good idea to clean up the repository by removing the [templates](./templates) directory and any files related to the templating process. This will help eliminate unnecessary clutter from the upstream template repository and resolve any "duplicate registry" warnings from Renovate.
