@@ -254,24 +254,6 @@ task talos:upgrade-k8s
 # e.g. task talos:upgrade-k8s
 ```
 
-## 🧹 Tidy up
-
-Once your cluster is fully configured and you no longer need to run `task configure`, it's a good idea to clean up the repository by removing the [templates](./templates) directory and any files related to the templating process. This will help eliminate unnecessary clutter from the upstream template repository and resolve any "duplicate registry" warnings from Renovate.
-
-1. Tidy up your repository:
-
-    ```sh
-    task template:tidy
-    ```
-
-2. Push your changes to git:
-
-    ```sh
-    git add -A
-    git commit -m "chore: tidy up :broom:"
-    git push
-    ```
-
 ## ❔ What's next
 
 There's a lot to absorb here, especially if you're new to these tools. Take some time to familiarize yourself with the tooling and understand how all the components interconnect. Dive into the documentation of the various tools included — they are a valuable resource. This shouldn't be a production environment yet, so embrace the freedom to experiment. Move fast, break things intentionally, and challenge yourself to fix them.
