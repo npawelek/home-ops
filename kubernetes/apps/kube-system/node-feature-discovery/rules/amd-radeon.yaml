@@ -1,0 +1,30 @@
+---
+apiVersion: nfd.k8s-sigs.io/v1alpha1
+kind: NodeFeatureRule
+metadata:
+  name: amd-radeon
+spec:
+  rules:
+    - name: amd.radeon
+      labels:
+        amd.feature.node.kubernetes.io/gpu: "radeon-igpu"
+        amd.feature.node.kubernetes.io/gpu-gen: "amd-4000series"
+      matchFeatures:
+        - feature: pci.device
+          matchExpressions:
+            class:
+              op: In
+              value:
+                - "0300"
+                - "0380"
+            vendor:
+              op: In
+              value:
+                - "1002"
+            device:
+              op: In
+              value:
+                # Renoir (Ryzen 4000 series APU)
+                - "1636" # Radeon Vega (Ryzen 7 4800U)
+                - "1638" # Radeon Vega (Ryzen 5 4600U)
+                - "164c" # Radeon Vega (Ryzen 3 4300U)

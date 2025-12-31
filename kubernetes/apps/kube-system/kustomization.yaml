@@ -11,5 +11,7 @@ resources:
   - ./cilium/ks.yaml
   - ./coredns/ks.yaml
   - ./metrics-server/ks.yaml
+  - ./node-feature-discovery/ks.yaml
+  - ./node-feature-discovery/rules-ks.yaml
   - ./reloader/ks.yaml
   - ./spegel/ks.yaml

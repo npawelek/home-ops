@@ -1,0 +1,97 @@
+---
+apiVersion: nfd.k8s-sigs.io/v1alpha1
+kind: NodeFeatureRule
+metadata:
+  name: intel-xe-igpu
+spec:
+  rules:
+    # Tiger Lake (11th Gen)
+    - name: intel.xe.tigerlake
+      labels:
+        intel.feature.node.kubernetes.io/gpu: "xe-igpu"
+        intel.feature.node.kubernetes.io/gpu-gen: "intel-11gen"
+      matchFeatures:
+        - feature: pci.device
+          matchExpressions:
+            class:
+              op: In
+              value:
+                - "0300"
+                - "0380"
+            vendor:
+              op: In
+              value:
+                - "8086"
+            device:
+              op: In
+              value:
+                - "9a40" # Iris Xe Graphics
+                - "9a49" # Iris Xe Graphics
+                - "9a59" # UHD Graphics
+                - "9a60" # UHD Graphics
+                - "9a68" # UHD Graphics
+                - "9a70" # UHD Graphics
+                - "9a78" # UHD Graphics
+    # Alder Lake-N (N-series)
+    - name: intel.xe.alderlake-n
+      labels:
+        intel.feature.node.kubernetes.io/gpu: "xe-igpu"
+        intel.feature.node.kubernetes.io/gpu-gen: "intel-nseries"
+      matchFeatures:
+        - feature: pci.device
+          matchExpressions:
+            class:
+              op: In
+              value:
+                - "0300"
+                - "0380"
+            vendor:
+              op: In
+              value:
+                - "8086"
+            device:
+              op: In
+              value:
+                - "46d0" # UHD Graphics
+                - "46d1" # UHD Graphics
+                - "46d2" # UHD Graphics
+    # Raptor Lake (13th/14th Gen)
+    - name: intel.xe.raptorlake
+      labels:
+        intel.feature.node.kubernetes.io/gpu: "xe-igpu"
+        intel.feature.node.kubernetes.io/gpu-gen: "intel-14gen"
+      matchFeatures:
+        - feature: pci.device
+          matchExpressions:
+            class:
+              op: In
+              value:
+                - "0300"
+                - "0380"
+            vendor:
+              op: In
+              value:
+                - "8086"
+            device:
+              op: In
+              value:
+                # Raptor Lake-S (Desktop)
+                - "a780" # UHD Graphics 770
+                - "a781" # UHD Graphics
+                - "a782" # UHD Graphics 730
+                - "a783" # UHD Graphics 710
+                - "a788" # UHD Graphics
+                - "a789" # UHD Graphics
+                - "a78a" # UHD Graphics
+                - "a78b" # UHD Graphics
+                # Raptor Lake-P (Mobile)
+                - "a7a0" # Iris Xe Graphics
+                - "a7a1" # Iris Xe Graphics
+                - "a7a8" # UHD Graphics
+                - "a7a9" # UHD Graphics
+                - "a7aa" # Graphics
+                - "a7ab" # Graphics
+                - "a721" # UHD Graphics
+                # Raptor Lake-U (Mobile)
+                - "a7ac" # Graphics
+                - "a7ad" # Graphics

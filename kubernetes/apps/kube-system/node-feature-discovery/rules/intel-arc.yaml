@@ -1,0 +1,76 @@
+---
+apiVersion: nfd.k8s-sigs.io/v1alpha1
+kind: NodeFeatureRule
+metadata:
+  name: intel-arc
+spec:
+  rules:
+    # A-series (Alchemist)
+    - name: intel.arc.alchemist
+      labels:
+        intel.feature.node.kubernetes.io/gpu: "arc"
+        intel.feature.node.kubernetes.io/gpu-gen: "alchemist"
+      matchFeatures:
+        - feature: pci.device
+          matchExpressions:
+            class:
+              op: In
+              value:
+                - "0300"
+                - "0380"
+            vendor:
+              op: In
+              value:
+                - "8086"
+            device:
+              op: In
+              value:
+                # A-series Desktop (Alchemist)
+                - "56a0" # A770
+                - "56a1" # A750
+                - "56a2" # A580
+                - "56a5" # A380
+                - "56a6" # A310
+                # A-series Mobile (Alchemist)
+                - "5690" # A770M
+                - "5691" # A730M
+                - "5692" # A550M
+                - "5693" # A370M
+                - "5694" # A350M
+                - "5696" # A570M
+                - "5697" # A530M
+                # A-series Pro (Alchemist)
+                - "56b0" # Arc Pro A30M
+                - "56b1" # Arc Pro A40/A50
+                - "56b2" # Arc Pro A60M
+                - "56b3" # Arc Pro A60
+                # A-series Embedded (Alchemist)
+                - "56ba" # A380E
+                - "56bb" # A310E
+                - "56bc" # A370E
+                - "56bd" # A350E
+    # B-series (Battlemage)
+    - name: intel.arc.battlemage
+      labels:
+        intel.feature.node.kubernetes.io/gpu: "arc"
+        intel.feature.node.kubernetes.io/gpu-gen: "battlemage"
+      matchFeatures:
+        - feature: pci.device
+          matchExpressions:
+            class:
+              op: In
+              value:
+                - "0300"
+                - "0380"
+            vendor:
+              op: In
+              value:
+                - "8086"
+            device:
+              op: In
+              value:
+                # B-series (Battlemage)
+                - "e20b" # B580
+                - "e20c" # B570
+                - "e211" # B60
+                - "e212" # B50
