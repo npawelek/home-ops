@@ -1,0 +1,69 @@
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-6h
+spec:
+  cron: "15 3,9,15,21 * * *"
+  task: backup
+  groups:
+    - backup-6h
+  name: backup-6h
+  retain: 100
+  concurrency: 4
+  labels: {}
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-12h
+spec:
+  cron: "15 8,20 * * *"
+  task: backup
+  groups:
+    - backup-12h
+  name: backup-12h
+  retain: 56
+  concurrency: 4
+  labels: {}
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-24h
+spec:
+  cron: "15 7 * * *"
+  task: backup
+  groups:
+    - backup-24h
+  name: backup-24h
+  retain: 28
+  concurrency: 4
+  labels: {}
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: trim-filesystem
+spec:
+  cron: "0 3 * * *"
+  task: filesystem-trim
+  groups:
+    - default
+  labels: {}
+  name: trim-filesystem
+  retain: 0
+  concurrency: 1
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: snapshot-cleanup
+spec:
+  cron: "45 9 3,17 * *"
+  task: snapshot-cleanup
+  groups:
+    - default
+  labels: {}
+  name: snapshot-cleanup
+  retain: 0

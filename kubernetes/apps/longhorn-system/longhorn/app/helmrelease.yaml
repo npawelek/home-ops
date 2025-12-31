@@ -1,0 +1,73 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: longhorn
+spec:
+  chart:
+    spec:
+      chart: longhorn
+      version: 1.10.1
+      sourceRef:
+        kind: HelmRepository
+        name: longhorn
+  interval: 1h
+  values:
+    # Use hotfix image for 1.10.1
+    image:
+      longhorn:
+        manager:
+          repository: longhornio/longhorn-manager
+          tag: v1.10.1-hotfix-2
+
+    persistence:
+      defaultClass: true
+      # TODO: Increase to 3 when additional worker nodes are added
+      defaultClassReplicaCount: 1  # Start with 1, increase as nodes are added
+      reclaimPolicy: Retain
+
+    defaultSettings:
+      backupstorePollInterval: 300
+      backupTarget: nfs://${RACKNAS_ADDR}:/volume1/LonghornBackupstore
+      createDefaultDiskLabeledNodes: true
+      defaultDataLocality: best-effort
+      guaranteedInstanceManagerCPU: 6
+      nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+      concurrentAutomaticEngineUpgradePerNodeLimit: 1
+      defaultDataPath: /var/mnt/longhorn
+      # TODO: Increase to 3 when additional worker nodes are added
+      defaultReplicaCount: 1  # Start with 1, increase as nodes are added
+      # TODO: Change to false when additional worker nodes are added
+      replicaSoftAntiAffinity: true  # Allow replicas on same node (needed for single node)
+      storageMinimalAvailablePercentage: 10
+
+    # Webhook configuration - adjust replicas as needed
+    longhornConversionWebhook:
+      replicas: 0
+    longhornAdmissionWebhook:
+      replicas: 0
+    longhornRecoveryBackend:
+      replicas: 0
+
+    # Disable built-in ingress - using Envoy Gateway HTTPRoute instead
+    ingress:
+      enabled: false
+
+    # Deploy HTTPRoute via extraObjects
+    extraObjects:
+      - apiVersion: gateway.networking.k8s.io/v1
+        kind: HTTPRoute
+        metadata:
+          name: longhorn
+          namespace: longhorn-system
+        spec:
+          hostnames:
+            - longhorn.${SECRET_DOMAIN}
+          parentRefs:
+            - name: envoy-internal
+              namespace: gateway
+              sectionName: https
+          rules:
+            - backendRefs:
+                - name: longhorn-ui
+                  port: 80
