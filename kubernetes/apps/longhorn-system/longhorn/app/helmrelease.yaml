@@ -25,22 +25,35 @@ spec:
       # TODO: Increase to 3 when additional worker nodes are added
       defaultClassReplicaCount: 1  # Start with 1, increase as nodes are added
       reclaimPolicy: Retain
+      # TODO: Enable when additional worker nodes are added for zero-downtime node maintenance
+      # migratable: true
 
     defaultSettings:
-      backupstorePollInterval: 300
-      backupTarget: nfs://${RACKNAS_ADDR}:/volume1/LonghornBackupstore
       createDefaultDiskLabeledNodes: true
       defaultDataLocality: best-effort
-      guaranteedInstanceManagerCPU: 6
       nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+      nodeDrainPolicy: block-if-contains-last-replica
       concurrentAutomaticEngineUpgradePerNodeLimit: 1
       defaultDataPath: /var/mnt/longhorn
       # TODO: Increase to 3 when additional worker nodes are added
-      defaultReplicaCount: 1  # Start with 1, increase as nodes are added
+      defaultReplicaCount: '{"v1":"1","v2":"1"}'  # Start with 1, increase as nodes are added
       # TODO: Change to false when additional worker nodes are added
       replicaSoftAntiAffinity: true  # Allow replicas on same node (needed for single node)
+      # TODO: Add replicaAutoBalance: best-effort when additional worker nodes are added
+      restoreVolumeRecurringJobs: true
       storageMinimalAvailablePercentage: 10
       storageReservedPercentageForDefaultDisk: 10
+      snapshotDataIntegrity: fast-check
+      snapshotDataIntegrityImmediateCheckAfterSnapshotCreation: true
+      snapshotDataIntegrityCronjob: "0 1 * * 0"  # 1 AM every Sunday, well before morning backup jobs
+      removeSnapshotsDuringFilesystemTrim: true
+      fastReplicaRebuildEnabled: true
+      allowCollectingLonghornUsageMetrics: false
+
+    # Backup target configuration
+    defaultBackupStore:
+      backupTarget: nfs://${RACKNAS_ADDR}:/volume1/LonghornBackupstore
+      pollInterval: 300
 
     # Webhook configuration - adjust replicas as needed
     longhornConversionWebhook:
