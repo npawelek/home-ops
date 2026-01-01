@@ -16,6 +16,7 @@ spec:
         enabled: true
         namespace: "{{ .Release.Namespace }}"
       deployment:
+        replicas: 2
         tolerations:
           - key: node-role.kubernetes.io/control-plane
             operator: Exists
