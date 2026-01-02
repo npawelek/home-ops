@@ -16,27 +16,27 @@ set talos_base http://192.168.0.9/
 
 menu ${os} - Select Version
 item --gap Talos Versions:
-item v1_11_5 ${space} v1.11.5 (Latest)
+item v1_12_0 ${space} v1.12.0 (Latest)
 item --gap Options:
 item talos_version_custom ${space} Custom version
 item back ${space} Back to main menu
-choose --default v1_11_5 --timeout 10000 target && goto ${target}
+choose --default v1_12_0 --timeout 10000 target && goto ${target}
 
-:v1_11_5
-set talos_version v1.11.5
+:v1_12_0
+set talos_version v1.12.0
 goto build_menu
 
 :talos_version_custom
-echo -n Enter Talos version (e.g., v1.11.5): && read talos_version
+echo -n Enter Talos version (e.g., v1.12.0): && read talos_version
 goto build_menu
 
 :build_menu
 menu ${os} - Factory Builds (${talos_version})
 item --gap Select Build Type:
-item intel_igpu ${space} Intel iGPU (i915, intel-ucode, nvme-cli)
-item intel_igpu_arc ${space} Intel iGPU + Arc (i915, intel-ucode, mei, nvme-cli)
-item amd_igpu ${space} AMD iGPU (amdgpu, amd-ucode, nvme-cli)
-item rpi_arm64 ${space} Raspberry Pi (ARM64)
+item intel_i915 ${space} Intel iGPU (i915, intel-ucode, iscsi, nfs, nvme)
+item intel_xe_arc ${space} Intel Arc (xe, intel-ucode, iscsi, mei, nfs, nvme)
+item amd_igpu ${space} AMD iGPU (amdgpu, amd-ucode, iscsi, nfs, nvme)
+item rpi_arm64 ${space} Raspberry Pi (ARM64, iscsi, nfs)
 item --gap Parameters:
 item talos_config_url ${space} Set userdata.yaml URL: ${talos_config_url}
 item --gap Options:
@@ -48,32 +48,32 @@ choose --default back_version --timeout 10000 target && goto ${target}
 clear talos_version
 goto talos_custom
 
-:intel_igpu
-set kernel_file intel-igpu-kernel-amd64
-set initramfs_file intel-igpu-initramfs-amd64.xz
-set os_name Talos Intel iGPU
-set extensions siderolabs/i915, siderolabs/intel-ucode, siderolabs/nvme-cli, siderolabs/util-linux-tools
+:intel_i915
+set kernel_file intel-i915-kernel-amd64
+set initramfs_file intel-i915-initramfs-amd64.xz
+set os_name Talos Intel i915
+set extensions siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
 goto talos_boot
 
-:intel_igpu_arc
-set kernel_file intel-arc-kernel-amd64
-set initramfs_file intel-arc-initramfs-amd64.xz
-set os_name Talos Intel iGPU+Arc
-set extensions siderolabs/i915, siderolabs/intel-ucode, siderolabs/mei, siderolabs/nvme-cli, siderolabs/util-linux-tools
+:intel_xe_arc
+set kernel_file intel-xe-arc-kernel-amd64
+set initramfs_file intel-xe-arc-initramfs-amd64.xz
+set os_name Talos Intel XE Arc
+set extensions siderolabs/xe, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
 goto talos_boot
 
 :amd_igpu
 set kernel_file amd-igpu-kernel-amd64
 set initramfs_file amd-igpu-initramfs-amd64.xz
 set os_name Talos AMD iGPU
-set extensions siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/nvme-cli, siderolabs/util-linux-tools
+set extensions siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
 goto talos_boot
 
 :rpi_arm64
 set kernel_file rpi-kernel-arm64
 set initramfs_file rpi-initramfs-arm64.xz
 set os_name Talos Raspberry Pi
-set extensions siderolabs/util-linux-tools
+set extensions siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/util-linux-tools
 set os_arch arm64
 goto talos_boot
 
@@ -83,7 +83,7 @@ clear menu
 goto talos_custom
 
 :talos_version_set
-echo -n Set Talos version (e.g., v1.11.5): && read talos_version
+echo -n Set Talos version (e.g., v1.12.0): && read talos_version
 clear menu
 goto talos_custom
 

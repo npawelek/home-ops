@@ -1,0 +1,19 @@
+netboot_host: ENC[AES256_GCM,data:mTlGRxYJSk1Ije44pz2fwQGxTKEocViPQK/pVmcY,iv:a0EZAW27I8PTjrX0EF9y4xzUPIS7cA7mj6oNLvuYyLc=,tag:c3DLLRrAWqvCa75CR8J2fQ==,type:str]
+netboot_path: ENC[AES256_GCM,data:1XL6hRFa4liU0EZ4uytHKPtWsx91kiv48GqYQRnxuqmQ,iv:nlV48LSMJttTis/hdXyhobiL2PvRJ9Z8etHBgQOmzvY=,tag:IXF0HtL5PweqiqAEe4BCeQ==,type:str]
+netboot_menu_path: ENC[AES256_GCM,data:NrIEIL/RAK8Z3Nsmc/qtM8afQu98M7c6MRBUVbboy0C2S9rjZY5Y,iv:C0zhmKlHHf2vRsuakg4P5g4Ir4zmF8q9f6sUSDUogdw=,tag:GlsR8zEKrKVlXPBtA85iGg==,type:str]
+sops:
+  age:
+    - recipient: age185l4m6q0d4dxv4kd6slhlqgl88fyz3xlx8xkv76tyfr4chvw6eys96xsu9
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBBNGQyd2RNTWZhTWFJMlF3
+        S3pXald0ZzRoZzRwdFNHZkR4OFVzOUk4ekh3CkI4Z1pBZEliMmg0UHV4MDdpdWtu
+        UThSbFFwYk1BaWVxYndHekl3VDY3UWsKLS0tIEUweFFGZUU3MFV1TlN2cS8zcjJD
+        dWE5U2VyS1pVeHB3TXpkdXZXQzVMZ3MKdE+Tx/lVqfnuTL3lsrFxVhVFuJpXcFEL
+        bNn112P7/u7GhScLuLIfje82nqtEeGuoeCFXGrx2mK6JXOZohfNKnw==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-01-02T05:04:00Z"
+  mac: ENC[AES256_GCM,data:l6mTWTpvW1jmdAO1hyOqL1Kj94UZD6ZAop9zMfd2u63MSF1yjdmWJoibBqe1Rf3Z6y0JshgouXVCahnTCPoAolThjohZMKx/in3YbEBbUBXUveyZbjOOTUmVguYeuvdvS3pQzCZ6Pc1Kl/j6pe3g7hoyFZEtorTvQXlpQA7PHtU=,iv:BXe4dX5Kt9ghhoJobL8DlGvhXewWNS2k4VUOqMNzFaE=,tag:4xjklqppdAeSzm4m/5h5oQ==,type:str]
+  unencrypted_suffix: _unencrypted
+  mac_only_encrypted: true
+  version: 3.11.0

@@ -6,83 +6,98 @@ This directory contains iPXE configurations for booting different Talos Linux va
 
 **File**: `talos-custom.ipxe` - Single unified menu for all Talos factory builds
 
+### Current Schematic IDs
+
+<!-- SCHEMATIC_IDS_START -->
+**Talos Version**: v1.12.0
+
+- **Intel i915**: `cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4`
+- **Intel XE Arc**: `bd85ff4e0a248a085ffff29026cd1526c3f6d08a0b6f0da07bb983057b9498a7`
+- **AMD iGPU**: `aaa7ca1ccac4ccce9c482644518ff7e962c80a0e03734a667f3c69491de6b634`
+- **Raspberry Pi**: `b4a7cf89c3c968b7917f56a217ee807a0537518699dc2085bb8f615433c172b4`
+<!-- SCHEMATIC_IDS_END -->
+
+*This section is automatically updated by the generate script.*
+
 ### Supported Builds
 
-1. **Intel iGPU** (amd64)
-   - Extensions: siderolabs/i915, siderolabs/intel-ucode, siderolabs/nvme-cli, siderolabs/util-linux-tools
-   - Use case: Intel systems with integrated graphics
+All builds include Longhorn-required extensions: `iscsi-tools`, `nfs-utils`, `nvme-cli`, `util-linux-tools`
 
-2. **Intel iGPU + Arc** (amd64)
-   - Extensions: siderolabs/i915, siderolabs/intel-ucode, siderolabs/mei, siderolabs/nvme-cli, siderolabs/util-linux-tools
-   - Use case: Intel systems with integrated graphics and Arc GPU support
+1. **Intel i915** (amd64)
+   - Extensions: siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+   - Use case: Intel systems with integrated graphics (i915 driver)
+
+2. **Intel xe Arc** (amd64)
+   - Extensions: siderolabs/xe, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+   - Use case: Intel systems with Arc GPU support (xe driver)
 
 3. **AMD iGPU** (amd64)
-   - Extensions: siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/nvme-cli, siderolabs/util-linux-tools
+   - Extensions: siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
    - Use case: AMD systems with integrated graphics
 
 4. **Raspberry Pi** (arm64)
-   - Extensions: siderolabs/util-linux-tools
+   - Extensions: siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/util-linux-tools
    - Use case: Raspberry Pi 4/5 (uses standard ARM64 kernel)
 
 ## Setup Instructions
 
-### 1. Generate Schematic IDs and Download Assets
+### Prerequisites
 
-Run the generator script:
+- Python dependencies are managed by mise and installed automatically via `mise install`
+- Netboot server configuration stored in `ipxe/netboot.sops.yaml`
 
-```bash
-pip install requests pyyaml
-python3 ipxe/generate-schematics.py
-```
+### Deployment
 
-This will:
-- Fetch the latest Talos version from GitHub
-- Generate 4 schematic IDs with the correct extensions
-- Automatically update `talos-custom.ipxe` with the version and schematic IDs
-- Output a command to download all kernel/initramfs files
-
-### 2. Download Assets to netboot.xyz Server
-
-Copy the download command from the script output and run it on your netboot.xyz server. It will download all 8 files (4 kernels + 4 initramfs) to `talos/<version>/`.
-
-### 3. Deploy to netboot.xyz
-
-Copy `talos-custom.ipxe` to your netboot.xyz server:
+The deployment process is fully automated via task commands:
 
 ```bash
-# Example - adjust path for your setup
-scp ipxe/talos-custom.ipxe user@netboot-server:/var/www/html/custom/
+# Full deployment (generate + sync + download)
+task ipxe:deploy
+
+# Or run individual steps:
+task ipxe:generate        # Generate schematics from talenv.yaml
+task ipxe:sync-menu       # Sync iPXE menu file to server
+task ipxe:download-assets # Download kernel/initramfs to server
 ```
 
-### 4. Add to netboot.xyz Menu
+### How It Works
 
-Add an entry to your netboot.xyz custom menu to chain-load this file:
+1. **Version Management**: The script automatically reads the Talos version from `talos/talenv.yaml`
+2. **Schematic Generation**: Generates 4 schematic IDs with hardware-specific extensions
+3. **Menu Update**: Updates `talos-custom.ipxe` with the version and schematic IDs
+4. **Server Sync**: Copies the iPXE menu to netboot.xyz server
+5. **Asset Download**: Downloads all kernel/initramfs assets to netboot.xyz
 
-```ipxe
-item talos_custom Talos Custom Factory Builds
-# ...
-:talos_custom
-chain ${boot_domain}talos-custom.ipxe || goto error
+### Updating Talos Version
+
+When the Talos version in `talos/talenv.yaml` is updated, run `task ipxe:deploy`.
+
+### Server Configuration
+
+Server details are stored in `ipxe/netboot.sops.yaml` (encrypted):
+
+```yaml
+netboot_host: root@your-server.com
+netboot_path: /path/to/netboot/assets/talos
+netboot_menu_path: /path/to/netboot/config/menus
 ```
 
-### 5. Test Boot
+Edit with: `sops ipxe/netboot.sops.yaml`
 
-- Boot a machine via PXE
-- Navigate to the Talos Custom menu
-- Select the appropriate build for your hardware
-- Optionally set a userdata.yaml URL for configuration
-- Boot and verify
+## Boot Flow
+
+1. Machine PXE boots → netboot.xyz loads
+2. User selects custom Talos menu
+3. Picks a build (Intel i915, Intel XE, AMD, etc.)
+4. iPXE downloads kernel + initramfs
+5. Boots Talos with custom extensions baked in
 
 ## Talos Factory URLs
 
-Each schematic will generate URLs in this format:
-```
-https://factory.talos.dev/image/{schematic_id}/{talos_version}/metal-amd64.iso
-https://factory.talos.dev/image/{schematic_id}/{talos_version}/metal-arm64.iso
-```
-
-For netboot, we use the kernel and initramfs directly:
+Each schematic generates URLs in this format:
 ```
 https://factory.talos.dev/image/{schematic_id}/{talos_version}/kernel-amd64
 https://factory.talos.dev/image/{schematic_id}/{talos_version}/initramfs-amd64.xz
 ```
+
+Netboot.xyz locally serves these files instead of hitting Talos Factory directly.

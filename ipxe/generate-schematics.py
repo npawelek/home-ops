@@ -23,9 +23,10 @@ except ImportError:
 
 # Configuration
 FACTORY_URL = "https://factory.talos.dev"
-GITHUB_API = "https://api.github.com/repos/siderolabs/talos/releases/latest"
 SCRIPT_DIR = Path(__file__).parent
+REPO_ROOT = SCRIPT_DIR.parent
 IPXE_FILE = SCRIPT_DIR / "talos-custom.ipxe"
+TALENV_FILE = REPO_ROOT / "talos" / "talenv.yaml"
 
 # Kernel arguments to apply to all schematics
 KERNEL_ARGS = [
@@ -48,54 +49,59 @@ RPI_OVERLAY = {
 # Format: (name, arch, placeholder, extensions, board_config)
 BUILD_CONFIGS = [
     (
-        "Intel iGPU",
+        "Intel i915",
         "amd64",
         "YOUR_INTEL_IGPU_SCHEMATIC_ID",
-        ["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
+        ["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         None,
     ),
     (
-        "Intel iGPU+Arc",
+        "Intel XE Arc",
         "amd64",
         "YOUR_INTEL_ARC_SCHEMATIC_ID",
-        ["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/mei", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
+        ["siderolabs/xe", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/mei", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         None,
     ),
     (
         "AMD iGPU",
         "amd64",
         "YOUR_AMD_IGPU_SCHEMATIC_ID",
-        ["siderolabs/amdgpu", "siderolabs/amd-ucode", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
+        ["siderolabs/amdgpu", "siderolabs/amd-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         None,
     ),
     (
         "Raspberry Pi",
         "arm64",
         "YOUR_RPI_SCHEMATIC_ID",
-        ["siderolabs/util-linux-tools"],
+        ["siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/util-linux-tools"],
         RPI_OVERLAY,
     ),
 ]
 
 
 def get_latest_talos_version() -> str:
-    """Fetch the latest Talos version from GitHub."""
+    """Get Talos version from talenv.yaml or environment variable."""
     version = os.environ.get("TALOS_VERSION")
     if version:
-        print(f"Using specified version: {version}")
+        print(f"Using specified version from environment: {version}")
         return version
 
-    print("Fetching latest Talos version from GitHub...")
-    try:
-        response = requests.get(GITHUB_API, timeout=10)
-        response.raise_for_status()
-        version = response.json()["tag_name"]
-        print(f"Latest version: {version}")
-        return version
-    except Exception as e:
-        print(f"Failed to fetch latest version: {e}")
-        print("Using default: v1.11.5")
-        return "v1.11.5"
+    # Try to read from talenv.yaml
+    if TALENV_FILE.exists():
+        print(f"Reading Talos version from {TALENV_FILE}...")
+        try:
+            with open(TALENV_FILE, 'r') as f:
+                talenv = yaml.safe_load(f)
+                version = talenv.get('talosVersion')
+                if version:
+                    print(f"Found version in talenv.yaml: {version}")
+                    return version
+        except Exception as e:
+            print(f"Failed to read talenv.yaml: {e}")
+
+    print("ERROR: Could not determine Talos version")
+    print("Please set TALOS_VERSION environment variable or ensure talos/talenv.yaml exists")
+    sys.exit(1)
 
 
 def generate_schematic_yaml(extensions: List[str], board_config: Dict = None) -> str:
@@ -192,6 +198,41 @@ def update_ipxe_file(
     return True
 
 
+def update_readme(
+    schematic_ids: Dict[str, str], talos_version: str
+) -> bool:
+    """Update the README with current schematic IDs."""
+    readme_file = SCRIPT_DIR / "README.md"
+    if not readme_file.exists():
+        print(f"✗ Warning: {readme_file} not found, skipping README update")
+        return False
+
+    print(f"\nUpdating {readme_file}...")
+
+    content = readme_file.read_text()
+
+    # Build the schematic IDs section
+    readme_section = f"""<!-- SCHEMATIC_IDS_START -->
+**Talos Version**: {talos_version}
+
+- **Intel i915**: `{schematic_ids.get('YOUR_INTEL_IGPU_SCHEMATIC_ID', 'N/A')}`
+- **Intel XE Arc**: `{schematic_ids.get('YOUR_INTEL_ARC_SCHEMATIC_ID', 'N/A')}`
+- **AMD iGPU**: `{schematic_ids.get('YOUR_AMD_IGPU_SCHEMATIC_ID', 'N/A')}`
+- **Raspberry Pi**: `{schematic_ids.get('YOUR_RPI_SCHEMATIC_ID', 'N/A')}`
+<!-- SCHEMATIC_IDS_END -->"""
+
+    # Replace the section between markers
+    content = re.sub(
+        r"<!-- SCHEMATIC_IDS_START -->.*?<!-- SCHEMATIC_IDS_END -->",
+        readme_section,
+        content,
+        flags=re.DOTALL,
+    )
+
+    readme_file.write_text(content)
+    return True
+
+
 def main():
     """Main execution."""
     print("=" * 60)
@@ -219,6 +260,10 @@ def main():
         for name, _, placeholder, _, _ in BUILD_CONFIGS:
             if placeholder in schematic_ids:
                 print(f"  - {name}: {schematic_ids[placeholder]}")
+
+        # Update README with schematic IDs
+        update_readme(schematic_ids, talos_version)
+
         print("\n✓ Done! Your talos-custom.ipxe is ready to deploy.")
 
         # Generate download commands
@@ -229,8 +274,8 @@ def main():
 
         # Filename mapping to match talos-custom.ipxe
         filename_map = {
-            "Intel iGPU": "intel-igpu",
-            "Intel iGPU+Arc": "intel-arc",
+            "Intel i915": "intel-i915",
+            "Intel XE Arc": "intel-xe-arc",
             "AMD iGPU": "amd-igpu",
             "Raspberry Pi": "rpi",
         }

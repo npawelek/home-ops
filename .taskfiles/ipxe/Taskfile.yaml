@@ -1,0 +1,45 @@
+---
+version: '3'
+
+vars:
+  NETBOOT_CONFIG: '{{.IPXE_DIR}}/netboot.sops.yaml'
+  NETBOOT_HOST:
+    sh: sops -d {{.NETBOOT_CONFIG}} | yq '.netboot_host'
+  NETBOOT_PATH:
+    sh: sops -d {{.NETBOOT_CONFIG}} | yq '.netboot_path'
+  NETBOOT_MENU_PATH:
+    sh: sops -d {{.NETBOOT_CONFIG}} | yq '.netboot_menu_path'
+
+tasks:
+
+  generate:
+    desc: Generate Talos iPXE schematics from talenv.yaml
+    dir: '{{.IPXE_DIR}}'
+    cmd: python3 generate-schematics.py
+    preconditions:
+      - test -f {{.ROOT_DIR}}/talos/talenv.yaml
+      - which python3
+
+  sync-menu:
+    desc: Sync iPXE file to netboot.xyz server
+    cmd: cat {{.IPXE_DIR}}/talos-custom.ipxe | ssh {{.NETBOOT_HOST}} "cat > {{.NETBOOT_MENU_PATH}}/talos-custom.ipxe"
+    preconditions:
+      - test -f {{.IPXE_DIR}}/talos-custom.ipxe
+
+  download-assets:
+    desc: Download kernel/initramfs files to netboot.xyz server
+    dir: '{{.IPXE_DIR}}'
+    cmd: |
+      DOWNLOAD_CMD=$(python3 generate-schematics.py 2>&1 | grep -A 1000 "Run this command" | tail -n +3 | head -n 1)
+      ssh {{.NETBOOT_HOST}} "cd {{.NETBOOT_PATH}} && ${DOWNLOAD_CMD}"
+    preconditions:
+      - test -f {{.ROOT_DIR}}/talos/talenv.yaml
+      - which python3
+      - which yq
+
+  deploy:
+    desc: Generate schematics, sync iPXE file, and download assets to netboot.xyz
+    cmds:
+      - task: generate
+      - task: sync-menu
+      - task: download-assets

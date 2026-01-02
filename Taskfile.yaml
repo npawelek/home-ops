@@ -11,6 +11,7 @@ vars:
   TALOS_DIR: '{{.ROOT_DIR}}/talos'
   PRIVATE_DIR: '{{.ROOT_DIR}}/.private'
   TALOSCONFIG: '{{.ROOT_DIR}}/talos/clusterconfig/talosconfig'
+  IPXE_DIR: '{{.ROOT_DIR}}/ipxe'
 
 env:
   KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'
@@ -19,6 +20,7 @@ env:
 
 includes:
   bootstrap: .taskfiles/bootstrap
+  ipxe: .taskfiles/ipxe
   talos: .taskfiles/talos
 
 tasks:
