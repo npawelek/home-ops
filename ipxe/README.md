@@ -4,7 +4,12 @@ This directory contains iPXE configurations for booting different Talos Linux va
 
 ## Main Configuration
 
-**File**: `talos-custom.ipxe` - Single unified menu for all Talos factory builds
+```
+ipxe/
+├── generate-schematics.py  (Generates Talos Factory schematics with custom extensions)
+├── netboot.sops.yaml       (iPXE automation secrets)
+└── talos-custom.ipxe       (iPXE boot menu for netboot.xyz)
+```
 
 ### Current Schematic IDs
 
