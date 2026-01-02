@@ -27,6 +27,7 @@ SCRIPT_DIR = Path(__file__).parent
 REPO_ROOT = SCRIPT_DIR.parent
 IPXE_FILE = SCRIPT_DIR / "talos-custom.ipxe"
 TALENV_FILE = REPO_ROOT / "talos" / "talenv.yaml"
+TALCONFIG_FILE = REPO_ROOT / "talos" / "talconfig.yaml"
 
 # Kernel arguments to apply to all schematics
 KERNEL_ARGS = [
@@ -46,28 +47,31 @@ RPI_OVERLAY = {
 }
 
 # Build configurations
-# Format: (name, arch, placeholder, extensions, board_config)
+# Format: (name, arch, placeholder, extensions, board_config, node_hostnames)
 BUILD_CONFIGS = [
     (
         "Intel i915",
         "amd64",
         "YOUR_INTEL_IGPU_SCHEMATIC_ID",
-        ["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
+        ["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/realtek-firmware", "siderolabs/usb-modem-drivers", "siderolabs/util-linux-tools"],
         None,
+        ["m1", "m2", "m3", "karakum"],
     ),
     (
         "Intel XE Arc",
         "amd64",
         "YOUR_INTEL_ARC_SCHEMATIC_ID",
-        ["siderolabs/xe", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/mei", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
+        ["siderolabs/xe", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/mei", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/realtek-firmware", "siderolabs/usb-modem-drivers", "siderolabs/util-linux-tools"],
         None,
+        [],
     ),
     (
         "AMD iGPU",
         "amd64",
         "YOUR_AMD_IGPU_SCHEMATIC_ID",
-        ["siderolabs/amdgpu", "siderolabs/amd-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
+        ["siderolabs/amdgpu", "siderolabs/amd-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/realtek-firmware", "siderolabs/usb-modem-drivers", "siderolabs/util-linux-tools"],
         None,
+        [],
     ),
     (
         "Raspberry Pi",
@@ -75,6 +79,7 @@ BUILD_CONFIGS = [
         "YOUR_RPI_SCHEMATIC_ID",
         ["siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/util-linux-tools"],
         RPI_OVERLAY,
+        [],
     ),
 ]
 
@@ -121,7 +126,7 @@ def generate_schematic_yaml(extensions: List[str], board_config: Dict = None) ->
 
 
 def generate_schematic(
-    name: str, arch: str, extensions: List[str], talos_version: str, board_config: Dict = None
+    name: str, arch: str, extensions: List[str], talos_version: str, board_config: Dict = None, node_hostnames: List[str] = None
 ) -> str:
     """Generate a schematic and return its ID."""
     print(f"\nGenerating schematic for: {name}")
@@ -233,6 +238,34 @@ def update_readme(
     return True
 
 
+def update_talconfig(
+    schematic_ids: Dict[str, str], talos_version: str, node_mapping: Dict[str, str]
+) -> bool:
+    """Update talconfig.yaml with new schematic IDs for nodes."""
+    if not TALCONFIG_FILE.exists():
+        print(f"✗ Warning: {TALCONFIG_FILE} not found, skipping talconfig update")
+        return False
+
+    print(f"\nUpdating {TALCONFIG_FILE}...")
+
+    content = TALCONFIG_FILE.read_text()
+
+    # Update each node's talosImageURL
+    for hostname, schematic_id in node_mapping.items():
+        if not schematic_id:
+            continue
+
+        # Pattern to match the node's talosImageURL
+        pattern = rf'(- hostname: "{hostname}".*?talosImageURL: )factory\.talos\.dev/installer/[a-f0-9]{{64}}'
+        replacement = rf'\1factory.talos.dev/installer/{schematic_id}'
+
+        content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+
+    TALCONFIG_FILE.write_text(content)
+    print(f"✓ Updated node talosImageURL entries")
+    return True
+
+
 def main():
     """Main execution."""
     print("=" * 60)
@@ -244,11 +277,15 @@ def main():
 
     print("Generating schematics...")
     schematic_ids = {}
+    node_mapping = {}
 
-    for name, arch, placeholder, extensions, board_config in BUILD_CONFIGS:
-        schematic_id = generate_schematic(name, arch, extensions, talos_version, board_config)
+    for name, arch, placeholder, extensions, board_config, node_hostnames in BUILD_CONFIGS:
+        schematic_id = generate_schematic(name, arch, extensions, talos_version, board_config, node_hostnames)
         if schematic_id:
             schematic_ids[placeholder] = schematic_id
+            # Map hostnames to schematic IDs
+            for hostname in node_hostnames:
+                node_mapping[hostname] = schematic_id
 
     if not schematic_ids:
         print("\n✗ No schematics were generated successfully")
@@ -257,12 +294,15 @@ def main():
     if update_ipxe_file(schematic_ids, talos_version):
         print(f"\n✓ Updated {IPXE_FILE}")
         print(f"  - Talos version: {talos_version}")
-        for name, _, placeholder, _, _ in BUILD_CONFIGS:
+        for name, _, placeholder, _, _, _ in BUILD_CONFIGS:
             if placeholder in schematic_ids:
                 print(f"  - {name}: {schematic_ids[placeholder]}")
 
         # Update README with schematic IDs
         update_readme(schematic_ids, talos_version)
+
+        # Update talconfig.yaml with node schematic mappings
+        update_talconfig(schematic_ids, talos_version, node_mapping)
 
         print("\n✓ Done! Your talos-custom.ipxe is ready to deploy.")
 
@@ -281,7 +321,7 @@ def main():
         }
 
         download_cmds = []
-        for name, arch, placeholder, _, _ in BUILD_CONFIGS:
+        for name, arch, placeholder, _, _, _ in BUILD_CONFIGS:
             if placeholder in schematic_ids:
                 schematic_id = schematic_ids[placeholder]
                 file_prefix = filename_map.get(name, name.lower().replace(" ", "-"))
@@ -298,7 +338,7 @@ def main():
         print("\n" + "=" * 60)
     else:
         print("\nManual schematic IDs:")
-        for name, _, placeholder, _, _ in BUILD_CONFIGS:
+        for name, _, placeholder, _, _, _ in BUILD_CONFIGS:
             if placeholder in schematic_ids:
                 print(f"  - {name}: {schematic_ids[placeholder]}")
 

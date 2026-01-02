@@ -16,9 +16,9 @@ ipxe/
 <!-- SCHEMATIC_IDS_START -->
 **Talos Version**: v1.12.0
 
-- **Intel i915**: `cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4`
-- **Intel XE Arc**: `bd85ff4e0a248a085ffff29026cd1526c3f6d08a0b6f0da07bb983057b9498a7`
-- **AMD iGPU**: `aaa7ca1ccac4ccce9c482644518ff7e962c80a0e03734a667f3c69491de6b634`
+- **Intel i915**: `66058752286ec8243c8566ac6feedbe786e623b1652d5abac3d941c0baeb128c`
+- **Intel XE Arc**: `1b7cca9a49f2bdf1577cef889cc99145792a339b37d61af782306290db5f31b8`
+- **AMD iGPU**: `4e03bedfeeca3339545177d1ae06c593be57f4b156fbb7771378159c0624c769`
 - **Raspberry Pi**: `b4a7cf89c3c968b7917f56a217ee807a0537518699dc2085bb8f615433c172b4`
 <!-- SCHEMATIC_IDS_END -->
 
@@ -26,18 +26,20 @@ ipxe/
 
 ### Supported Builds
 
-All builds include Longhorn-required extensions: `iscsi-tools`, `nfs-utils`, `nvme-cli`, `util-linux-tools`
+All builds include common extensions:
+- **Storage**: `iscsi-tools`, `nfs-utils`, `nvme-cli` (amd64 only), `util-linux-tools`
+- **Network**: `realtek-firmware` (RTL8152 USB Ethernet support), `usb-modem-drivers`
 
 1. **Intel i915** (amd64)
-   - Extensions: siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+   - Extensions: siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/realtek-firmware, siderolabs/usb-modem-drivers, siderolabs/util-linux-tools
    - Use case: Intel systems with integrated graphics (i915 driver)
 
-2. **Intel xe Arc** (amd64)
-   - Extensions: siderolabs/xe, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+2. **Intel XE Arc** (amd64)
+   - Extensions: siderolabs/xe, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/realtek-firmware, siderolabs/usb-modem-drivers, siderolabs/util-linux-tools
    - Use case: Intel systems with Arc GPU support (xe driver)
 
 3. **AMD iGPU** (amd64)
-   - Extensions: siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+   - Extensions: siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/realtek-firmware, siderolabs/usb-modem-drivers, siderolabs/util-linux-tools
    - Use case: AMD systems with integrated graphics
 
 4. **Raspberry Pi** (arm64)
