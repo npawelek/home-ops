@@ -46,7 +46,7 @@ This repository uses self-hosted Renovate via GitHub Actions instead of the Mend
 
 3. Select **"Only select repositories"**
 
-4. Choose your repository
+4. Choose your repository (`npawelek/home-ops`)
 
 5. Click **"Install"**
 
