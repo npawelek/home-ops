@@ -10,6 +10,7 @@ python.uv_venv_auto = true
 
 [hooks]
 postinstall = "mise run i"
+enter = "mise run check-deps"
 
 [tools]
 "python" = "3.14.2"
@@ -40,3 +41,13 @@ k = "kubectl"
 description = "Install Python dependencies"
 alias = "i"
 run = "uv pip install -r requirements.txt"
+
+[tasks.check-deps]
+description = "Check if Python dependencies need updating"
+silent = true
+run = '''
+  OUTDATED=$(uv pip list --outdated 2>/dev/null)
+  if [ -n "$OUTDATED" ]; then
+    echo "⚠️  Python dependencies have updates available. Run 'mise install' to update"
+  fi
+'''
