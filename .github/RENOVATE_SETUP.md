@@ -15,8 +15,8 @@ This repository uses self-hosted Renovate via GitHub Actions instead of the Mend
 
 2. Fill in the following fields:
 
-   - **GitHub App name**: `renovate-bot-home-ops` (or any unique name)
-   - **Homepage URL**: `https://github.com/npawelek/home-ops` (your repo URL)
+   - **GitHub App name**: `bot-reno`
+   - **Homepage URL**: `https://github.com/npawelek/home-ops`
    - **Webhook**: Uncheck "Active" (webhooks not needed)
 
 3. Set **Repository permissions**:
@@ -46,7 +46,7 @@ This repository uses self-hosted Renovate via GitHub Actions instead of the Mend
 
 3. Select **"Only select repositories"**
 
-4. Choose your repository (`npawelek/home-ops`)
+4. Choose your repository
 
 5. Click **"Install"**
 
