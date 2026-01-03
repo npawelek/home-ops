@@ -1,0 +1,170 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: authentik
+spec:
+  chart:
+    spec:
+      chart: authentik
+      version: 2025.10.3
+      sourceRef:
+        kind: HelmRepository
+        name: authentik
+  interval: 1h
+  valuesFrom:
+    - kind: Secret
+      name: authentik-secrets
+      valuesKey: secret-key
+      targetPath: authentik.secret_key
+    - kind: Secret
+      name: authentik-secrets
+      valuesKey: email-host
+      targetPath: authentik.email.host
+    - kind: Secret
+      name: authentik-secrets
+      valuesKey: email-username
+      targetPath: authentik.email.username
+    - kind: Secret
+      name: authentik-secrets
+      valuesKey: email-password
+      targetPath: authentik.email.password
+    - kind: Secret
+      name: authentik-secrets
+      valuesKey: email-from
+      targetPath: authentik.email.from
+    - kind: Secret
+      name: credentials-authentik
+      valuesKey: username
+      targetPath: authentik.postgresql.user
+    - kind: Secret
+      name: credentials-authentik
+      valuesKey: password
+      targetPath: authentik.postgresql.password
+  values:
+    global:
+      image:
+        repository: ghcr.io/goauthentik/server
+        tag: 2025.10.3
+
+      env:
+        - name: TZ
+          value: ${TIMEZONE}
+
+    authentik:
+      log_level: info
+      error_reporting:
+        enabled: false
+        send_pii: false
+
+      email:
+        port: 587
+        use_tls: true
+
+      postgresql:
+        host: authentik-postgres-rw
+        name: authentik
+
+    server:
+      # TODO: Increase to 2 replicas when additional worker nodes are added
+      replicas: 1
+
+      # TODO: Enable PDB when server replicas > 1
+      # pdb:
+      #   enabled: true
+      #   maxUnavailable: 1
+
+      ingress:
+        enabled: false
+
+      route:
+        main:
+          enabled: true
+          hostnames:
+            - "auth.${SECRET_DOMAIN}"
+          parentRefs:
+            - name: envoy-internal
+              namespace: gateway
+              sectionName: https
+
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          cpu: 2000m
+          memory: 2Gi
+
+      # TODO: Enable affinity when server replicas > 1
+      # affinity:
+      #   podAntiAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       - labelSelector:
+      #           matchLabels:
+      #             app.kubernetes.io/name: authentik
+      #             app.kubernetes.io/component: server
+      #         topologyKey: kubernetes.io/hostname
+
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+
+    worker:
+      # TODO: Increase to 2 replicas when additional worker nodes are added
+      replicas: 1
+
+      # TODO: Enable PDB when worker replicas > 1
+      # pdb:
+      #   enabled: true
+      #   maxUnavailable: 1
+
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          cpu: 2000m
+          memory: 2Gi
+
+      # TODO: Enable affinity when worker replicas > 1
+      # affinity:
+      #   podAntiAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       - labelSelector:
+      #           matchLabels:
+      #             app.kubernetes.io/name: authentik
+      #             app.kubernetes.io/component: worker
+      #         topologyKey: kubernetes.io/hostname
+
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+
+    postgresql:
+      enabled: false
+
+    redis:
+      enabled: true
+      architecture: standalone
+      auth:
+        enabled: false
+      master:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        persistence:
+          enabled: true
+          existingClaim: authentik-redis-data
+
+    serviceAccount:
+      create: true
+
+    prometheus:
+      rules:
+        enabled: true

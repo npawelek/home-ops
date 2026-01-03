@@ -1,0 +1,24 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: authentik-postgres
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/auth/postgres/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: auth
+  wait: true
+  dependsOn:
+    - name: longhorn
+      namespace: longhorn-system
+    - name: cloudnative-pg
+      namespace: cnpg-system

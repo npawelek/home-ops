@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/config/crd/bases/postgresql.cnpg.io_clusters.yaml
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: authentik-postgres
+  labels:
+    recurring-job-group.longhorn.io/backup-6h: enabled
+    recurring-job-group.longhorn.io/default: enabled
+spec:
+  # TODO: Increase to 3 instances when additional worker nodes are added for HA
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.1-standard-trixie@sha256:f445b2f8e9b4b3b9a4df56d944c976a2d7eb9b50280f3a6986b0fc7c422f7f27
+  primaryUpdateStrategy: unsupervised
+
+  postgresql:
+    parameters:
+      max_connections: "300"
+      shared_buffers: "512MB"
+      effective_cache_size: "1536MB"
+      maintenance_work_mem: "128MB"
+      checkpoint_completion_target: "0.9"
+      wal_buffers: "32MB"
+      default_statistics_target: "100"
+      random_page_cost: "1.0"
+      effective_io_concurrency: "200"
+      work_mem: "8MB"
+      min_wal_size: "1GB"
+      max_wal_size: "4GB"
+      log_statement: "none"
+      log_min_duration_statement: "500"
+      password_encryption: "scram-sha-256"
+      ssl_min_protocol_version: "TLSv1.2"
+
+    pg_hba:
+      - local all all scram-sha-256
+      - hostssl all all 127.0.0.1/32 scram-sha-256
+      - hostssl all all ::1/128 scram-sha-256
+      - hostssl all all 10.32.0.0/12 scram-sha-256
+      - hostssl all all 192.168.0.0/24 scram-sha-256
+      - hostssl all all 192.168.30.98/32 scram-sha-256
+      - hostssl all all 192.168.30.99/32 scram-sha-256
+      - hostssl all all 192.168.30.100/32 scram-sha-256
+
+  bootstrap:
+    initdb:
+      database: authentik
+      owner: authentik
+      secret:
+        name: credentials-authentik
+
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: credentials-admin
+
+  managed:
+    roles:
+      - name: authentik
+        ensure: present
+        passwordSecret:
+          name: credentials-authentik
+        login: true
+        createdb: true
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
+
+  storage:
+    size: 10Gi
+    storageClass: longhorn
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2000Mi
+
+  # TODO: Enable when additional workers are added the cluster
+  # affinity:
+  #   enablePodAntiAffinity: true
+  #   podAntiAffinityType: required
+  #   topologyKey: kubernetes.io/hostname
+
+  monitoring:
+    enablePodMonitor: true
