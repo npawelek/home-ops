@@ -4,9 +4,6 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: authentik-postgres
-  labels:
-    recurring-job-group.longhorn.io/backup-6h: enabled
-    recurring-job-group.longhorn.io/default: enabled
 spec:
   # TODO: Increase to 3 instances when additional worker nodes are added for HA
   instances: 1
