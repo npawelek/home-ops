@@ -39,6 +39,8 @@ item amd_igpu ${space} AMD iGPU (amdgpu, amd-ucode, iscsi, nfs, nvme)
 item rpi_arm64 ${space} Raspberry Pi (ARM64, iscsi, nfs)
 item --gap Parameters:
 item talos_config_url ${space} Set userdata.yaml URL: ${talos_config_url}
+item talos_maintenance ${space} Toggle Maintenance Mode: ${talos_maintenance_mode}
+item talos_wipe ${space} Toggle Disk Wipe: ${talos_wipe_mode}
 item --gap Options:
 item back_version ${space} Back to version selection
 item back ${space} Back to main menu
@@ -52,21 +54,21 @@ goto talos_custom
 set kernel_file intel-i915-kernel-amd64
 set initramfs_file intel-i915-initramfs-amd64.xz
 set os_name Talos Intel i915
-set extensions siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+set extensions siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/realtek-firmware, siderolabs/usb-modem-drivers, siderolabs/util-linux-tools
 goto talos_boot
 
 :intel_xe_arc
 set kernel_file intel-xe-arc-kernel-amd64
 set initramfs_file intel-xe-arc-initramfs-amd64.xz
 set os_name Talos Intel XE Arc
-set extensions siderolabs/xe, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+set extensions siderolabs/xe, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/realtek-firmware, siderolabs/usb-modem-drivers, siderolabs/util-linux-tools
 goto talos_boot
 
 :amd_igpu
 set kernel_file amd-igpu-kernel-amd64
 set initramfs_file amd-igpu-initramfs-amd64.xz
 set os_name Talos AMD iGPU
-set extensions siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+set extensions siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/realtek-firmware, siderolabs/usb-modem-drivers, siderolabs/util-linux-tools
 goto talos_boot
 
 :rpi_arm64
@@ -82,6 +84,16 @@ echo -n Set userdata.yaml URL: && read talos_config_url
 clear menu
 goto talos_custom
 
+:talos_maintenance
+isset ${talos_maintenance_mode} && clear talos_maintenance_mode || set talos_maintenance_mode enabled
+clear menu
+goto talos_custom
+
+:talos_wipe
+isset ${talos_wipe_mode} && clear talos_wipe_mode || set talos_wipe_mode enabled
+clear menu
+goto talos_custom
+
 :talos_version_set
 echo -n Set Talos version (e.g., v1.12.0): && read talos_version
 clear menu
@@ -89,6 +101,8 @@ goto talos_custom
 
 :talos_boot
 isset ${talos_config_url} && set talos_config talos.config=${talos_config_url} ||
+isset ${talos_maintenance_mode} && set talos_config talos.config=none ||
+isset ${talos_wipe_mode} && set talos_wipe talos.experimental.wipe=system ||
 
 echo ${cls}
 echo ========================================
@@ -98,10 +112,12 @@ echo Extensions: ${extensions}
 echo Platform: ${talos_platform}
 echo Architecture: ${os_arch}
 isset ${talos_config_url} && echo Config: ${talos_config_url} ||
+isset ${talos_maintenance_mode} && echo Maintenance Mode: ENABLED ||
+isset ${talos_wipe_mode} && echo Disk Wipe: ENABLED ||
 echo ========================================
 echo
 
-set boot_params printk.devkmsg=on slab_nomerge pti=on console=ttyS0 console=tty0 init_on_alloc=1 init_on_free=1 consoleblank=0 nvme_core.io_timeout=4294967295 ima_template=ima-ng ima_appraise=fix ima_hash=sha512 ipv6.disable=1 net.ifnames=0 talos.platform=${talos_platform} ${talos_config} initrd=initramfs.magic ${cmdline}
+set boot_params printk.devkmsg=on slab_nomerge pti=on console=ttyS0 console=tty0 init_on_alloc=1 init_on_free=1 consoleblank=0 nvme_core.io_timeout=4294967295 ima_template=ima-ng ima_appraise=fix ima_hash=sha512 ipv6.disable=1 net.ifnames=0 talos.platform=${talos_platform} ${talos_config} ${talos_wipe} initrd=initramfs.magic ${cmdline}
 
 imgfree
 kernel ${talos_base}talos/${talos_version}/${kernel_file} ${boot_params}

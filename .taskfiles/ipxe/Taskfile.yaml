@@ -31,7 +31,7 @@ tasks:
     dir: '{{.IPXE_DIR}}'
     cmd: |
       DOWNLOAD_CMD=$(python3 generate-schematics.py 2>&1 | grep -A 1000 "Run this command" | tail -n +3 | head -n 1)
-      ssh {{.NETBOOT_HOST}} "cd {{.NETBOOT_PATH}} && ${DOWNLOAD_CMD}"
+      ssh {{.NETBOOT_HOST}} "cd {{.NETBOOT_PATH}} && rm -rf talos/v1.12.0 && ${DOWNLOAD_CMD} && chown -R 1000:1000 {{.NETBOOT_PATH}}"
     preconditions:
       - test -f {{.ROOT_DIR}}/talos/talenv.yaml
       - which python3
