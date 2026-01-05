@@ -23,7 +23,7 @@ nodes:
     installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/66058752286ec8243c8566ac6feedbe786e623b1652d5abac3d941c0baeb128c
+    talosImageURL: factory.talos.dev/installer/cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -42,7 +42,7 @@ nodes:
     installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/66058752286ec8243c8566ac6feedbe786e623b1652d5abac3d941c0baeb128c
+    talosImageURL: factory.talos.dev/installer/cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -61,7 +61,7 @@ nodes:
     installDisk: "/dev/nvme0n1"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/66058752286ec8243c8566ac6feedbe786e623b1652d5abac3d941c0baeb128c
+    talosImageURL: factory.talos.dev/installer/cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -80,16 +80,37 @@ nodes:
     installDisk: "/dev/sda"
     machineSpec:
       secureboot: false
-    talosImageURL: factory.talos.dev/installer/66058752286ec8243c8566ac6feedbe786e623b1652d5abac3d941c0baeb128c
+    talosImageURL: factory.talos.dev/installer/cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4
     controlPlane: false
     patches:
       - "@./patches/nodes/karakum-longhorn-volume.yaml"
+      # - "@./patches/nodes/karakum-wipe.yaml"
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "b8:ae:ed:ec:4c:89"
         dhcp: false
         addresses:
           - "192.168.0.31/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "192.168.0.1"
+        mtu: 9000
+  - hostname: "rocinante"
+    ipAddress: "192.168.0.32"
+    installDisk: "/dev/sda"
+    machineSpec:
+      secureboot: false
+    talosImageURL: factory.talos.dev/installer/aaa7ca1ccac4ccce9c482644518ff7e962c80a0e03734a667f3c69491de6b634
+    controlPlane: false
+    patches:
+      - "@./patches/nodes/rocinante-longhorn-volume.yaml"
+      # - "@./patches/nodes/rocinante-wipe.yaml"
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "a8:a1:59:57:b7:28"
+        dhcp: false
+        addresses:
+          - "192.168.0.32/24"
         routes:
           - network: "0.0.0.0/0"
             gateway: "192.168.0.1"
@@ -102,7 +123,6 @@ patches:
   - "@./patches/global/machine-network.yaml"
   - "@./patches/global/machine-sysctls.yaml"
   - "@./patches/global/machine-time.yaml"
-  - "@./patches/global/cluster-discovery.yaml"
 
 # Controller patches
 controlPlane:
