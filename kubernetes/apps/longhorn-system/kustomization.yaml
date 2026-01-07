@@ -10,3 +10,4 @@ resources:
   - ./namespace.yaml
   - ./longhorn/ks.yaml
   - ./longhorn/jobs-ks.yaml
+  - ./longhorn/storageclasses-ks.yaml

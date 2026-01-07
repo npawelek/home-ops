@@ -1,0 +1,34 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-12h
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+parameters:
+  numberOfReplicas: "3"
+  staleReplicaTimeout: "2880"
+  fsType: "ext4"
+  dataLocality: "disabled"
+  replicaSoftAntiAffinity: "true"
+  migratable: "true"
+  recurringJobSelector: '[{"name":"backup-12h","isGroup":true},{"name":"default","isGroup":true}]'
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-6h
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+parameters:
+  numberOfReplicas: "3"
+  staleReplicaTimeout: "2880"
+  fsType: "ext4"
+  dataLocality: "disabled"
+  replicaSoftAntiAffinity: "true"
+  migratable: "true"
+  recurringJobSelector: '[{"name":"backup-6h","isGroup":true},{"name":"default","isGroup":true}]'
