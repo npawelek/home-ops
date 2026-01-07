@@ -47,6 +47,9 @@ spec:
         repository: ghcr.io/goauthentik/server
         tag: 2025.10.3
 
+      affinity:
+        podAntiAffinity: hard
+
       env:
         - name: TZ
           value: ${TIMEZONE}
@@ -66,13 +69,11 @@ spec:
         name: authentik
 
     server:
-      # TODO: Increase to 2 replicas when additional worker nodes are added
-      replicas: 1
+      replicas: 2
 
-      # TODO: Enable PDB when server replicas > 1
-      # pdb:
-      #   enabled: true
-      #   maxUnavailable: 1
+      pdb:
+        enabled: true
+        maxUnavailable: 1
 
       ingress:
         enabled: false
@@ -95,29 +96,17 @@ spec:
           cpu: 2000m
           memory: 2Gi
 
-      # TODO: Enable affinity when server replicas > 1
-      # affinity:
-      #   podAntiAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       - labelSelector:
-      #           matchLabels:
-      #             app.kubernetes.io/name: authentik
-      #             app.kubernetes.io/component: server
-      #         topologyKey: kubernetes.io/hostname
-
       metrics:
         enabled: true
         serviceMonitor:
           enabled: true
 
     worker:
-      # TODO: Increase to 2 replicas when additional worker nodes are added
-      replicas: 1
+      replicas: 2
 
-      # TODO: Enable PDB when worker replicas > 1
-      # pdb:
-      #   enabled: true
-      #   maxUnavailable: 1
+      pdb:
+        enabled: true
+        maxUnavailable: 1
 
       resources:
         requests:
@@ -126,16 +115,6 @@ spec:
         limits:
           cpu: 2000m
           memory: 2Gi
-
-      # TODO: Enable affinity when worker replicas > 1
-      # affinity:
-      #   podAntiAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       - labelSelector:
-      #           matchLabels:
-      #             app.kubernetes.io/name: authentik
-      #             app.kubernetes.io/component: worker
-      #         topologyKey: kubernetes.io/hostname
 
       metrics:
         enabled: true
