@@ -65,16 +65,15 @@ kill $(cat /run/dnsmasq-main.pid)
 
 This repo includes custom iPXE configurations for netboot.xyz with hardware-specific Talos builds:
 
-1. **Generate schematics and download assets**:
+1. **Update talenv.yaml with version intending to upgrade**:
+
+2. **Generate schematics and download assets**:
+
    ```bash
-   pip install requests pyyaml
-   python3 ipxe/generate-schematics.py
+   task ipxe:deploy
    ```
-   This creates schematic IDs and outputs a command to download all assets.
 
-2. **Deploy to netboot.xyz**: Copy the generated command output and run it on your netboot.xyz server to download kernel/initramfs files.
-
-3. **Add to menu**: Copy `ipxe/talos-custom.ipxe` to your netboot.xyz menus and add a menu entry pointing to it.
+   This creates schematic IDs, updates talos-custom.ipxe, and pushes associated configs to netboot.xyz
 
 See [ipxe/README.md](./ipxe/README.md) for detailed setup instructions.
 
@@ -89,8 +88,7 @@ See [ipxe/README.md](./ipxe/README.md) for detailed setup instructions.
 | rocinante | Worker | Talos | 8     | 64GB   | 120GB SSD   | 1TB NVMe   | amd64        | AMD    |
 | donnager  | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe   | amd64        | Intel  |
 | hammurabi | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe   | amd64        | Intel  |
-| pella     | Worker | Talos | 20    | 128GB  | 240GB SSD   | 2TB NVMe   | amd64        | Intel  |
-
+| pella     | Worker | Talos | 20    | 64GB   | 500GB SSD   | 2TB NVMe   | amd64        | Intel  |
 
 1. PXE boot custom Talos for all nodes.
 
@@ -215,6 +213,13 @@ There might be a situation where you want to destroy your Kubernetes cluster. Th
 
 ```sh
 task talos:reset
+```
+
+To redeploy, you can just re-run bootstrap:
+
+```sh
+task bootstrap:talos
+task bootstrap:apps
 ```
 
 ## 🛠️ Talos and Kubernetes Maintenance
