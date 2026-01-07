@@ -17,8 +17,7 @@ spec:
       repository: ghcr.io/cloudnative-pg/cloudnative-pg
       tag: 1.28.0@sha256:34198e85b6e6dd81471cb1c3ee222ca5231b685220e7ae38a634d35ed4826a40
 
-    # TODO: Increase to 2+ when additional worker nodes are added
-    replicaCount: 1
+    replicaCount: 2
 
     resources:
       limits:
