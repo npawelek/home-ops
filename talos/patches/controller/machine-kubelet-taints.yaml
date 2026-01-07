@@ -1,4 +1,0 @@
-machine:
-  kubelet:
-    extraArgs:
-      register-with-taints: node-role.kubernetes.io/control-plane=:NoSchedule

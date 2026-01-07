@@ -5,4 +5,4 @@ provisioning:
   diskSelector:
     match: disk.dev_path == "/dev/nvme0n1"
   grow: true
-  maxSize: 1TB
+  maxSize: 2TB

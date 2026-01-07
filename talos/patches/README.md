@@ -2,8 +2,6 @@
 
 This directory contains Kustomization patches that are added to the talhelper configuration file.
 
-<https://www.talos.dev/v1.7/talos-guides/configuration/patching/>
-
 ## Patch Directories
 
 Under this `patches` directory, there are several sub-directories that can contain patches that are added to the talhelper configuration file.
