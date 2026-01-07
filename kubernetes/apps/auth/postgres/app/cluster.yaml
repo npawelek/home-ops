@@ -64,7 +64,7 @@ spec:
 
   storage:
     size: 10Gi
-    storageClass: longhorn
+    storageClass: longhorn-6h
 
   resources:
     requests:
