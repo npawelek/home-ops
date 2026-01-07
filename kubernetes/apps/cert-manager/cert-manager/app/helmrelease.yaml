@@ -11,7 +11,7 @@ spec:
   values:
     crds:
       enabled: true
-    replicaCount: 1
+    replicaCount: 2
     dns01RecursiveNameservers: https://9.9.9.9:443/dns-query,https://149.112.112.112:443/dns-query
     dns01RecursiveNameserversOnly: true
     prometheus:
