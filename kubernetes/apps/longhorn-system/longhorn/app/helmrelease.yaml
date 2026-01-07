@@ -22,11 +22,13 @@ spec:
 
     persistence:
       defaultClass: true
-      # TODO: Increase to 3 when additional worker nodes are added
-      defaultClassReplicaCount: 1  # Start with 1, increase as nodes are added
+      defaultClassReplicaCount: 3
       reclaimPolicy: Retain
-      # TODO: Enable when additional worker nodes are added for zero-downtime node maintenance
-      # migratable: true
+      replicaSoftAntiAffinity: "true"
+      migratable: true
+      recurringJobSelector:
+        enable: true
+        jobList: '[{"name":"backup-24h","isGroup":true},{"name":"default","isGroup":true}]'
 
     defaultSettings:
       createDefaultDiskLabeledNodes: true
