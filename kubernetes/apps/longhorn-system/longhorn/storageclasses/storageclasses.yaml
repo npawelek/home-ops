@@ -12,7 +12,6 @@ parameters:
   staleReplicaTimeout: "2880"
   fsType: "ext4"
   dataLocality: "disabled"
-  replicaSoftAntiAffinity: "true"
   migratable: "true"
   recurringJobSelector: '[{"name":"backup-12h","isGroup":true},{"name":"default","isGroup":true}]'
 ---
@@ -29,6 +28,5 @@ parameters:
   staleReplicaTimeout: "2880"
   fsType: "ext4"
   dataLocality: "disabled"
-  replicaSoftAntiAffinity: "true"
   migratable: "true"
   recurringJobSelector: '[{"name":"backup-6h","isGroup":true},{"name":"default","isGroup":true}]'

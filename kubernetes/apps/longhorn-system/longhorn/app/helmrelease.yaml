@@ -24,7 +24,7 @@ spec:
       defaultClass: true
       defaultClassReplicaCount: 3
       reclaimPolicy: Retain
-      replicaSoftAntiAffinity: "true"
+      replicaSoftAntiAffinity: true
       migratable: true
       recurringJobSelector:
         enable: true
