@@ -9,6 +9,18 @@ spec:
     name: envoy-gateway
   interval: 1h
   values:
+    deployment:
+      replicas: 2
+      pod:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchLabels:
+                      control-plane: envoy-gateway
+                  topologyKey: kubernetes.io/hostname
     config:
       envoyGateway:
         gateway:
