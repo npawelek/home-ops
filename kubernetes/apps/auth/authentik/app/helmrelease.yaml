@@ -50,6 +50,9 @@ spec:
       affinity:
         podAntiAffinity: hard
 
+      deploymentStrategy:
+        type: Recreate
+
       env:
         - name: TZ
           value: ${TIMEZONE}
