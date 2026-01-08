@@ -10,9 +10,10 @@ volumeBindingMode: Immediate
 parameters:
   numberOfReplicas: "3"
   staleReplicaTimeout: "2880"
-  fsType: "ext4"
-  dataLocality: "disabled"
+  fsType: ext4
+  dataLocality: best-effort
   migratable: "true"
+  replicaAutoBalance: best-effort
   recurringJobSelector: '[{"name":"backup-12h","isGroup":true},{"name":"default","isGroup":true}]'
 ---
 apiVersion: storage.k8s.io/v1
@@ -26,7 +27,8 @@ volumeBindingMode: Immediate
 parameters:
   numberOfReplicas: "3"
   staleReplicaTimeout: "2880"
-  fsType: "ext4"
-  dataLocality: "disabled"
+  fsType: ext4
+  dataLocality: best-effort
   migratable: "true"
+  replicaAutoBalance: best-effort
   recurringJobSelector: '[{"name":"backup-6h","isGroup":true},{"name":"default","isGroup":true}]'

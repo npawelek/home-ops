@@ -25,6 +25,8 @@ spec:
       defaultClassReplicaCount: 3
       reclaimPolicy: Retain
       replicaSoftAntiAffinity: true
+      replicaAutoBalance: best-effort
+      dataLocality: best-effort
       migratable: true
       recurringJobSelector:
         enable: true
@@ -37,12 +39,10 @@ spec:
       nodeDrainPolicy: block-if-contains-last-replica
       concurrentAutomaticEngineUpgradePerNodeLimit: 1
       defaultDataPath: /var/mnt/longhorn
-      # TODO: Increase to 3 when additional worker nodes are added
-      defaultReplicaCount: '{"v1":"1","v2":"1"}'  # Start with 1, increase as nodes are added
-      # TODO: Change to false when additional worker nodes are added
-      replicaSoftAntiAffinity: true  # Allow replicas on same node (needed for single node)
-      # TODO: Add replicaAutoBalance: best-effort when additional worker nodes are added
-      restoreVolumeRecurringJobs: true
+      defaultReplicaCount: 3
+      replicaSoftAntiAffinity: false
+      replicaAutoBalance: best-effort
+      restoreVolumeRecurringJobs: false
       storageMinimalAvailablePercentage: 10
       storageReservedPercentageForDefaultDisk: 10
       snapshotDataIntegrity: fast-check
