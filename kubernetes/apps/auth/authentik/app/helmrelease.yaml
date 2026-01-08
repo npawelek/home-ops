@@ -56,6 +56,8 @@ spec:
       env:
         - name: TZ
           value: ${TIMEZONE}
+        - name: AUTHENTIK_POSTGRESQL__SSLMODE
+          value: require
 
     authentik:
       log_level: info
