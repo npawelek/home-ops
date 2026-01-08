@@ -1,4 +1,6 @@
 machine:
+  nodeLabels:
+    node.longhorn.io/create-default-disk: "true"
   kubelet:
     extraMounts:
       - destination: /var/mnt/longhorn

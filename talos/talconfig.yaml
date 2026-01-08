@@ -113,6 +113,25 @@ nodes:
         mtu: 9000
     patches:
       - "@./patches/nodes/pella-longhorn-volume.yaml"
+  - hostname: "rocinante"
+    ipAddress: "192.168.0.32"
+    installDisk: "/dev/sda"
+    machineSpec:
+      secureboot: false
+    talosImageURL: factory.talos.dev/installer/aaa7ca1ccac4ccce9c482644518ff7e962c80a0e03734a667f3c69491de6b634
+    controlPlane: false
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "a8:a1:59:57:b7:28"
+        dhcp: false
+        addresses:
+          - "192.168.0.32/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "192.168.0.1"
+        mtu: 9000
+    patches:
+      - "@./patches/nodes/rocinante-longhorn-volume.yaml"
 
 # Global patches
 patches:
