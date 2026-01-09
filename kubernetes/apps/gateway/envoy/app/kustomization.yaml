@@ -7,3 +7,4 @@ resources:
   - ./helmrelease.yaml
   - ./gateway.yaml
   - ./dnsendpoint.yaml
+  - ./auth-securitypolicy.yaml

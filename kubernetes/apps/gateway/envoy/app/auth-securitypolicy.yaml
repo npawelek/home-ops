@@ -1,0 +1,23 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: authentik-auth
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-internal
+  extAuth:
+    http:
+      backendRef:
+        name: ak-outpost-envoy-outpost
+        namespace: auth
+        port: 9000
+      path: /outpost.goauthentik.io/auth/envoy
+      headersToBackend:
+        - X-Auth-Username
+        - X-Authentik-Email
+        - X-Authentik-Name
+        - X-Authentik-UID
+        - X-Authentik-Groups
