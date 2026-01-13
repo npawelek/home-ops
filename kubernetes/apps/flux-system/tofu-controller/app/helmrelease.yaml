@@ -10,13 +10,13 @@ spec:
     name: tofu-controller
   interval: 1h
   values:
-    # Runner pod configuration
+    replicaCount: 1
+
     runner:
       image:
         repository: ghcr.io/flux-iac/tofu-controller
         tag: v0.16.0-rc.7
 
-      # Resource limits for runner pods
       resources:
         limits:
           cpu: 1000m
@@ -25,14 +25,9 @@ spec:
           cpu: 200m
           memory: 256Mi
 
-    # Controller configuration
-    replicaCount: 1
-
-    # Enable metrics
     metrics:
       enabled: true
 
-    # Security context
     securityContext:
       runAsNonRoot: true
       runAsUser: 65532
@@ -40,7 +35,6 @@ spec:
       seccompProfile:
         type: RuntimeDefault
 
-    # Pod security context
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 65532
