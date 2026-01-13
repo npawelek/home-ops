@@ -1,0 +1,26 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha2
+kind: Terraform
+metadata:
+  name: authentik
+  namespace: auth
+spec:
+  interval: 1h
+  approvePlan: auto
+  destroyResourcesOnDeletion: false
+  path: ./terraform/authentik
+  serviceAccountName: tf-runner
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  vars:
+    - name: domain
+      value: "${SECRET_DOMAIN}"
+    - name: access_token_validity
+      value: "${AUTH_VALIDITY_PERIOD}"
+  varsFrom:
+    - kind: Secret
+      name: authentik-terraform-secrets
+  writeOutputsToSecret:
+    name: authentik-terraform-outputs

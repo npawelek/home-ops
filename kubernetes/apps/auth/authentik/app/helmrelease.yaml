@@ -73,6 +73,9 @@ spec:
         host: authentik-postgres-rw
         name: authentik
 
+      embeddedOutpost:
+        enabled: true
+
     server:
       replicas: 2
 

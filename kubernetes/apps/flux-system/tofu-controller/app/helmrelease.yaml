@@ -3,27 +3,31 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: tofu-controller
-  namespace: flux-system
 spec:
   chartRef:
     kind: OCIRepository
     name: tofu-controller
   interval: 1h
   values:
-    replicaCount: 1
+    replicaCount: 2
+    concurrency: 24
+    allowCrossNamespaceRefs: true
+
+    image:
+      tag: v0.16.0-rc.7
 
     runner:
       image:
-        repository: ghcr.io/flux-iac/tofu-controller
         tag: v0.16.0-rc.7
-
+      grpc:
+        maxMessageSize: 30
       resources:
         limits:
           cpu: 1000m
-          memory: 1Gi
+          memory: 2Gi
         requests:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 400m
+          memory: 64Mi
 
     metrics:
       enabled: true
