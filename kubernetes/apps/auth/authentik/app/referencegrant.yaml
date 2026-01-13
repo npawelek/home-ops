@@ -3,7 +3,6 @@ apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
   name: authentik-outpost
-  namespace: auth
 spec:
   from:
     # Allow SecurityPolicy resources from these namespaces to reference the authentik outpost service
@@ -17,4 +16,4 @@ spec:
   to:
     - group: ""
       kind: Service
-      name: ak-outpost-proxy-outpost
+      name: ak-outpost-authentik-embedded-outpost
