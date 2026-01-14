@@ -42,7 +42,7 @@ spec:
       defaultReplicaCount: 3
       replicaSoftAntiAffinity: false
       replicaAutoBalance: best-effort
-      restoreVolumeRecurringJobs: false
+      restoreVolumeRecurringJobs: true
       storageMinimalAvailablePercentage: 10
       storageReservedPercentageForDefaultDisk: 10
       snapshotDataIntegrity: fast-check
