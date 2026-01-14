@@ -8,4 +8,4 @@ components:
 
 resources:
   - ./namespace.yaml
-  # - ./hajimari/ks.yaml  # Uncomment after restoring the volume
+  - ./hajimari/ks.yaml
