@@ -9,3 +9,4 @@ components:
 resources:
   - ./namespace.yaml
   - ./external-dns/ks.yaml
+  - ./speedtest/ks.yaml
