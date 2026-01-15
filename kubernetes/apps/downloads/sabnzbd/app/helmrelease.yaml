@@ -11,6 +11,7 @@ spec:
   values:
     controllers:
       sabnzbd:
+        replicas: 0
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
