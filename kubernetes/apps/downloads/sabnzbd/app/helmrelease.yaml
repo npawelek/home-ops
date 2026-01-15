@@ -11,6 +11,7 @@ spec:
   values:
     controllers:
       sabnzbd:
+        replicas: 1
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
@@ -24,7 +25,7 @@ spec:
                   name: sabnzbd-secrets
             env:
               TZ: ${TIMEZONE}
-              SABNZBD__PORT: &port 8080
+              SABNZBD__PORT: 8080
               SABNZBD__HOST_WHITELIST_ENTRIES: >-
                 sabnzbd,
                 sabnzbd.downloads,
@@ -36,73 +37,55 @@ spec:
               liveness: &probes
                 enabled: false
               readiness: *probes
-            securityContext:
-              runAsUser: 568
-              runAsGroup: 568
-              runAsNonRoot: true
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
-              capabilities:
-                drop:
-                  - ALL
             resources:
               requests:
                 cpu: 100m
                 memory: 1Gi
               limits:
                 memory: 8Gi
-          vpn:
-            image:
-              repository: ghcr.io/qdm12/gluetun
-              tag: v3.35.0@sha256:a98d1ec99e09a1b806aff7f0c3d8a133a8ede7d3d7a250b62029a39a61f01525
-            envFrom:
-              - secretRef:
-                  name: primary-conf93
-            env:
-              TZ: ${TIMEZONE}
-              VPN_SERVICE_PROVIDER: custom
-              VPN_TYPE: wireguard
-              FIREWALL_OUTBOUND_SUBNETS: "10.96.0.0/12"
-              DOT: "off"
-              DNS_KEEP_NAMESERVER: "off"
-              DNS_ADDRESS: "10.96.0.10"
-              BLOCK_MALICIOUS: "off"
-              HTTPPROXY: "on"
-              HTTPPROXY_LISTENING_ADDRESS: ":8888"
-              HTTPPROXY_STEALTH: "on"
-              HTTPPROXY_LOG: "on"
-              SHADOWSOCKS: "off"
-            securityContext:
-              runAsUser: 0
-              runAsGroup: 0
-              capabilities:
-                add:
-                  - NET_ADMIN
-                  - SYS_MODULE
-    defaultPodOptions:
-      securityContext:
-        fsGroup: 568
-        fsGroupChangePolicy: OnRootMismatch
+          # vpn:
+          #   image:
+          #     repository: ghcr.io/qdm12/gluetun
+          #     tag: v3.35.0@sha256:a98d1ec99e09a1b806aff7f0c3d8a133a8ede7d3d7a250b62029a39a61f01525
+          #   envFrom:
+          #     - secretRef:
+          #         name: primary-conf93
+          #   env:
+          #     TZ: ${TIMEZONE}
+          #     VPN_SERVICE_PROVIDER: custom
+          #     VPN_TYPE: wireguard
+          #     FIREWALL_OUTBOUND_SUBNETS: "10.96.0.0/12"
+          #     DOT: "off"
+          #     DNS_KEEP_NAMESERVER: "off"
+          #     DNS_ADDRESS: "10.96.0.10"
+          #     BLOCK_MALICIOUS: "off"
+          #     HTTPPROXY: "on"
+          #     HTTPPROXY_LISTENING_ADDRESS: ":8888"
+          #     HTTPPROXY_STEALTH: "on"
+          #     HTTPPROXY_LOG: "on"
+          #     SHADOWSOCKS: "off"
+          #   securityContext:
+          #     privileged: true
     service:
       app:
         controller: sabnzbd
         ports:
           http:
-            port: *port
-      proxy:
-        controller: sabnzbd
-        ports:
-          proxy:
-            port: 8888
-      ext-proxy:
-        controller: sabnzbd
-        type: LoadBalancer
-        annotations:
-          io.cilium/lb-ipam-ips: ${PROXY_LB}
-        externalTrafficPolicy: Local
-        ports:
-          proxy:
-            port: 8888
+            port: 8080
+      # proxy:
+      #   controller: sabnzbd
+      #   ports:
+      #     proxy:
+      #       port: 8888
+      # ext-proxy:
+      #   controller: sabnzbd
+      #   type: LoadBalancer
+      #   annotations:
+      #     io.cilium/lb-ipam-ips: ${PROXY_LB}
+      #   externalTrafficPolicy: Local
+      #   ports:
+      #     proxy:
+      #       port: 8888
     route:
       app:
         hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
@@ -113,7 +96,7 @@ spec:
         rules:
           - backendRefs:
               - identifier: app
-                port: *port
+                port: 8080
     persistence:
       config:
         existingClaim: sabnzbd-config
