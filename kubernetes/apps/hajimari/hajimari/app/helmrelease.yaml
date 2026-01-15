@@ -53,6 +53,39 @@ spec:
             darkTheme: "chalk"
             defaultSearchProvider: "DuckDuckGo"
             showAppStatus: true
+            customApps:
+              - group: downloads
+                apps:
+                  - name: Prowlarr
+                    icon: mdi:movie-search
+                    url: https://prowlarr.${SECRET_DOMAIN}
+                  - name: Sonarr
+                    icon: mdi:television-classic
+                    url: https://sonarr.${SECRET_DOMAIN}
+                  - name: Sonarr Anime
+                    icon: mdi:television-classic
+                    url: https://sonarr-anime.${SECRET_DOMAIN}
+                  - name: Sonarr Remux
+                    icon: mdi:television-classic
+                    url: https://sonarr-remux.${SECRET_DOMAIN}
+                  - name: SABnzbd
+                    icon: mdi:download
+                    url: https://sabnzbd.${SECRET_DOMAIN}
+                  - name: Bazarr
+                    icon: mdi:filmstrip
+                    url: https://bazarr.${SECRET_DOMAIN}
+                  - name: Radarr
+                    icon: mdi:filmstrip
+                    url: https://radarr.${SECRET_DOMAIN}
+                  - name: Radarr Anime
+                    icon: mdi:filmstrip
+                    url: https://radarr-anime.${SECRET_DOMAIN}
+                  - name: Radarr Remux
+                    icon: mdi:filmstrip
+                    url: https://radarr-remux.${SECRET_DOMAIN}
+                  - name: Pinchflat
+                    icon: mdi:youtube
+                    url: https://pinchflat.${SECRET_DOMAIN}
             globalBookmarks:
               - group: node
                 bookmarks:
@@ -87,10 +120,6 @@ spec:
                   - name: HDHomeRun
                     url: http://192.168.20.98/
     persistence:
-      # data:
-      #   existingClaim: hajimari-config
-      #   globalMounts:
-      #     - path: /data
       config-file:
         type: configMap
         identifier: config

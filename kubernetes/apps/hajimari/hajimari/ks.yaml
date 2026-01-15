@@ -6,6 +6,9 @@ metadata:
 spec:
   components:
     - ../../../../components/authentik-proxy
+  dependsOn:
+    - name: envoy-gateway
+      namespace: gateway
   interval: 1h
   path: ./kubernetes/apps/hajimari/hajimari/app
   postBuild:
