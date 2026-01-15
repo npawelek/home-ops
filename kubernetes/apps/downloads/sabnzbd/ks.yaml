@@ -1,0 +1,40 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app sabnzbd
+  namespace: flux-system
+spec:
+  targetNamespace: downloads
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: longhorn
+      namespace: longhorn-system
+    - name: envoy-gateway
+      namespace: gateway
+  path: ./kubernetes/apps/downloads/sabnzbd/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: home-ops
+  wait: false
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  postBuild:
+    substitute: {}
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-settings
+      - kind: Secret
+        name: cluster-secrets
+      - kind: ConfigMap
+        name: cluster-settings-downloads
+        optional: true
+      - kind: Secret
+        name: cluster-secrets-downloads
+        optional: true
+  components:
+    - ../../../../components/authentik-proxy
