@@ -36,6 +36,15 @@ spec:
               liveness: &probes
                 enabled: false
               readiness: *probes
+            securityContext:
+              runAsUser: 568
+              runAsGroup: 568
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities:
+                drop:
+                  - ALL
             resources:
               requests:
                 cpu: 100m
@@ -72,9 +81,6 @@ spec:
                   - SYS_MODULE
     defaultPodOptions:
       securityContext:
-        runAsNonRoot: false
-        runAsUser: 568
-        runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
     service:
