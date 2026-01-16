@@ -34,7 +34,7 @@ spec:
                 sabnzbd.${SECRET_DOMAIN}
             probes:
               liveness: &probes
-                enabled: false
+                enabled: true
                 custom: true
                 spec:
                   httpGet:
@@ -61,32 +61,18 @@ spec:
           vpn:
             image:
               repository: ghcr.io/qdm12/gluetun
-              tag: v3.35.0@sha256:a98d1ec99e09a1b806aff7f0c3d8a133a8ede7d3d7a250b62029a39a61f01525
+              tag: v3.41.0@sha256:6b54856716d0de56e5bb00a77029b0adea57284cf5a466f23aad5979257d3045
             envFrom:
               - secretRef:
-                  name: primary-conf93
+                  name: provider-config
             env:
               TZ: ${TIMEZONE}
-              VPN_SERVICE_PROVIDER: custom
-              VPN_TYPE: wireguard
-              FIREWALL_OUTBOUND_SUBNETS: "10.96.0.0/12"
-              DOT: "off"
-              DNS_KEEP_NAMESERVER: "off"
-              DNS_ADDRESS: "10.96.0.10"
-              BLOCK_MALICIOUS: "off"
-              HTTPPROXY: "on"
-              HTTPPROXY_LISTENING_ADDRESS: ":8888"
-              HTTPPROXY_STEALTH: "on"
-              HTTPPROXY_LOG: "on"
-              SHADOWSOCKS: "off"
             securityContext:
-              privileged: true
               runAsUser: 0
               runAsGroup: 0
               capabilities:
                 add:
                   - NET_ADMIN
-                  - SYS_MODULE
     service:
       app:
         controller: sabnzbd
