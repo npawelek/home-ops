@@ -14,7 +14,6 @@ resource "authentik_application" "echo" {
   slug              = "echo"
   protocol_provider = authentik_provider_proxy.echo.id
   meta_launch_url   = "https://echo.${var.domain}"
-  meta_description  = "HTTP Echo Service"
   policy_engine_mode = "any"
 }
 

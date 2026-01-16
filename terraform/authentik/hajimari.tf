@@ -14,7 +14,6 @@ resource "authentik_application" "hajimari" {
   slug              = "hajimari"
   protocol_provider = authentik_provider_proxy.hajimari.id
   meta_launch_url   = "https://hajimari.${var.domain}"
-  meta_description  = "Application Dashboard"
   policy_engine_mode = "any"
 }
 

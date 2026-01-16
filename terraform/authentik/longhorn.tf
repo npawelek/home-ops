@@ -14,7 +14,6 @@ resource "authentik_application" "longhorn" {
   slug              = "longhorn"
   protocol_provider = authentik_provider_proxy.longhorn.id
   meta_launch_url   = "https://longhorn.${var.domain}"
-  meta_description  = "Longhorn Storage UI"
   policy_engine_mode = "any"
 }
 

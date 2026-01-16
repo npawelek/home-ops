@@ -14,7 +14,6 @@ resource "authentik_application" "speedtest" {
   slug              = "speedtest"
   protocol_provider = authentik_provider_proxy.speedtest.id
   meta_launch_url   = "https://speedtest.${var.domain}"
-  meta_description  = "Network Speed Test"
   policy_engine_mode = "any"
 }
 
