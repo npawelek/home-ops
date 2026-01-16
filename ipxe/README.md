@@ -16,10 +16,10 @@ ipxe/
 <!-- SCHEMATIC_IDS_START -->
 **Talos Version**: v1.12.1
 
-- **Intel i915**: `cb7da86b4fcb609c69baf7acb446971db6d3c81b6b7adad99cac56c6f30283e4`
-- **Intel XE Arc**: `bd85ff4e0a248a085ffff29026cd1526c3f6d08a0b6f0da07bb983057b9498a7`
-- **AMD iGPU**: `aaa7ca1ccac4ccce9c482644518ff7e962c80a0e03734a667f3c69491de6b634`
-- **Raspberry Pi**: `b4a7cf89c3c968b7917f56a217ee807a0537518699dc2085bb8f615433c172b4`
+- **Intel i915**: `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da`
+- **Intel XE Arc**: `af21fdb5d527231e8317c56edb0a4daf3cf925843d04e1eb76563126f8ff2c23`
+- **AMD iGPU**: `f0b77609affe4cdc9b0e8fcf943e5e14eeba33678424860a3a845bb1b10c82d8`
+- **Raspberry Pi**: `9dfae53ec9d4b97cce946e2b16edfdce0e6c33aaf2019cc219c68e18acafaa7a`
 <!-- SCHEMATIC_IDS_END -->
 
 *This section is automatically updated by the generate script.*

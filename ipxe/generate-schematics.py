@@ -31,7 +31,6 @@ TALCONFIG_FILE = REPO_ROOT / "talos" / "talconfig.yaml"
 
 # Kernel arguments to apply to all schematics
 KERNEL_ARGS = [
-    "ipv6.disable=1",
     "net.ifnames=0",
 ]
 
@@ -63,7 +62,7 @@ BUILD_CONFIGS = [
         "YOUR_INTEL_ARC_SCHEMATIC_ID",
         ["siderolabs/xe", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/mei", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         None,
-        [],
+        ["pella"],
     ),
     (
         "AMD iGPU",
@@ -71,7 +70,7 @@ BUILD_CONFIGS = [
         "YOUR_AMD_IGPU_SCHEMATIC_ID",
         ["siderolabs/amdgpu", "siderolabs/amd-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         None,
-        [],
+        ["rocinante"],
     ),
     (
         "Raspberry Pi",
