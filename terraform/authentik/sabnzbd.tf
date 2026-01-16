@@ -1,25 +1,23 @@
 resource "authentik_provider_proxy" "sabnzbd" {
-  name               = "sabnzbd"
-  external_host      = "https://sabnzbd.${var.secret_domain}"
-  mode               = "forward_single"
-  access_token_validity = "hours=24"
+  name                         = "sabnzbd-proxy"
+  access_token_validity        = var.access_token_validity
+  authorization_flow           = data.authentik_flow.default_authorization_flow.id
+  invalidation_flow            = data.authentik_flow.default_invalidation_flow.id
+  external_host                = "https://sabnzbd.${var.domain}"
+  internal_host_ssl_validation = true
+  mode                         = "forward_single"
+  intercept_header_auth        = true
 }
 
 resource "authentik_application" "sabnzbd" {
-  name              = "sabnzbd"
-  slug              = "sabnzbd"
+  name               = "SABnzbd"
+  slug               = "sabnzbd"
+  protocol_provider  = authentik_provider_proxy.sabnzbd.id
+  meta_launch_url    = "https://sabnzbd.${var.domain}"
+  policy_engine_mode = "any"
+}
+
+resource "authentik_outpost_provider_attachment" "sabnzbd" {
+  outpost           = data.authentik_outpost.embedded.id
   protocol_provider = authentik_provider_proxy.sabnzbd.id
-  meta_icon         = "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/sabnzbd.png"
-  meta_publisher    = "SABnzbd"
-  group             = "Downloads"
-}
-
-resource "authentik_policy_binding" "sabnzbd_access" {
-  target = authentik_application.sabnzbd.uuid
-  group  = authentik_group.users.id
-  order  = 0
-}
-
-output "sabnzbd_outpost_config" {
-  value = authentik_provider_proxy.sabnzbd.id
 }
