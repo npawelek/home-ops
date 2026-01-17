@@ -5,7 +5,7 @@ resources:
   - ./namespace.yaml
   # - ./bazarr/ks.yaml
   # - ./pinchflat/ks.yaml
-  # - ./prowlarr/ks.yaml
+  - ./prowlarr/ks.yaml
   # - ./radarr/ks.yaml
   # - ./radarr-anime/ks.yaml
   # - ./radarr-remux/ks.yaml
