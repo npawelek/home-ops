@@ -7,7 +7,6 @@ metadata:
 spec:
   interval: 1h
   approvePlan: auto
-  applyOnDriftDetection: true
   destroyResourcesOnDeletion: false
   path: ./terraform/authentik
   serviceAccountName: tf-runner
