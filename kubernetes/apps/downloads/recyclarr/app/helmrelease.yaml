@@ -11,14 +11,10 @@ spec:
   values:
     controllers:
       recyclarr:
-        type: cronjob
-        cronjob:
-          schedule: "@daily"
-          ttlSecondsAfterFinished: 86400
+        type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
-          restartPolicy: OnFailure
           securityContext:
             runAsUser: 568
             runAsGroup: 568
