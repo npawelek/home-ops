@@ -57,7 +57,7 @@ spec:
                 cpu: 100m
                 memory: 1Gi
               limits:
-                memory: 8Gi
+                memory: 2Gi
           vpn:
             image:
               repository: ghcr.io/qdm12/gluetun
