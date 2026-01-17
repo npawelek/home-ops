@@ -39,3 +39,19 @@ tasks:
     preconditions:
       - test -f {{.KUBECONFIG}}
       - which flux
+
+  tf-reconcile:
+    desc: Request Terraform controller to reconcile (graceful)
+    cmd: kubectl annotate terraform authentik -n auth reconcile.fluxcd.io/requestedAt="$(date +%s)" --overwrite
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+      - kubectl get terraform authentik -n auth &>/dev/null || (echo "Terraform resource 'authentik' not found in namespace 'auth'" && exit 1)
+
+  tf-force:
+    desc: Force Terraform controller to reconcile (suspend/resume)
+    cmd: kubectl patch terraform authentik -n auth -p '{"spec":{"suspend":true}}' --type=merge && sleep 2 && kubectl patch terraform authentik -n auth -p '{"spec":{"suspend":false}}' --type=merge
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+      - kubectl get terraform authentik -n auth &>/dev/null || (echo "Terraform resource 'authentik' not found in namespace 'auth'" && exit 1)
