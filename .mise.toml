@@ -33,6 +33,7 @@ enter = "mise run check-deps"
 "aqua:mikefarah/yq" = "4.50.1"
 "aqua:siderolabs/talos" = "1.12.1"
 "aqua:yannh/kubeconform" = "0.7.0"
+"aqua:pre-commit" = "4.5.1"
 
 [shell_alias]
 k = "kubectl"

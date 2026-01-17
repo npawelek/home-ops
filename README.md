@@ -111,7 +111,14 @@ See [ipxe/README.md](./ipxe/README.md) for detailed setup instructions.
    📍 _**Having trouble installing the tools?** Try unsetting the `GITHUB_TOKEN` env var and then run these commands again_
    📍 _**Having trouble compiling Python?** Try running `mise settings python.compile=0` and then run these commands again_
 
-4. Logout of GitHub Container Registry (GHCR) as this may cause authorization problems when using the public registry:
+4. Install pre-commit hooks
+
+    ```sh
+    pre-commit install
+    pre-commit run --all-files
+    ```
+
+5. Logout of GitHub Container Registry (GHCR) as this may cause authorization problems when using the public registry:
 
     ```sh
     docker logout ghcr.io
