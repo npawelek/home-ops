@@ -1,0 +1,69 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: recyclarr
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: recyclarr
+  interval: 1h
+  values:
+    controllers:
+      recyclarr:
+        type: cronjob
+        cronjob:
+          schedule: "@daily"
+          ttlSecondsAfterFinished: 86400
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          restartPolicy: OnFailure
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+        initContainers:
+          init-config:
+            image:
+              repository: docker.io/library/alpine
+              tag: 3.23.2@sha256:865b95f46d98cf867a156fe4a135ad3fe50d2056aa3f25ed31662dff6da4eb62
+              pullPolicy: IfNotPresent
+            command:
+              - /bin/sh
+              - -c
+              - cp /tmp/config/recyclarr.yml /config/recyclarr.yml
+        containers:
+          app:
+            image:
+              repository: ghcr.io/recyclarr/recyclarr
+              tag: 7.5.2@sha256:2550848d43a453f2c6adf3582f2198ac719f76670691d76de0819053103ef2fb
+            env:
+              TZ: ${TIMEZONE}
+              http_proxy: ${HTTP_PROXY}
+              https_proxy: ${HTTPS_PROXY}
+              no_proxy: ${NO_PROXY}
+            envFrom:
+              - secretRef:
+                  name: recyclarr-secrets
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+    service:
+      app:
+        enabled: false
+    persistence:
+      config-file:
+        type: configMap
+        name: recyclarr-configmap
+        globalMounts:
+          - path: /tmp/config
+      config:
+        type: persistentVolumeClaim
+        existingClaim: recyclarr-config
+        globalMounts:
+          - path: /config

@@ -1,0 +1,398 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/recyclarr/recyclarr/master/schemas/config-schema.json
+
+# For more details on the configuration, see the Configuration Reference on the wiki here:
+# https://github.com/recyclarr/recyclarr/wiki/Configuration-Reference
+
+sonarr:
+  ###################################################################################################
+  # Recyclarr Configuration Template: WEB-1080p (V4)                                                #
+  # Updated: 2024-10-02                                                                             #
+  # Documentation: https://recyclarr.dev                                                            #
+  ###################################################################################################
+  web-1080p-v4:
+    base_url: http://sonarr.downloads.svc.cluster.local:8989
+    api_key: !env_var SONARR_1080P_APIKEY
+
+    include:
+      # Comment out any of the following includes to disable them
+      # https://github.com/recyclarr/config-templates/tree/master/sonarr/includes
+      - template: sonarr-quality-definition-series
+      - template: sonarr-v4-quality-profile-web-1080p
+      - template: sonarr-v4-custom-formats-web-1080p
+
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: true
+
+    # Custom Formats: https://recyclarr.dev/reference/configuration/custom-formats/
+    custom_formats:
+      # ——— Video Codec: Block x265 ———
+      - trash_ids:
+          - 9b64dff695c2115facf1b6ea59c9bd07 # x265 (no HDR/DV)
+        assign_scores_to:
+          - name: WEB-1080p
+            score: -10000
+
+      # ——— Optional: Quality Control ———
+      - trash_ids:
+          - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
+        assign_scores_to:
+          - name: WEB-1080p
+            score: -2000
+
+      - trash_ids:
+          - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
+        assign_scores_to:
+          - name: WEB-1080p
+            score: -1500
+
+      - trash_ids:
+          - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
+        assign_scores_to:
+          - name: WEB-1080p
+            score: -2500
+
+      - trash_ids:
+          - 06d66ab109d4d2eddb2794d21526d140 # Retags
+        assign_scores_to:
+          - name: WEB-1080p
+            score: -1500
+
+      - trash_ids:
+          - 1b3994c551cbb92a2c781af061f4ab44 # Scene
+        assign_scores_to:
+          - name: WEB-1080p
+            score: 500
+
+  ###################################################################################################
+  # Recyclarr Configuration Template: WEB-2160p (V4)                                                #
+  # Updated: 2025-09-07                                                                             #
+  # Documentation: https://recyclarr.dev                                                            #
+  ###################################################################################################
+  web-2160p-v4:
+    base_url: http://sonarr-remux.downloads.svc.cluster.local:8989
+    api_key: !env_var SONARR_2160P_APIKEY
+
+    include:
+      # Comment out any of the following includes to disable them
+      # https://github.com/recyclarr/config-templates/tree/master/sonarr/includes
+      - template: sonarr-quality-definition-series
+      - template: sonarr-v4-quality-profile-web-2160p
+      - template: sonarr-v4-custom-formats-web-2160p
+
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: true
+
+    # Custom Formats: https://recyclarr.dev/wiki/yaml/config-reference/custom-formats/
+    custom_formats:
+      # ——— HDR & Dolby Vision ———
+      - trash_ids:
+          - 9b27ab6498ec0f31a3353992e19434ca # DV (w/o HDR fallback)
+          - 7c3a61a9c6cb04f52f1544be6d44a026 # DV Boost
+        assign_scores_to:
+          - name: WEB-2160p
+            score: 300
+
+      # ——— HDR (Reduce score to prioritize DV w/o HDR fallback) ———
+      - trash_ids:
+          - 505d871304820ba7106b693be6fe4a9e # HDR
+        assign_scores_to:
+          - name: WEB-2160p
+            score: 200
+
+      # ——— Optional: Quality Control ———
+      - trash_ids:
+          - 32b367365729d530ca1c124a0b180c64 # Bad Dual Groups
+        assign_scores_to:
+          - name: WEB-2160p
+            score: -2000
+
+      - trash_ids:
+          - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
+        assign_scores_to:
+          - name: WEB-2160p
+            score: -1500
+
+      - trash_ids:
+          - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
+        assign_scores_to:
+          - name: WEB-2160p
+            score: -2500
+
+      - trash_ids:
+          - 06d66ab109d4d2eddb2794d21526d140 # Retags
+        assign_scores_to:
+          - name: WEB-2160p
+            score: -1500
+
+      - trash_ids:
+          - 1b3994c551cbb92a2c781af061f4ab44 # Scene
+        assign_scores_to:
+          - name: WEB-2160p
+            score: 500
+
+      # ——— Video Codec ———
+      - trash_ids:
+          - 47435ece6b99a0b477caf360e79ba0bb # x265 (HD)
+        assign_scores_to:
+          - name: WEB-2160p
+            score: 150
+
+      # ——— Block SDR ———
+      - trash_ids:
+          - 2016d1676f5ee13a5b7257ff86ac9a93 # SDR
+        assign_scores_to:
+          - name: WEB-2160p
+            score: -10000
+
+  ###################################################################################################
+  # Recyclarr Configuration Template: Anime Sonarr                                                  #
+  # Updated: 2024-08-08                                                                             #
+  # Documentation: https://recyclarr.dev                                                            #
+  ###################################################################################################
+  anime-sonarr-v4:
+    base_url: http://sonarr-anime.downloads.svc.cluster.local:8989
+    api_key: !env_var SONARR_ANIME_APIKEY
+
+    include:
+      # Comment out any of the following includes to disable them
+      # https://github.com/recyclarr/config-templates/tree/master/sonarr/includes
+      - template: sonarr-quality-definition-anime
+      - template: sonarr-v4-quality-profile-anime
+      - template: sonarr-v4-custom-formats-anime
+
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: true
+
+    # Custom Formats: https://recyclarr.dev/reference/configuration/custom-formats/
+    custom_formats:
+      # ——— Core Quality (Highest Priority) ———
+      - trash_ids:
+          - b2550eb333d27b75833e25b8c2557b38 # 10bit
+        assign_scores_to:
+          - name: Remux-1080p - Anime
+            score: 300
+
+      # ——— Content Preference ———
+      - trash_ids:
+          - 026d5aadd1a6b4e550b134cb6c72b3ca # Uncensored
+        assign_scores_to:
+          - name: Remux-1080p - Anime
+            score: 200
+
+      # ——— Audio Preference ———
+      - trash_ids:
+          - 418f50b10f1907201b6cfdf881f467b7 # Anime Dual Audio
+        assign_scores_to:
+          - name: Remux-1080p - Anime
+            score: 100
+
+radarr:
+  ###################################################################################################
+  # Recyclarr Configuration Template: HD Bluray + WEB                                               #
+  # Updated: 2025-05-04                                                                             #
+  # Documentation: https://recyclarr.dev                                                            #
+  ###################################################################################################
+  hd-bluray-web:
+    base_url: http://radarr.downloads.svc.cluster.local:7878
+    api_key: !env_var RADARR_1080P_APIKEY
+
+    include:
+      # https://github.com/recyclarr/config-templates/tree/master/radarr/includes
+      - template: radarr-quality-definition-movie
+      - template: radarr-quality-profile-hd-bluray-web
+      - template: radarr-custom-formats-hd-bluray-web
+
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: true
+
+    custom_formats:
+      # ——— Movie Versions ———
+      - trash_ids:
+          - 570bc9ebecd92723d2d21500f4be314c # Remaster
+        assign_scores_to:
+          - name: HD Bluray + WEB
+            score: 100
+
+      - trash_ids:
+          - 957d0f44b592285f26449575e8b1167e # Special Edition
+        assign_scores_to:
+          - name: HD Bluray + WEB
+            score: 50
+
+      # ——— Optional: Quality Control ———
+      - trash_ids:
+          - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups
+        assign_scores_to:
+          - name: HD Bluray + WEB
+            score: -2000
+
+      - trash_ids:
+          - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
+        assign_scores_to:
+          - name: HD Bluray + WEB
+            score: -1500
+
+      - trash_ids:
+          - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
+        assign_scores_to:
+          - name: HD Bluray + WEB
+            score: -2500
+
+      - trash_ids:
+          - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
+        assign_scores_to:
+          - name: HD Bluray + WEB
+            score: -1500
+
+      - trash_ids:
+          - f537cf427b64c38c8e36298f657e4828 # Scene
+        assign_scores_to:
+          - name: HD Bluray + WEB
+            score: 500
+
+  ###################################################################################################
+  # Recyclarr Configuration Template: UHD Bluray + WEB                                              #
+  # Updated: 2025-09-07                                                                             #
+  # Documentation: https://recyclarr.dev                                                            #
+  ###################################################################################################
+  uhd-bluray-web:
+    base_url: http://radarr-remux.downloads.svc.cluster.local:7878
+    api_key: !env_var RADARR_2160P_APIKEY
+
+    include:
+      # https://github.com/recyclarr/config-templates/tree/master/radarr/includes
+      - template: radarr-quality-definition-movie
+      - template: radarr-quality-profile-uhd-bluray-web
+      - template: radarr-custom-formats-uhd-bluray-web
+
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: true
+
+    # Custom Formats: https://recyclarr.dev/wiki/yaml/config-reference/custom-formats/
+    custom_formats:
+      # ——— Movie Versions (Only IMAX Enhanced & 4K Remaster) ———
+      - trash_ids:
+          - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: 300
+
+      - trash_ids:
+          - eca37840c13c6ef2dd0262b141a5482f # 4K Remaster
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: 200
+
+      # ——— Audio Formats (Prioritize Atmos & DTS:X) ———
+      - trash_ids:
+          - 496f355514737f7d83bf7aa4d24f8169 # TrueHD Atmos
+          - 1af239278386be2919e1bcee0bde047e # ATMOS (undefined)
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: 300
+
+      - trash_ids:
+          - 2f22d89048b01681dde8afe203bf2e95 # DTS X
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: 250
+
+      - trash_ids:
+          - 3cafb66171b47f226146a0770576870f # TrueHD
+          - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: 200
+
+      # ——— Quality Control (Penalize Bad Releases) ———
+      - trash_ids:
+          - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: -2000
+
+      - trash_ids:
+          - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: -1500
+
+      - trash_ids:
+          - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: -2500
+
+      - trash_ids:
+          - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: -1500
+
+      - trash_ids:
+          - f537cf427b64c38c8e36298f657e4828 # Scene
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: 500
+
+      # ——— Video & HDR (Dolby Vision Only) ———
+      - trash_ids:
+          - 923b6abef9b17f937fab56cfcf89e1f1 # DV (w/o HDR fallback)
+          - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: 300
+
+      # ——— HDR (Reduce score to prioritize DV w/o HDR fallback) ———
+      - trash_ids:
+          - 493b6d1dbec3c3364c59d7607f7e3405 # HDR
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: 200
+
+      # ——— Block SDR ———
+      - trash_ids:
+          - 9c38ebb7384dada637be8899efa68e6f # SDR
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+            score: -10000
+
+  ###################################################################################################
+  # Recyclarr Configuration Template: Anime Radarr                                                  #
+  # Updated: 2025-06-03                                                                             #
+  # Documentation: https://recyclarr.dev                                                            #
+  ###################################################################################################
+  anime-radarr:
+    base_url: http://radarr-anime.downloads.svc.cluster.local:7878
+    api_key: !env_var RADARR_ANIME_APIKEY
+
+    include:
+      # https://github.com/recyclarr/config-templates/tree/master/radarr/includes
+      - template: radarr-quality-definition-movie
+      - template: radarr-quality-profile-anime
+      - template: radarr-custom-formats-anime
+
+    delete_old_custom_formats: true
+    replace_existing_custom_formats: true
+
+    custom_formats:
+      # ——— Core Quality (Highest Priority) ———
+      - trash_ids:
+          - a5d148168c4506b55cf53984107c396e # 10bit
+        assign_scores_to:
+          - name: Remux-1080p - Anime
+            score: 300
+
+      # ——— Content Preference ———
+      - trash_ids:
+          - 064af5f084a0a24458cc8ecd3220f93f # Uncensored
+        assign_scores_to:
+          - name: Remux-1080p - Anime
+            score: 200
+
+      # ——— Audio Preference ———
+      - trash_ids:
+          - 4a3b087eea2ce012fcc1ce319259a3be # Anime Dual Audio
+        assign_scores_to:
+          - name: Remux-1080p - Anime
+            score: 100
