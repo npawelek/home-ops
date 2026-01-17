@@ -89,7 +89,10 @@ spec:
         type: LoadBalancer
         annotations:
           io.cilium/lb-ipam-ips: ${PROXY_LB}
-        externalTrafficPolicy: Local
+        # https://github.com/cilium/cilium/issues/27800
+        # Local is broken on Cilium with kube-proxy replacement
+        # Essentially the lease does not go to the proper node
+        externalTrafficPolicy: Cluster
         ports:
           proxy:
             port: 8888
