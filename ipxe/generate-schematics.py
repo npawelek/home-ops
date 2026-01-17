@@ -46,7 +46,7 @@ RPI_OVERLAY = {
 }
 
 # Build configurations
-# Format: (name, arch, placeholder, extensions, board_config, node_hostnames)
+# Format: (name, arch, placeholder, extensions, board_config, node_hostnames, extra_kernel_args)
 BUILD_CONFIGS = [
     (
         "Intel i915",
@@ -55,14 +55,16 @@ BUILD_CONFIGS = [
         ["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         None,
         ["m1", "m2", "m3", "karakum"],
+        [],
     ),
     (
         "Intel XE Arc",
         "amd64",
         "YOUR_INTEL_ARC_SCHEMATIC_ID",
-        ["siderolabs/xe", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/mei", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
+        ["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/mei", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         None,
         ["pella"],
+        [],
     ),
     (
         "AMD iGPU",
@@ -71,6 +73,7 @@ BUILD_CONFIGS = [
         ["siderolabs/amdgpu", "siderolabs/amd-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         None,
         ["rocinante"],
+        [],
     ),
     (
         "Raspberry Pi",
@@ -78,6 +81,7 @@ BUILD_CONFIGS = [
         "YOUR_RPI_SCHEMATIC_ID",
         ["siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/util-linux-tools"],
         RPI_OVERLAY,
+        [],
         [],
     ),
 ]
@@ -108,12 +112,17 @@ def get_latest_talos_version() -> str:
     sys.exit(1)
 
 
-def generate_schematic_yaml(extensions: List[str], board_config: Dict = None) -> str:
+def generate_schematic_yaml(extensions: List[str], board_config: Dict = None, extra_kernel_args: List[str] = None) -> str:
     """Generate schematic YAML configuration."""
+    # Combine global and extra kernel args
+    all_kernel_args = KERNEL_ARGS.copy()
+    if extra_kernel_args:
+        all_kernel_args.extend(extra_kernel_args)
+
     config = {
         "customization": {
             "systemExtensions": {"officialExtensions": extensions},
-            "extraKernelArgs": KERNEL_ARGS,
+            "extraKernelArgs": all_kernel_args,
         }
     }
 
@@ -125,15 +134,20 @@ def generate_schematic_yaml(extensions: List[str], board_config: Dict = None) ->
 
 
 def generate_schematic(
-    name: str, arch: str, extensions: List[str], talos_version: str, board_config: Dict = None, node_hostnames: List[str] = None
+    name: str, arch: str, extensions: List[str], talos_version: str, board_config: Dict = None, node_hostnames: List[str] = None, extra_kernel_args: List[str] = None
 ) -> str:
     """Generate a schematic and return its ID."""
     print(f"\nGenerating schematic for: {name}")
     print(f"Architecture: {arch}")
     print(f"Extensions: {', '.join(extensions)}")
-    print(f"Kernel args: {', '.join(KERNEL_ARGS)}")
 
-    overlay = generate_schematic_yaml(extensions, board_config)
+    # Show all kernel args
+    all_kernel_args = KERNEL_ARGS.copy()
+    if extra_kernel_args:
+        all_kernel_args.extend(extra_kernel_args)
+    print(f"Kernel args: {', '.join(all_kernel_args)}")
+
+    overlay = generate_schematic_yaml(extensions, board_config, extra_kernel_args)
     print("\nOverlay configuration:")
     print(overlay)
 
@@ -278,8 +292,8 @@ def main():
     schematic_ids = {}
     node_mapping = {}
 
-    for name, arch, placeholder, extensions, board_config, node_hostnames in BUILD_CONFIGS:
-        schematic_id = generate_schematic(name, arch, extensions, talos_version, board_config, node_hostnames)
+    for name, arch, placeholder, extensions, board_config, node_hostnames, extra_kernel_args in BUILD_CONFIGS:
+        schematic_id = generate_schematic(name, arch, extensions, talos_version, board_config, node_hostnames, extra_kernel_args)
         if schematic_id:
             schematic_ids[placeholder] = schematic_id
             # Map hostnames to schematic IDs
@@ -293,7 +307,7 @@ def main():
     if update_ipxe_file(schematic_ids, talos_version):
         print(f"\n✓ Updated {IPXE_FILE}")
         print(f"  - Talos version: {talos_version}")
-        for name, _, placeholder, _, _, _ in BUILD_CONFIGS:
+        for name, _, placeholder, _, _, _, _ in BUILD_CONFIGS:
             if placeholder in schematic_ids:
                 print(f"  - {name}: {schematic_ids[placeholder]}")
 
@@ -320,7 +334,7 @@ def main():
         }
 
         download_cmds = []
-        for name, arch, placeholder, _, _, _ in BUILD_CONFIGS:
+        for name, arch, placeholder, _, _, _, _ in BUILD_CONFIGS:
             if placeholder in schematic_ids:
                 schematic_id = schematic_ids[placeholder]
                 file_prefix = filename_map.get(name, name.lower().replace(" ", "-"))
@@ -337,7 +351,7 @@ def main():
         print("\n" + "=" * 60)
     else:
         print("\nManual schematic IDs:")
-        for name, _, placeholder, _, _, _ in BUILD_CONFIGS:
+        for name, _, placeholder, _, _, _, _ in BUILD_CONFIGS:
             if placeholder in schematic_ids:
                 print(f"  - {name}: {schematic_ids[placeholder]}")
 
