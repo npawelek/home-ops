@@ -14,4 +14,4 @@ resources:
   - ./sabnzbd/ks.yaml
   - ./sonarr/ks.yaml
   # - ./sonarr-anime/ks.yaml
-  # - ./sonarr-remux/ks.yaml
+  - ./sonarr-remux/ks.yaml
