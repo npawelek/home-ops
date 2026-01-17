@@ -6,10 +6,10 @@ resources:
   # - ./bazarr/ks.yaml
   # - ./pinchflat/ks.yaml
   - ./prowlarr/ks.yaml
-  # - ./radarr/ks.yaml
-  # - ./radarr-anime/ks.yaml
-  # - ./radarr-remux/ks.yaml
-  # - ./radarr-trailers/ks.yaml
+  - ./radarr/ks.yaml
+  - ./radarr-anime/ks.yaml
+  - ./radarr-remux/ks.yaml
+  - ./radarr-trailers/ks.yaml
   # - ./recyclarr/ks.yaml
   - ./sabnzbd/ks.yaml
   - ./sonarr/ks.yaml

@@ -1,0 +1,77 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: radarr-trailers
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: radarr-trailers
+  interval: 1h
+  values:
+    controllers:
+      radarr-trailers:
+        type: cronjob
+        cronjob:
+          schedule: "10 0,8,16 * * *"
+          ttlSecondsAfterFinished: 86400
+        pod:
+          restartPolicy: OnFailure
+        containers:
+          app:
+            image:
+              repository: jauderho/yt-dlp
+              tag: 2025.12.08@sha256:0195230d6c0e8e90321cf6f0ea01a1ff2de574823367972e0abd451b4e838053
+            command:
+              - /bin/sh
+              - /scripts/get_trailers.sh
+            envFrom:
+              - secretRef:
+                  name: radarr-trailers-secrets
+            env:
+              TZ: ${TIMEZONE}
+              http_proxy: ${HTTP_PROXY}
+              https_proxy: ${HTTPS_PROXY}
+              no_proxy: ${NO_PROXY}
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                memory: 1Gi
+    service:
+      app:
+        enabled: false
+    persistence:
+      cache:
+        type: emptyDir
+        medium: Memory
+        sizeLimit: 4Gi
+        globalMounts:
+          - path: /cache
+      movies:
+        type: nfs
+        server: ${RACKNAS_ADDR}
+        path: /volume1/media/Movies
+        globalMounts:
+          - path: /library/Movies
+      movies-anime:
+        type: nfs
+        server: ${RACKNAS_ADDR}
+        path: /volume1/media/Movies-Anime
+        globalMounts:
+          - path: /library/Movies-Anime
+      movies-remux:
+        type: nfs
+        server: ${RACKNAS_ADDR}
+        path: /volume1/media/Movies-Remux
+        globalMounts:
+          - path: /library/Movies-Remux
+      scripts:
+        type: configMap
+        name: radarr-trailers-configmap
+        defaultMode: 0775
+        globalMounts:
+          - path: /scripts/get_trailers.sh
+            subPath: get_trailers.sh
+            readOnly: true
