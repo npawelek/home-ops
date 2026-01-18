@@ -56,36 +56,54 @@ spec:
             customApps:
               - group: downloads
                 apps:
-                  - name: Prowlarr
-                    icon: mdi:movie-search
-                    url: https://prowlarr.${SECRET_DOMAIN}
+                  - name: Jellyseerr
+                    icon: mdi:jellyfish
+                    url: https://jellyseerr.${SECRET_DOMAIN}
                   - name: Sonarr
                     icon: mdi:television-classic
                     url: https://sonarr.${SECRET_DOMAIN}
-                  - name: Sonarr Anime
-                    icon: mdi:television-classic
-                    url: https://sonarr-anime.${SECRET_DOMAIN}
                   - name: Sonarr Remux
                     icon: mdi:television-classic
                     url: https://sonarr-remux.${SECRET_DOMAIN}
+                  - name: Sonarr Anime
+                    icon: mdi:television-classic
+                    url: https://sonarr-anime.${SECRET_DOMAIN}
                   - name: SABnzbd
                     icon: mdi:download
                     url: https://sabnzbd.${SECRET_DOMAIN}
-                  - name: Bazarr
-                    icon: mdi:filmstrip
-                    url: https://bazarr.${SECRET_DOMAIN}
                   - name: Radarr
                     icon: mdi:filmstrip
                     url: https://radarr.${SECRET_DOMAIN}
-                  - name: Radarr Anime
-                    icon: mdi:filmstrip
-                    url: https://radarr-anime.${SECRET_DOMAIN}
                   - name: Radarr Remux
                     icon: mdi:filmstrip
                     url: https://radarr-remux.${SECRET_DOMAIN}
+                  - name: Radarr Anime
+                    icon: mdi:filmstrip
+                    url: https://radarr-anime.${SECRET_DOMAIN}
+                  - name: Prowlarr
+                    icon: mdi:movie-search
+                    url: https://prowlarr.${SECRET_DOMAIN}
                   - name: Pinchflat
                     icon: mdi:youtube
                     url: https://pinchflat.${SECRET_DOMAIN}
+                  - name: Bazarr
+                    icon: mdi:filmstrip
+                    url: https://bazarr.${SECRET_DOMAIN}
+              - group: media
+                apps:
+                  - name: Jellyfin
+                    icon: simple-icons:jellyfin
+                    url: https://jellyfin.${SECRET_DOMAIN}
+              - group: transcode
+                apps:
+                  - name: Unmanic
+                    icon: mdi:cog-transfer
+                    url: https://unmanic.${SECRET_DOMAIN}
+              - group: network
+                apps:
+                  - name: Echo
+                    icon: mdi:download-network-outline
+                    url: https://echo.${SECRET_DOMAIN}
             globalBookmarks:
               - group: node
                 bookmarks:
@@ -96,29 +114,29 @@ spec:
               - group: network
                 bookmarks:
                   - name: UniFi Network
-                    url: https://udmp.${SECRET_DOMAIN}/network/default/dashboard
-                  - name: UniFi Protect
-                    url: https://udmp.${SECRET_DOMAIN}/protect/dashboard
-                  - name: UDM-Pro
-                    url: https://udmp.${SECRET_DOMAIN}/settings/updates
+                    url: https://udmp.${SECRET_DOMAIN}
+                  - name: AWS
+                    url: https://${AWS_LOGIN_ALIAS}.signin.aws.amazon.com
               - group: storage
                 bookmarks:
-                  - name: Synology DS1512+
-                    url: https://derpnas.${SECRET_DOMAIN}:8079
                   - name: Synology RS1221+
                     url: https://racknas.${SECRET_DOMAIN}:8079
+                  - name: Synology DS1512+
+                    url: https://derpnas.${SECRET_DOMAIN}:8079
               - group: miscellaneous
                 bookmarks:
+                  - name: Pool Dashboard
+                    url: http://pool.${SECRET_DOMAIN}
+                  - name: Valetudo (Floofeater)
+                    url: http://floofeater.${SECRET_DOMAIN}
+                  - name: Valetudo (Rosie)
+                    url: http://rosie.${SECRET_DOMAIN}
+                  - name: HDHomeRun
+                    url: http://hdhomerun.${SECRET_DOMAIN}
                   - name: HyperHDR Samsung 55
                     url: https://hyp-samsung55.${SECRET_DOMAIN}
                   - name: Octoprint
                     url: https://octopi.${SECRET_DOMAIN}
-                  - name: Valetudo (Floofeater)
-                    url: http://192.168.10.146
-                  - name: Valetudo (Rosie)
-                    url: http://192.168.10.145
-                  - name: HDHomeRun
-                    url: http://192.168.20.98/
     persistence:
       config-file:
         type: configMap
