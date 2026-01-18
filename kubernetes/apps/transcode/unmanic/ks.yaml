@@ -9,6 +9,9 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gpu
+    - ../../../../components/authentik-proxy
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
@@ -32,5 +35,3 @@ spec:
     substituteFrom:
       - kind: Secret
         name: cluster-secrets
-  components:
-    - ../../../../components/authentik-proxy
