@@ -14,7 +14,7 @@ spec:
       namespace: longhorn-system
     - name: envoy-gateway
       namespace: gateway
-    - name: intel-gpu-plugin
+    - name: intel-gpu-resource-driver
       namespace: kube-system
   path: ./kubernetes/apps/media/jellyfin/app
   prune: true
