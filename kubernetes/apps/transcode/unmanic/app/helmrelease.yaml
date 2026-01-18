@@ -1,0 +1,115 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: unmanic
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: unmanic
+  interval: 1h
+  values:
+    controllers:
+      unmanic:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: josh5/unmanic
+              tag: 0.3.1@sha256:3c7d1013770e6f5a97199b555851b74674d8ee1df9d616c007f060abcf2bd1a8
+            env:
+              TZ: ${TIMEZONE}
+              PUID: 568
+              PGID: 568
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8888
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              claims:
+                - name: gpu
+              requests:
+                cpu: 100m
+                memory: 2Gi
+              limits:
+                cpu: 4
+                memory: 16Gi
+    defaultPodOptions:
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: unmanic
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: In
+                    values:
+                      - arc
+            - weight: 50
+              preference:
+                matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: In
+                    values:
+                      - i915-igpu
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: In
+                    values:
+                      - arc
+                      - i915-igpu
+    service:
+      app:
+        controller: unmanic
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      config:
+        existingClaim: unmanic-config
+        globalMounts:
+          - path: /config
+      library:
+        type: nfs
+        server: ${RACKNAS_ADDR}
+        path: /volume1/media
+        globalMounts:
+          - path: /library
+      cache:
+        type: emptyDir
+        medium: Memory
+        sizeLimit: 8Gi
+        globalMounts:
+          - path: /tmp/unmanic
