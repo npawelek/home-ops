@@ -48,7 +48,7 @@ spec:
     defaultPodOptions:
       resourceClaims:
         - name: gpu
-          resourceClaimTemplateName: unmanic
+          resourceClaimTemplateName: unmanic-gpu
       securityContext:
         runAsUser: 568
         runAsGroup: 568
