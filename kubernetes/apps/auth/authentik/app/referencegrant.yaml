@@ -21,7 +21,10 @@ spec:
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
       namespace: downloads
-    # Add more namespaces here as you protect more apps
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: media
+      # Add more namespaces here as you protect more apps
   to:
     - group: ""
       kind: Service
