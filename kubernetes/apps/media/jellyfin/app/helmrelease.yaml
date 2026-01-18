@@ -39,24 +39,22 @@ spec:
                   failureThreshold: 3
               readiness: *probes
             resources:
+              claims:
+                - name: gpu
               requests:
                 cpu: 100m
-                gpu.intel.com/i915: 1
                 memory: 1Gi
               limits:
-                gpu.intel.com/i915: 1
                 memory: 6Gi
     defaultPodOptions:
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: jellyfin
       securityContext:
         runAsUser: 568
         runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
-        # Required for passthrough of /dev/dri devices from NFD
-        supplementalGroups:
-          - 44
-          - 104
-          - 109
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
