@@ -58,7 +58,7 @@ spec:
                 apps:
                   - name: Jellyseerr
                     icon: mdi:jellyfish
-                    url: https://jellyseerr.${SECRET_DOMAIN}
+                    url: https://requests.${SECRET_DOMAIN}
                   - name: Sonarr
                     icon: mdi:television-classic
                     url: https://sonarr.${SECRET_DOMAIN}
