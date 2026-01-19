@@ -1,0 +1,79 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: autopulse
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: autopulse
+  interval: 1h
+  values:
+    controllers:
+      autopulse:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/dan-online/autopulse
+              tag: v1.5.0-sqlite@sha256:f4c3632c289d9e127c4cfc13ad0847705b9094a3b890b329c643493727478d66
+            env:
+              TZ: ${TIMEZONE}
+              PUID: "568"
+              PGID: "568"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 2875
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: autopulse
+        ports:
+          http:
+            port: *port
+    persistence:
+      config:
+        existingClaim: autopulse-config
+        globalMounts:
+          - path: /config
+      config-secret:
+        type: secret
+        name: autopulse-secrets
+        globalMounts:
+          - path: /config/config.yml
+            subPath: config.yml
+            readOnly: true
+      library:
+        type: nfs
+        server: ${RACKNAS_ADDR}
+        path: /volume1/media
+        globalMounts:
+          - path: /library
+            readOnly: true
