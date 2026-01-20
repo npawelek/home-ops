@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: octopi
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: octopi
+  labels:
+    kubernetes.io/service-name: octopi
+addressType: IPv4
+endpoints:
+  - addresses:
+      - ${OCTOPI_ADDR}
+ports:
+  - name: http
+    port: 80
+    protocol: TCP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: octopi
+spec:
+  hostnames:
+    - octopi.${SECRET_DOMAIN}
+  parentRefs:
+    - name: envoy-internal
+      namespace: gateway
+      sectionName: https
+  rules:
+    - backendRefs:
+        - name: octopi
+          port: 80

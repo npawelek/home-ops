@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: floofeater
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: floofeater
+  labels:
+    kubernetes.io/service-name: floofeater
+addressType: IPv4
+endpoints:
+  - addresses:
+      - ${FLOOFEATER_ADDR}
+ports:
+  - name: http
+    port: 80
+    protocol: TCP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: floofeater
+spec:
+  hostnames:
+    - floofeater.${SECRET_DOMAIN}
+  parentRefs:
+    - name: envoy-internal
+      namespace: gateway
+      sectionName: https
+  rules:
+    - backendRefs:
+        - name: floofeater
+          port: 80

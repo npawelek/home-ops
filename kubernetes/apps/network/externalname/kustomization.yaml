@@ -4,4 +4,9 @@ kind: Kustomization
 namespace: network
 
 resources:
-  - ./services.yaml
+  - ./pool.yaml
+  - ./floofeater.yaml
+  - ./rosie.yaml
+  - ./hdhomerun.yaml
+  - ./hyp-samsung55.yaml
+  - ./octopi.yaml
