@@ -41,7 +41,7 @@ spec:
     - dnsName: pool.${SECRET_DOMAIN}
       recordType: A
       targets:
-        - ${POOL_ADDR}
+        - ${CLUSTER_GATEWAY_INTERNAL_ADDR}
 ---
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
@@ -52,7 +52,7 @@ spec:
     - dnsName: floofeater.${SECRET_DOMAIN}
       recordType: A
       targets:
-        - ${FLOOFEATER_ADDR}
+        - ${CLUSTER_GATEWAY_INTERNAL_ADDR}
 ---
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
@@ -63,7 +63,7 @@ spec:
     - dnsName: rosie.${SECRET_DOMAIN}
       recordType: A
       targets:
-        - ${ROSIE_ADDR}
+        - ${CLUSTER_GATEWAY_INTERNAL_ADDR}
 ---
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
@@ -74,7 +74,7 @@ spec:
     - dnsName: hdhomerun.${SECRET_DOMAIN}
       recordType: A
       targets:
-        - ${HDHOMERUN_ADDR}
+        - ${CLUSTER_GATEWAY_INTERNAL_ADDR}
 ---
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
@@ -85,7 +85,7 @@ spec:
     - dnsName: hyp-samsung55.${SECRET_DOMAIN}
       recordType: A
       targets:
-        - ${HDRSAMSUNG55_ADDR}
+        - ${CLUSTER_GATEWAY_INTERNAL_ADDR}
 ---
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
@@ -96,4 +96,4 @@ spec:
     - dnsName: octopi.${SECRET_DOMAIN}
       recordType: A
       targets:
-        - ${OCTOPI_ADDR}
+        - ${CLUSTER_GATEWAY_INTERNAL_ADDR}
