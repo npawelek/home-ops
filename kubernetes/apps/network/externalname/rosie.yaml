@@ -37,6 +37,12 @@ spec:
       namespace: gateway
       sectionName: https
   rules:
-    - backendRefs:
+    - filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            add:
+              - name: Authorization
+                value: Basic ${VALETUDO_AUTH}
+      backendRefs:
         - name: rosie
           port: 80
