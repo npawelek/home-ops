@@ -40,10 +40,28 @@ tasks:
       - test -f {{.KUBECONFIG}}
       - which flux
 
-  tf-force:
+  tf-authentik:
     desc: Force Terraform to reconcile immediately
-    cmd: kubectl patch terraform authentik -n auth -p '{"spec":{"suspend":true}}' --type=merge && sleep 2 && kubectl patch terraform authentik -n auth -p '{"spec":{"suspend":false}}' --type=merge
+    cmd: >-
+      kubectl patch terraform authentik -n auth -p '{"spec":{"suspend":true}}' --type=merge &&
+      sleep 2 &&
+      kubectl patch terraform authentik -n auth -p '{"spec":{"suspend":false}}' --type=merge
     preconditions:
       - test -f {{.KUBECONFIG}}
       - which kubectl
-      - kubectl get terraform authentik -n auth &>/dev/null || (echo "Terraform resource 'authentik' not found in namespace 'auth'" && exit 1)
+      - >-
+        kubectl get terraform authentik -n auth &>/dev/null ||
+        (echo "Terraform resource 'authentik' not found in namespace 'auth'" && exit 1)
+
+  tf-ddns:
+    desc: Force Terraform to reconcile immediately
+    cmd: >-
+      kubectl patch terraform ddns -n network -p '{"spec":{"suspend":true}}' --type=merge &&
+      sleep 2 &&
+      kubectl patch terraform ddns -n network -p '{"spec":{"suspend":false}}' --type=merge
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+      - >-
+        kubectl get terraform ddns -n network &>/dev/null ||
+        (echo "Terraform resource 'ddns' not found in namespace 'network'" && exit 1)
