@@ -20,7 +20,16 @@ spec:
       value: "${SECRET_AWS_REGION}"
     - name: ttl
       value: "300"
-    - name: AWS_ACCESS_KEY_ID
-      value: "${EXTERNALDNS_AWS_ACCESS_KEY_ID}"
-    - name: AWS_SECRET_ACCESS_KEY
-      value: "${EXTERNALDNS_AWS_SECRET_KEY}"
+  runnerPodTemplate:
+    spec:
+      env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: cluster-secrets
+              key: EXTERNALDNS_AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cluster-secrets
+              key: EXTERNALDNS_AWS_SECRET_KEY
