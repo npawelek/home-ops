@@ -8,6 +8,7 @@ components:
 
 resources:
   - ./namespace.yaml
+  - ./ddns/terraform-ks.yaml
   - ./external-dns/ks.yaml
   - ./external-dns/endpoints/ks.yaml
   - ./externalname/ks.yaml

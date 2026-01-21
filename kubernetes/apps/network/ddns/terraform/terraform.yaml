@@ -1,0 +1,26 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha2
+kind: Terraform
+metadata:
+  name: ddns
+spec:
+  interval: 15m
+  approvePlan: auto
+  destroyResourcesOnDeletion: false
+  path: ./terraform/ddns
+  serviceAccountName: tf-runner
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  vars:
+    - name: domain
+      value: "${SECRET_DOMAIN}"
+    - name: aws_region
+      value: "${SECRET_AWS_REGION}"
+    - name: ttl
+      value: "300"
+    - name: AWS_ACCESS_KEY_ID
+      value: "${EXTERNALDNS_AWS_ACCESS_KEY_ID}"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "${EXTERNALDNS_AWS_SECRET_KEY}"
