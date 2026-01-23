@@ -9,3 +9,5 @@ components:
 resources:
   - ./namespace.yaml
   - ./cert-manager/ks.yaml
+  - ./certificate-distribution/ks.yaml
+  - ./certificate-distribution/gateway-rbac-ks.yaml

@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: certificate-distribution-extravars
+data:
+  extravars: |
+    ---
+    cert_namespace: gateway
+    cert_secret: ${SECRET_DOMAIN/./-}-production-tls-rsa
+    cert_filename: ${SECRET_DOMAIN}.pem
