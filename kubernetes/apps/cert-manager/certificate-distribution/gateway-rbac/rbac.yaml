@@ -1,0 +1,25 @@
+---
+# Cross-namespace RBAC to access RSA certificate in gateway namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: certificate-distribution-gateway-reader
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+    resourceNames:
+      - ${SECRET_DOMAIN/./-}-production-tls-rsa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: certificate-distribution-gateway-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: certificate-distribution-gateway-reader
+subjects:
+  - kind: ServiceAccount
+    name: certificate-distribution
+    namespace: cert-manager

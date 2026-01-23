@@ -1,0 +1,405 @@
+---
+# Simple certificate distribution playbook
+- name: Distribute certificates
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Get RSA certificate from Kubernetes
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Secret
+        name: "{{ cert_secret }}"
+        namespace: "{{ cert_namespace }}"
+      register: cert_secret_data
+      delegate_to: localhost
+      run_once: true
+      no_log: true
+
+    - name: Parse certificate data
+      ansible.builtin.set_fact:
+        cert_fullchain: "{{ cert_secret_data.resources[0].data['tls.crt'] | b64decode }}"
+        cert_key: "{{ cert_secret_data.resources[0].data['tls.key'] | b64decode }}"
+      delegate_to: localhost
+      run_once: true
+      no_log: true
+
+    - name: Parse certificate components for Synology
+      ansible.builtin.set_fact:
+        cert_only: "{{ cert_fullchain.split('\\n-----BEGIN CERTIFICATE-----')[0] }}\\n"
+      delegate_to: localhost
+      run_once: true
+      no_log: true
+
+    - name: Check if openssl is available
+      ansible.builtin.command: which openssl
+      delegate_to: localhost
+      register: openssl_check
+      changed_when: false
+      failed_when: false
+
+    - name: Get current certificate from host
+      ansible.builtin.shell: |
+        echo | openssl s_client -showcerts \
+          -servername {{ certificate_hostname | default(ansible_host) }} \
+          -connect {{ ansible_host }}:{{ certificate_port }} 2>/dev/null | \
+          openssl x509
+      delegate_to: localhost
+      register: current_cert
+      changed_when: false
+      failed_when: false
+      when: openssl_check.rc == 0
+
+    - name: Get current certificate expiration
+      ansible.builtin.shell: |
+        echo | openssl s_client -showcerts \
+          -servername {{ certificate_hostname | default(ansible_host) }} \
+          -connect {{ ansible_host }}:{{ certificate_port }} 2>/dev/null | \
+          openssl x509 -noout -enddate
+      delegate_to: localhost
+      register: current_cert_expiry
+      changed_when: false
+      failed_when: false
+      when: openssl_check.rc == 0
+
+    - name: Set pre-deployment status
+      ansible.builtin.set_fact:
+        cert_before:
+          matches: "{{ (current_cert.stdout | default('')) in cert_fullchain if openssl_check.rc == 0 else true }}"
+          expiry: >-
+            {{ current_cert_expiry.stdout.split('=')[1] | default('Unknown')
+            if (openssl_check.rc == 0 and current_cert_expiry.rc == 0) else 'Unknown' }}
+          reachable: "{{ current_cert.rc == 0 if openssl_check.rc == 0 else false }}"
+
+
+    - name: Deploy to Synology
+      when: "'synology' in group_names"
+      block:
+        - name: Copy certificates to Synology using raw
+          ansible.builtin.raw: |
+            # Check if file exists and compare content
+            if [ -f "{{ item.dest }}" ]; then
+              cat > /tmp/new_cert_$$ << 'CERTEOF'
+            {{ item.content }}
+            CERTEOF
+              if cmp -s /tmp/new_cert_$$ "{{ item.dest }}"; then
+                rm /tmp/new_cert_$$
+                echo "unchanged"
+                exit 0
+              fi
+              rm /tmp/new_cert_$$
+            fi
+
+            # Write new content
+            cat > {{ item.dest }} << 'CERTEOF'
+            {{ item.content }}
+            CERTEOF
+            chmod {{ item.mode }} {{ item.dest }}
+            echo "changed"
+          no_log: true
+          register: synology_cert_result
+          changed_when: "'changed' in synology_cert_result.stdout"
+          loop:
+            - content: "{{ cert_only }}"
+              dest: "/usr/syno/etc/certificate/system/default/cert.pem"
+              mode: "0600"
+            - content: "{{ cert_fullchain }}"
+              dest: "/usr/syno/etc/certificate/system/default/fullchain.pem"
+              mode: "0600"
+            - content: "{{ cert_key }}"
+              dest: "/usr/syno/etc/certificate/system/default/privkey.pem"
+              mode: "0600"
+            - content: "{{ cert_only }}"
+              dest: "{{ synology_cert_dir }}/cert.pem"
+              mode: "0400"
+            - content: "{{ cert_fullchain }}"
+              dest: "{{ synology_cert_dir }}/fullchain.pem"
+              mode: "0400"
+            - content: "{{ cert_key }}"
+              dest: "{{ synology_cert_dir }}/privkey.pem"
+              mode: "0400"
+
+        - name: Restart nginx
+          ansible.builtin.raw: /usr/syno/bin/synosystemctl restart nginx
+          changed_when: true
+          when: not cert_before.matches
+
+
+    - name: Deploy to UniFi
+      when: "'unifi' in group_names"
+      block:
+        - name: Backup existing certs
+          ansible.builtin.copy:
+            src: "{{ item }}"
+            dest: "{{ item }}.bak"
+            remote_src: true
+          loop:
+            - /data/unifi-core/config/unifi-core.crt
+            - /data/unifi-core/config/unifi-core.key
+
+        - name: Copy certificates to UniFi
+          ansible.builtin.copy:
+            content: "{{ item.content }}"
+            dest: "{{ item.dest }}"
+            mode: "0644"
+          no_log: true
+          register: unifi_cert_result
+          loop:
+            - {content: "{{ cert_fullchain }}", dest: "/data/unifi-core/config/unifi-core.crt"}
+            - {content: "{{ cert_key }}", dest: "/data/unifi-core/config/unifi-core.key"}
+
+        - name: Import to keystore
+          ansible.builtin.command: >
+            java -jar /usr/lib/unifi/lib/ace.jar import_key_cert
+            /data/unifi-core/config/unifi-core.key
+            /data/unifi-core/config/unifi-core.crt
+          changed_when: true
+          when: unifi_cert_result.results | selectattr('changed', 'equalto', true) | list | length > 0
+
+        - name: Restart UniFi services
+          ansible.builtin.systemd:
+            name: "{{ item }}"
+            state: restarted
+          loop:
+            - unifi-core
+            - unifi
+          when: unifi_cert_result.results | selectattr('changed', 'equalto', true) | list | length > 0
+
+
+    - name: Deploy to OctoPrint
+      when: "'octoprint' in group_names"
+      block:
+        - name: Ensure SSL directory and deploy certificate
+          ansible.builtin.raw: |
+            # Ensure directory exists
+            sudo mkdir -p /etc/ssl
+
+            # Check if file exists and compare content
+            if [ -f "/etc/ssl/{{ cert_filename }}" ]; then
+              cat > /tmp/new_cert_$ << 'CERTEOF'
+            {{ cert_fullchain }}{{ cert_key }}
+            CERTEOF
+              if sudo cmp -s /tmp/new_cert_$ "/etc/ssl/{{ cert_filename }}"; then
+                rm /tmp/new_cert_$
+                echo "unchanged"
+                exit 0
+              fi
+              rm /tmp/new_cert_$
+            fi
+
+            # Write new content
+            cat > /tmp/new_cert_$ << 'CERTEOF'
+            {{ cert_fullchain }}{{ cert_key }}
+            CERTEOF
+            sudo mv /tmp/new_cert_$ /etc/ssl/{{ cert_filename }}
+            sudo chmod 0400 /etc/ssl/{{ cert_filename }}
+            echo "changed"
+          no_log: true
+          register: octoprint_cert_result
+          changed_when: "'changed' in octoprint_cert_result.stdout"
+
+        - name: Update HAProxy config
+          ansible.builtin.raw: |
+            # Check if bind line is already correct (fixed string match)
+            if grep -qF "        bind :443 v4v6 ssl crt /etc/ssl/{{ cert_filename }}" /etc/haproxy/haproxy.cfg; then
+              echo "unchanged"
+              exit 0
+            fi
+
+            # Backup config
+            sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+
+            # Update bind line
+            sudo sed -i 's|^        bind :443.*|        bind :443 v4v6 ssl crt /etc/ssl/{{ cert_filename }}|' \
+              /etc/haproxy/haproxy.cfg
+
+            # Validate config
+            if sudo haproxy -f /etc/haproxy/haproxy.cfg -c > /dev/null 2>&1; then
+              echo "changed"
+            else
+              # Restore backup if validation fails
+              sudo mv /etc/haproxy/haproxy.cfg.bak /etc/haproxy/haproxy.cfg
+              echo "validation_failed"
+              exit 1
+            fi
+          register: octoprint_config_result
+          changed_when: "'changed' in octoprint_config_result.stdout"
+          failed_when: "'validation_failed' in octoprint_config_result.stdout"
+
+        - name: Restart HAProxy
+          ansible.builtin.raw: sudo systemctl restart haproxy
+          changed_when: true
+          when: octoprint_cert_result.changed or octoprint_config_result.changed
+
+
+    - name: Deploy to Hyperion
+      when: "'hyperion' in group_names"
+      block:
+        - name: Ensure cert directory
+          ansible.builtin.file:
+            path: /etc/ssl/letsencrypt
+            state: directory
+            mode: "0750"
+            owner: hyperion
+            group: hyperion
+
+        - name: Copy certificates
+          ansible.builtin.copy:
+            content: "{{ item.content }}"
+            dest: "{{ item.dest }}"
+            mode: "0600"
+            owner: hyperion
+            group: hyperion
+          no_log: true
+          register: hyperion_cert_result
+          loop:
+            - {content: "{{ cert_fullchain }}", dest: "/etc/ssl/letsencrypt/fullchain.pem"}
+            - {content: "{{ cert_key }}", dest: "/etc/ssl/letsencrypt/privkey.pem"}
+
+        - name: Restart Hyperion
+          ansible.builtin.systemd:
+            name: hyperion@hyperion
+            state: restarted
+          when: not cert_before.matches
+          async: 30
+          poll: 0
+          ignore_errors: true
+
+
+    - name: Wait for services to stabilize
+      ansible.builtin.pause:
+        seconds: 10
+      when:
+        - (synology_cert_result.changed | default(false)) or
+          (octoprint_cert_result.changed | default(false)) or
+          (hyperion_cert_result.changed | default(false))
+        - "'unifi' not in group_names"
+
+    - name: Verify certificate after deployment
+      ansible.builtin.shell: |
+        echo | openssl s_client -showcerts \
+          -servername {{ certificate_hostname | default(ansible_host) }} \
+          -connect {{ ansible_host }}:{{ certificate_port }} 2>/dev/null | \
+          openssl x509
+      delegate_to: localhost
+      register: verify_cert
+      changed_when: false
+      failed_when: false
+      when: openssl_check.rc == 0
+
+    - name: Verify certificate expiration
+      ansible.builtin.shell: |
+        echo | openssl s_client -showcerts \
+          -servername {{ certificate_hostname | default(ansible_host) }} \
+          -connect {{ ansible_host }}:{{ certificate_port }} 2>/dev/null | \
+          openssl x509 -noout -enddate
+      delegate_to: localhost
+      register: verify_cert_expiry
+      changed_when: false
+      failed_when: false
+      when: openssl_check.rc == 0
+
+    - name: Set post-deployment status
+      ansible.builtin.set_fact:
+        cert_after:
+          matches: "{{ (verify_cert.stdout | default('')) in cert_fullchain if openssl_check.rc == 0 else true }}"
+          expiry: >-
+            {{ verify_cert_expiry.stdout.split('=')[1] | default('Unknown')
+            if (openssl_check.rc == 0 and verify_cert_expiry.rc == 0) else 'Unknown' }}
+          reachable: "{{ verify_cert.rc == 0 if openssl_check.rc == 0 else false }}"
+          deployed: >-
+            {{ synology_cert_result.changed | default(false) or unifi_cert_result.changed | default(false) or
+            octoprint_cert_result.changed | default(false) or hyperion_cert_result.changed | default(false) }}
+
+
+- name: Generate and send report
+  hosts: localhost
+  gather_facts: true
+
+  tasks:
+    - name: Collect deployment results
+      ansible.builtin.set_fact:
+        deployment_results: "{{ deployment_results | default({}) | combine({item: hostvars[item]}) }}"
+      loop: "{{ groups['all'] }}"
+
+    - name: Get email configuration
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Secret
+        name: certificate-distribution-email
+        namespace: cert-manager
+      register: email_secret
+      no_log: true
+      failed_when: false
+
+    - name: Send email report
+      community.general.mail:
+        host: "{{ email_secret.resources[0].data.host | b64decode }}"
+        port: "{{ email_secret.resources[0].data.port | b64decode }}"
+        username: "{{ email_secret.resources[0].data.username | b64decode }}"
+        password: "{{ email_secret.resources[0].data.password | b64decode }}"
+        to: "{{ email_secret.resources[0].data.to | b64decode }}"
+        from: "{{ email_secret.resources[0].data.from | b64decode }}"
+        subject: "Certificate Distribution Report - {{ ansible_date_time.date }}"
+        secure: starttls
+        subtype: html
+        body: |
+          <html>
+          <head>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+              th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+              th { background-color: #4CAF50; color: white; }
+              tr:nth-child(even) { background-color: #f2f2f2; }
+              .success { color: #4CAF50; font-weight: bold; }
+              .warning { color: #ff9800; font-weight: bold; }
+              .error { color: #f44336; font-weight: bold; }
+            </style>
+          </head>
+          <body>
+            <h2>Certificate Distribution Report</h2>
+            <p><strong>Date:</strong> {{ ansible_date_time.iso8601 }}</p>
+            <p><strong>Certificate:</strong> {{ cert_secret }} ({{ cert_namespace }} namespace)</p>
+
+            <table>
+              <tr>
+                <th>Host</th>
+                <th>Before</th>
+                <th>Deployed</th>
+                <th>After</th>
+                <th>Expiration</th>
+                <th>Status</th>
+              </tr>
+              {% for host in groups['all'] %}
+              <tr>
+                <td>{{ host }}</td>
+                <td>{{ '✓ Current' if deployment_results[host].cert_before.matches else '✗ Outdated' }}</td>
+                <td>{{ '✓ Yes' if deployment_results[host].cert_after.deployed else '- No change' }}</td>
+                <td>{{ '✓ Verified' if deployment_results[host].cert_after.matches else '✗ Mismatch' }}</td>
+                <td>{{ deployment_results[host].cert_after.expiry }}</td>
+                <td class="{{ 'success' if deployment_results[host].cert_after.matches else 'error' }}">
+                  {{ 'OK' if deployment_results[host].cert_after.matches else 'FAILED' }}
+                </td>
+              </tr>
+              {% endfor %}
+            </table>
+          </body>
+          </html>
+      when:
+        - email_secret.api_found | default(false)
+        - email_secret.resources | default([]) | length > 0
+      failed_when: false
+      register: email_result
+
+    - name: Log email status
+      ansible.builtin.debug:
+        msg: >-
+          Email report
+          {{ 'sent successfully'
+          if (email_result.skipped is not defined and email_result.failed is not defined)
+          else 'skipped - no email configuration found'
+          if (email_secret.resources | default([]) | length == 0)
+          else 'failed to send - check SMTP configuration'
+          if (email_result.failed | default(false))
+          else 'skipped - no email configuration found' }}

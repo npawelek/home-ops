@@ -1,0 +1,32 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ./secret-ssh.sops.yaml
+  - ./secret-inventory.sops.yaml
+  - ./secret-email.sops.yaml
+  - ./configmap-extravars.yaml
+  - ./serviceaccount.yaml
+  - ./cronjob.yaml
+
+configMapGenerator:
+  - name: ansible-runner-project
+    files:
+      - distribute.yaml=../../../../../ansible/certificate-distribution/project/distribute.yaml
+      - ansible.cfg=../../../../../ansible/certificate-distribution/project/ansible.cfg
+
+  - name: ansible-runner-env
+    literals:
+      - cmdline=-v
+      - |
+        settings=---
+        idle_timeout: 600
+        job_timeout: 900
+
+  - name: ssh-config
+    literals:
+      - |
+        config=Host *
+          StrictHostKeyChecking no
+          UserKnownHostsFile /dev/null

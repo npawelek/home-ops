@@ -1,0 +1,136 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: certificate-distribution
+spec:
+  schedule: "0 0 * * 1"  # Weekly on Sunday Evening
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 600
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: certificate-distribution
+        spec:
+          serviceAccountName: certificate-distribution
+          restartPolicy: OnFailure
+
+          initContainers:
+            - name: fix-ssh-permissions
+              image: >-
+                docker.io/alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
+              command:
+                - sh
+                - -c
+                - |
+                  mkdir -p /root/.ssh
+                  chmod 700 /root/.ssh
+                  cp /tmp/ssh-key/id_rsa /root/.ssh/id_rsa
+                  chmod 600 /root/.ssh/id_rsa
+                  cp /tmp/ssh-config/config /root/.ssh/config
+                  chmod 600 /root/.ssh/config
+              volumeMounts:
+                - name: ssh-key
+                  mountPath: /tmp/ssh-key
+                  readOnly: true
+                - name: ssh-config
+                  mountPath: /tmp/ssh-config
+                  readOnly: true
+                - name: ssh-home
+                  mountPath: /root/.ssh
+
+            - name: install-deps
+              image: >-
+                alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
+              command:
+                - sh
+                - -c
+                - |
+                  apk add --no-cache py3-pip openssl
+                  pip3 install --break-system-packages ansible-runner==2.4.2 kubernetes==35.0.0
+                  ansible-galaxy collection install kubernetes.core
+                  ansible-galaxy collection install community.general
+                  # Copy installed binaries to shared volume
+                  cp -r /usr/lib/python3.12/site-packages/* /opt/python-packages/
+                  cp /usr/bin/ansible-runner /opt/bin/
+                  cp /usr/bin/openssl /opt/bin/
+              volumeMounts:
+                - name: python-packages
+                  mountPath: /opt/python-packages
+                - name: bin-cache
+                  mountPath: /opt/bin
+                - name: runner-cache
+                  mountPath: /root/.local
+
+          containers:
+            - name: ansible-runner
+              image: >-
+                alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
+              workingDir: /runner
+              env:
+                - name: PATH
+                  value: /opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+                - name: PYTHONPATH
+                  value: /opt/python-packages
+              command:
+                - sh
+                - -c
+                - |
+                  ansible-runner run /runner -p distribute.yaml
+              volumeMounts:
+                - name: runner-project
+                  mountPath: /runner/project
+                - name: runner-inventory
+                  mountPath: /runner/inventory
+                - name: runner-env
+                  mountPath: /runner/env
+                - name: runner-cache
+                  mountPath: /root/.local
+                - name: ssh-home
+                  mountPath: /root/.ssh
+                - name: python-packages
+                  mountPath: /opt/python-packages
+                - name: bin-cache
+                  mountPath: /opt/bin
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+
+          volumes:
+            - name: runner-project
+              configMap:
+                name: ansible-runner-project
+            - name: runner-inventory
+              secret:
+                secretName: certificate-distribution-inventory
+            - name: runner-env
+              projected:
+                sources:
+                  - configMap:
+                      name: ansible-runner-env
+                  - configMap:
+                      name: certificate-distribution-extravars
+            - name: runner-cache
+              emptyDir: {}
+            - name: python-packages
+              emptyDir: {}
+            - name: bin-cache
+              emptyDir: {}
+            - name: ssh-home
+              emptyDir: {}
+            - name: ssh-key
+              secret:
+                secretName: certificate-distribution-ssh
+                defaultMode: 0600
+            - name: ssh-config
+              configMap:
+                name: ssh-config
