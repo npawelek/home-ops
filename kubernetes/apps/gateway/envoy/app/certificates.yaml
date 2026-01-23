@@ -31,3 +31,21 @@ spec:
   privateKey:
     algorithm: ECDSA
     size: 256
+---
+# RSA certificate for legacy devices
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-domain-rsa
+  namespace: gateway
+spec:
+  secretName: ${SECRET_DOMAIN/./-}-production-tls-rsa
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+    - "${SECRET_DOMAIN}"
+    - "*.${SECRET_DOMAIN}"
+  privateKey:
+    algorithm: RSA
+    size: 4096
