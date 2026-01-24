@@ -5,10 +5,23 @@ metadata:
   name: octopi
 spec:
   ports:
-    - name: http
-      port: 80
-      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
       protocol: TCP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: BackendTLSPolicy
+metadata:
+  name: octopi-tls
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: octopi
+  validation:
+    wellKnownCACertificates: System
+    hostname: octopi.${SECRET_DOMAIN}
 ---
 apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
@@ -21,8 +34,8 @@ endpoints:
   - addresses:
       - ${OCTOPI_ADDR}
 ports:
-  - name: http
-    port: 80
+  - name: https
+    port: 443
     protocol: TCP
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -39,4 +52,4 @@ spec:
   rules:
     - backendRefs:
         - name: octopi
-          port: 80
+          port: 443

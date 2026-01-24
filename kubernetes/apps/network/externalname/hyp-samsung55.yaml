@@ -5,10 +5,23 @@ metadata:
   name: hyp-samsung55
 spec:
   ports:
-    - name: http
-      port: 80
-      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
       protocol: TCP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: BackendTLSPolicy
+metadata:
+  name: hyp-samsung55-tls
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: hyp-samsung55
+  validation:
+    wellKnownCACertificates: System
+    hostname: hyp-samsung55.${SECRET_DOMAIN}
 ---
 apiVersion: discovery.k8s.io/v1
 kind: EndpointSlice
@@ -21,8 +34,8 @@ endpoints:
   - addresses:
       - ${HDRSAMSUNG55_ADDR}
 ports:
-  - name: http
-    port: 80
+  - name: https
+    port: 443
     protocol: TCP
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -39,4 +52,4 @@ spec:
   rules:
     - backendRefs:
         - name: hyp-samsung55
-          port: 80
+          port: 443
