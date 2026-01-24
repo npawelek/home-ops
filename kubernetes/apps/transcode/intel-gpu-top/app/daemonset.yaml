@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: intel-gpu-top
+spec:
+  selector:
+    matchLabels:
+      app: intel-gpu-top
+  template:
+    metadata:
+      labels:
+        app: intel-gpu-top
+    spec:
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: intel-gpu-top-gpu
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: In
+                    values:
+                      - arc
+      containers:
+        - name: intel-gpu-top
+          image: public.ecr.aws/ubuntu/ubuntu:26.04
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - |
+              apt-get update && apt-get install -y intel-gpu-tools
+              echo "intel_gpu_top installed on $(hostname). Exec into pod to run it."
+              sleep infinity
+          resources:
+            claims:
+              - name: gpu
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          securityContext:
+            privileged: true
