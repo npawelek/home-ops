@@ -98,7 +98,7 @@
             echo "changed"
           no_log: true
           register: synology_cert_result
-          changed_when: "'changed' in synology_cert_result.stdout"
+          changed_when: synology_cert_result.stdout is search('\\bchanged\\b')
           loop:
             - content: "{{ cert_only }}"
               dest: "/usr/syno/etc/certificate/system/default/cert.pem"
@@ -121,7 +121,6 @@
 
         - name: Restart nginx
           ansible.builtin.raw: /usr/syno/bin/synosystemctl restart nginx
-          changed_when: true
           when: not cert_before.matches
 
 
@@ -193,10 +192,10 @@
             CERTEOF
             sudo mv /tmp/new_cert_$ /etc/ssl/{{ cert_filename }}
             sudo chmod 0400 /etc/ssl/{{ cert_filename }}
-            echo "changed"
+            echo "cert_changed"
           no_log: true
           register: octoprint_cert_result
-          changed_when: "'changed' in octoprint_cert_result.stdout"
+          changed_when: octoprint_cert_result.stdout is search('\\bcert_changed\\b')
 
         - name: Update HAProxy config
           ansible.builtin.raw: |
@@ -215,7 +214,7 @@
 
             # Validate config
             if sudo haproxy -f /etc/haproxy/haproxy.cfg -c > /dev/null 2>&1; then
-              echo "changed"
+              echo "config_changed"
             else
               # Restore backup if validation fails
               sudo mv /etc/haproxy/haproxy.cfg.bak /etc/haproxy/haproxy.cfg
@@ -223,12 +222,11 @@
               exit 1
             fi
           register: octoprint_config_result
-          changed_when: "'changed' in octoprint_config_result.stdout"
+          changed_when: octoprint_config_result.stdout is search('\\bconfig_changed\\b')
           failed_when: "'validation_failed' in octoprint_config_result.stdout"
 
         - name: Restart HAProxy
           ansible.builtin.raw: sudo systemctl restart haproxy
-          changed_when: true
           when: octoprint_cert_result.changed or octoprint_config_result.changed
 
 
