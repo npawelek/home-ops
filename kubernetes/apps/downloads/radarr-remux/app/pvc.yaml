@@ -13,3 +13,4 @@ spec:
     requests:
       storage: 3Gi
   storageClassName: longhorn
+  volumeName: pvc-19962c15-f190-4bc6-a30e-9a561dbfc589
