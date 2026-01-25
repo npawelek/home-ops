@@ -1,0 +1,83 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: pgadmin
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: pgadmin
+  interval: 1h
+  values:
+    controllers:
+      pgadmin:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+
+        pod:
+          securityContext:
+            runAsUser: 5050
+            runAsGroup: 5050
+            fsGroup: 5050
+            fsGroupChangePolicy: "OnRootMismatch"
+
+        containers:
+          app:
+            image:
+              repository: dpage/pgadmin4
+              tag: 9.11.0@sha256:50700ac17936d0227f9e3e4bb086a91efb67064debc4b4737c35545bf1564088
+
+            env:
+              TZ: ${TIMEZONE}
+              PGADMIN_LISTEN_ADDRESS: 0.0.0.0
+              PGADMIN_LISTEN_PORT: &port 80
+
+            envFrom:
+              - secretRef:
+                  name: pgadmin-secret
+
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+
+    service:
+      app:
+        controller: pgadmin
+        ports:
+          http:
+            port: *port
+
+    route:
+      app:
+        hostnames:
+          - pgadmin.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        existingClaim: pgadmin-config
+        globalMounts:
+          - path: /var/lib/pgadmin

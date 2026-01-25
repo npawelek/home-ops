@@ -99,6 +99,11 @@ spec:
                   - name: Unmanic
                     icon: mdi:cog-transfer
                     url: https://unmanic.${SECRET_DOMAIN}
+              - group: database
+                apps:
+                  - name: pgAdmin
+                    icon: mdi:database-cog
+                    url: https://pgadmin.${SECRET_DOMAIN}
               - group: network
                 apps:
                   - name: Echo
