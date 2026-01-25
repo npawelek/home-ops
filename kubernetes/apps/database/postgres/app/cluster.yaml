@@ -1,0 +1,118 @@
+---
+# https://cloudnative-pg.io/documentation/1.18/samples/cluster-example-full.yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres
+spec:
+  instances: 3
+  imageName: >-
+    ghcr.io/cloudnative-pg/postgresql:18.0-standard-trixie@sha256:e49b9c7942d794dea5979a1b9ca2e4bff418ee96e060f67660150b05ea169e28
+  primaryUpdateStrategy: unsupervised
+  startDelay: 300
+
+  postgresql:
+    parameters:
+      max_connections: "300"
+      shared_buffers: "512MB"
+      effective_cache_size: "2GB"
+      maintenance_work_mem: "128MB"
+      checkpoint_completion_target: "0.9"
+      wal_buffers: "32MB"
+      default_statistics_target: "100"
+      random_page_cost: "1.0"
+      effective_io_concurrency: "200"
+      work_mem: "8MB"
+      min_wal_size: "1GB"
+      max_wal_size: "4GB"
+      log_statement: "none"
+      log_min_duration_statement: "500"
+      password_encryption: "scram-sha-256"
+      ssl_min_protocol_version: "TLSv1.2"
+
+    pg_hba:
+      - local all all scram-sha-256
+      - hostssl all all 127.0.0.1/32 scram-sha-256
+      - hostssl all all ::1/128 scram-sha-256
+      - hostssl all all 10.32.0.0/12 scram-sha-256
+      - hostssl all all 192.168.0.0/24 scram-sha-256
+      - hostssl all all 192.168.30.98/32 scram-sha-256
+      - hostssl all all 192.168.30.99/32 scram-sha-256
+      - hostssl all all 192.168.30.100/32 scram-sha-256
+
+  bootstrap:
+    initdb:
+      database: postgres
+      owner: postgres
+      secret:
+        name: credentials-admin
+
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: credentials-admin
+
+  storage:
+    size: 30Gi
+    storageClass: longhorn
+
+  managed:
+    roles:
+      - name: hass
+        ensure: present
+        passwordSecret:
+          name: credentials-hass
+        login: true
+        createdb: true
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
+      - name: jellystat
+        ensure: present
+        passwordSecret:
+          name: credentials-jellystat
+        login: true
+        createdb: true
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
+      - name: firefly
+        ensure: present
+        passwordSecret:
+          name: credentials-firefly
+        login: true
+        createdb: true
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
+
+    services:
+      disabledDefaultServices: ["ro", "r"]
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: "postgres-external-rw"
+              annotations:
+                io.cilium/lb-ipam-ips: ${CNPG_LB}
+            spec:
+              type: LoadBalancer
+              externalTrafficPolicy: Local
+
+  monitoring:
+    enablePodMonitor: false
+
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 500m
+    limits:
+      memory: 4Gi
+      cpu: 2000m

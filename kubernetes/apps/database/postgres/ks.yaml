@@ -1,0 +1,26 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: database-postgres
+  namespace: database
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/database/postgres/app
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+        optional: false
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: database
+  wait: true
+  dependsOn:
+    - name: longhorn
+      namespace: longhorn-system
+    - name: cloudnative-pg
+      namespace: cnpg-system
