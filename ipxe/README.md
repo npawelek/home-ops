@@ -28,26 +28,26 @@ ipxe/
 
 All builds include common extensions and kernel parameters:
 - **Storage**: `iscsi-tools`, `nfs-utils`, `nvme-cli` (amd64 only), `util-linux-tools`
-- **Kernel Parameters**: `ipv6.disable=1 net.ifnames=0`
+- **Kernel Parameters**: `net.ifnames=0`
 
 1. **Intel i915** (amd64)
    - Extensions: siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
-   - Kernel Parameters: `ipv6.disable=1 net.ifnames=0`
+   - Kernel Parameters: `net.ifnames=0`
    - Use case: Intel systems with integrated graphics (i915 driver)
 
 2. **Intel XE Arc** (amd64)
    - Extensions: siderolabs/xe, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
-   - Kernel Parameters: `ipv6.disable=1 net.ifnames=0`
+   - Kernel Parameters: `net.ifnames=0`
    - Use case: Intel systems with Arc GPU support (xe driver)
 
 3. **AMD iGPU** (amd64)
    - Extensions: siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
-   - Kernel Parameters: `ipv6.disable=1 net.ifnames=0`
+   - Kernel Parameters: `net.ifnames=0`
    - Use case: AMD systems with integrated graphics
 
 4. **Raspberry Pi** (arm64)
    - Extensions: siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/util-linux-tools
-   - Kernel Parameters: `ipv6.disable=1 net.ifnames=0`
+   - Kernel Parameters: `net.ifnames=0`
    - Use case: Raspberry Pi 4/5 (uses standard ARM64 kernel)
 
 ## Setup Instructions

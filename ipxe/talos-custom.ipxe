@@ -117,7 +117,7 @@ isset ${talos_wipe_mode} && echo Disk Wipe: ENABLED ||
 echo ========================================
 echo
 
-set boot_params printk.devkmsg=on slab_nomerge pti=on console=ttyS0 console=tty0 init_on_alloc=1 init_on_free=1 consoleblank=0 nvme_core.io_timeout=4294967295 ima_template=ima-ng ima_appraise=fix ima_hash=sha512 ipv6.disable=1 net.ifnames=0 talos.platform=${talos_platform} ${talos_config} ${talos_wipe} initrd=initramfs.magic ${cmdline}
+set boot_params printk.devkmsg=on slab_nomerge pti=on console=ttyS0 console=tty0 init_on_alloc=1 init_on_free=1 consoleblank=0 nvme_core.io_timeout=4294967295 ima_template=ima-ng ima_appraise=fix ima_hash=sha512 net.ifnames=0 talos.platform=${talos_platform} ${talos_config} ${talos_wipe} initrd=initramfs.magic ${cmdline}
 
 imgfree
 kernel ${talos_base}talos/${talos_version}/${kernel_file} ${boot_params}
