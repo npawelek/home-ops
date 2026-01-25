@@ -21,9 +21,7 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: intel.feature.node.kubernetes.io/gpu
-                    operator: In
-                    values:
-                      - arc
+                    operator: Exists
       containers:
         - name: intel-gpu-top
           image: public.ecr.aws/ubuntu/ubuntu:26.04

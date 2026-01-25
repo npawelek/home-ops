@@ -1,0 +1,92 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: intel-gpu-plugin
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: intel-gpu-plugin
+  interval: 1h
+  values:
+    controllers:
+      intel-gpu-plugin:
+        type: daemonset
+        strategy: RollingUpdate
+
+        containers:
+          app:
+            image:
+              repository: docker.io/intel/intel-gpu-plugin
+              tag: 0.31.1
+              pullPolicy: IfNotPresent
+
+            args:
+              - -shared-dev-num
+              - "3"
+
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+
+            resources:
+              requests:
+                cpu: 15m
+                memory: 64Mi
+              limits:
+                memory: 64Mi
+
+            securityContext:
+              privileged: false
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+
+    defaultPodOptions:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: Exists
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: NotIn
+                    values:
+                      - arc
+
+    service:
+      app:
+        controller: intel-gpu-plugin
+        enabled: false
+
+    persistence:
+      devfs:
+        type: hostPath
+        hostPath: /dev/dri
+        advancedMounts:
+          intel-gpu-plugin:
+            app:
+              - path: /dev/dri
+                readOnly: true
+      sysfs:
+        type: hostPath
+        hostPath: /sys/class/drm
+        advancedMounts:
+          intel-gpu-plugin:
+            app:
+              - path: /sys/class/drm
+                readOnly: true
+      kubeletsockets:
+        type: hostPath
+        hostPath: /var/lib/kubelet/device-plugins
+        advancedMounts:
+          intel-gpu-plugin:
+            app:
+              - path: /var/lib/kubelet/device-plugins
