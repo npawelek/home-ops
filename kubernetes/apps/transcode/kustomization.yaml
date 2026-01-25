@@ -8,5 +8,6 @@ components:
 
 resources:
   - ./namespace.yaml
-  - ./intel-gpu-top/ks.yaml
+  - ./intel-gpu-top-arc/ks.yaml
+  - ./intel-gpu-top-legacy/ks.yaml
   - ./unmanic/ks.yaml

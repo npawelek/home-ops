@@ -2,19 +2,16 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: intel-gpu-top
+  name: intel-gpu-top-legacy
 spec:
   selector:
     matchLabels:
-      app: intel-gpu-top
+      app: intel-gpu-top-legacy
   template:
     metadata:
       labels:
-        app: intel-gpu-top
+        app: intel-gpu-top-legacy
     spec:
-      resourceClaims:
-        - name: gpu
-          resourceClaimTemplateName: intel-gpu-top-gpu
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -22,6 +19,10 @@ spec:
               - matchExpressions:
                   - key: intel.feature.node.kubernetes.io/gpu
                     operator: Exists
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: NotIn
+                    values:
+                      - arc
       containers:
         - name: intel-gpu-top
           image: public.ecr.aws/ubuntu/ubuntu:26.04
@@ -30,11 +31,9 @@ spec:
             - -c
             - |
               apt-get update && apt-get install -y intel-gpu-tools
-              echo "intel_gpu_top installed on $(hostname). Exec into pod to run it."
+              echo "intel_gpu_top (Legacy) installed on $(hostname). Exec into pod to run it."
               sleep infinity
           resources:
-            claims:
-              - name: gpu
             requests:
               cpu: 10m
               memory: 128Mi
@@ -42,3 +41,11 @@ spec:
               memory: 256Mi
           securityContext:
             privileged: true
+          volumeMounts:
+            - name: dev-dri
+              mountPath: /dev/dri
+      volumes:
+        - name: dev-dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
