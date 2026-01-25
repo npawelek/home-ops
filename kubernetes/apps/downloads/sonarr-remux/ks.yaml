@@ -3,7 +3,6 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app sonarr-remux
-  namespace: flux-system
 spec:
   targetNamespace: downloads
   commonMetadata:
@@ -15,7 +14,6 @@ spec:
     - name: envoy-gateway
       namespace: gateway
     - name: prowlarr
-      namespace: flux-system
   path: ./kubernetes/apps/downloads/sonarr-remux/app
   prune: true
   sourceRef:

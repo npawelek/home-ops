@@ -3,7 +3,6 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app recyclarr
-  namespace: flux-system
 spec:
   targetNamespace: downloads
   commonMetadata:
@@ -11,17 +10,11 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: sonarr
-      namespace: flux-system
     - name: sonarr-anime
-      namespace: flux-system
     - name: sonarr-remux
-      namespace: flux-system
     - name: radarr
-      namespace: flux-system
     - name: radarr-anime
-      namespace: flux-system
     - name: radarr-remux
-      namespace: flux-system
   path: ./kubernetes/apps/downloads/recyclarr/app
   prune: true
   sourceRef:

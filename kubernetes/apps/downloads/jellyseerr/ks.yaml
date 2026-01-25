@@ -3,7 +3,6 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app jellyseerr
-  namespace: flux-system
 spec:
   targetNamespace: downloads
   commonMetadata:
@@ -15,9 +14,7 @@ spec:
     - name: envoy-gateway
       namespace: gateway
     - name: sonarr
-      namespace: flux-system
     - name: radarr
-      namespace: flux-system
   path: ./kubernetes/apps/downloads/jellyseerr/app
   prune: true
   sourceRef:
