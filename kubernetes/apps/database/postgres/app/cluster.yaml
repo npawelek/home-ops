@@ -53,7 +53,7 @@ spec:
 
   storage:
     size: 30Gi
-    storageClass: longhorn
+    storageClass: longhorn-6h
 
   managed:
     roles:
