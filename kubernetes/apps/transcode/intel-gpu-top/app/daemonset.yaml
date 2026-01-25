@@ -12,6 +12,10 @@ spec:
       labels:
         app: intel-gpu-top
     spec:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
       resourceClaims:
         - name: gpu
           resourceClaimTemplateName: intel-gpu-top-gpu
@@ -21,9 +25,11 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: intel.feature.node.kubernetes.io/gpu
-                    operator: In
+                    operator: Exists
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
                     values:
-                      - arc
+                      - karakum
       containers:
         - name: intel-gpu-top
           image: public.ecr.aws/ubuntu/ubuntu:26.04
