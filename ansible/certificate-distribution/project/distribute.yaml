@@ -38,7 +38,7 @@
       changed_when: false
       failed_when: false
 
-    - name: Get current certificate from host
+    - name: Get current certificate from host (direct connection)
       ansible.builtin.shell: |
         echo | openssl s_client -showcerts \
           -servername {{ certificate_hostname | default(ansible_host) }} \
@@ -48,9 +48,21 @@
       register: current_cert
       changed_when: false
       failed_when: false
-      when: openssl_check.rc == 0
+      when: openssl_check.rc == 0 and ('hyperion' in group_names or 'octoprint' in group_names)
 
-    - name: Get current certificate expiration
+    - name: Get current certificate from host (via FQDN)
+      ansible.builtin.shell: |
+        echo | openssl s_client -showcerts \
+          -servername {{ certificate_hostname | default(ansible_host) }} \
+          -connect {{ certificate_hostname | default(ansible_host) }}:{{ certificate_port }} 2>/dev/null | \
+          openssl x509
+      delegate_to: localhost
+      register: current_cert
+      changed_when: false
+      failed_when: false
+      when: openssl_check.rc == 0 and 'hyperion' not in group_names and 'octoprint' not in group_names
+
+    - name: Get current certificate expiration (direct connection)
       ansible.builtin.shell: |
         echo | openssl s_client -showcerts \
           -servername {{ certificate_hostname | default(ansible_host) }} \
@@ -60,7 +72,19 @@
       register: current_cert_expiry
       changed_when: false
       failed_when: false
-      when: openssl_check.rc == 0
+      when: openssl_check.rc == 0 and ('hyperion' in group_names or 'octoprint' in group_names)
+
+    - name: Get current certificate expiration (via FQDN)
+      ansible.builtin.shell: |
+        echo | openssl s_client -showcerts \
+          -servername {{ certificate_hostname | default(ansible_host) }} \
+          -connect {{ certificate_hostname | default(ansible_host) }}:{{ certificate_port }} 2>/dev/null | \
+          openssl x509 -noout -enddate
+      delegate_to: localhost
+      register: current_cert_expiry
+      changed_when: false
+      failed_when: false
+      when: openssl_check.rc == 0 and 'hyperion' not in group_names and 'octoprint' not in group_names
 
     - name: Set pre-deployment status
       ansible.builtin.set_fact:
@@ -273,7 +297,7 @@
           (hyperion_cert_result.changed | default(false))
         - "'unifi' not in group_names"
 
-    - name: Verify certificate after deployment
+    - name: Verify certificate after deployment (direct connection)
       ansible.builtin.shell: |
         echo | openssl s_client -showcerts \
           -servername {{ certificate_hostname | default(ansible_host) }} \
@@ -283,9 +307,21 @@
       register: verify_cert
       changed_when: false
       failed_when: false
-      when: openssl_check.rc == 0
+      when: openssl_check.rc == 0 and ('hyperion' in group_names or 'octoprint' in group_names)
 
-    - name: Verify certificate expiration
+    - name: Verify certificate after deployment (via FQDN)
+      ansible.builtin.shell: |
+        echo | openssl s_client -showcerts \
+          -servername {{ certificate_hostname | default(ansible_host) }} \
+          -connect {{ certificate_hostname | default(ansible_host) }}:{{ certificate_port }} 2>/dev/null | \
+          openssl x509
+      delegate_to: localhost
+      register: verify_cert
+      changed_when: false
+      failed_when: false
+      when: openssl_check.rc == 0 and 'hyperion' not in group_names and 'octoprint' not in group_names
+
+    - name: Verify certificate expiration (direct connection)
       ansible.builtin.shell: |
         echo | openssl s_client -showcerts \
           -servername {{ certificate_hostname | default(ansible_host) }} \
@@ -295,7 +331,19 @@
       register: verify_cert_expiry
       changed_when: false
       failed_when: false
-      when: openssl_check.rc == 0
+      when: openssl_check.rc == 0 and ('hyperion' in group_names or 'octoprint' in group_names)
+
+    - name: Verify certificate expiration (via FQDN)
+      ansible.builtin.shell: |
+        echo | openssl s_client -showcerts \
+          -servername {{ certificate_hostname | default(ansible_host) }} \
+          -connect {{ certificate_hostname | default(ansible_host) }}:{{ certificate_port }} 2>/dev/null | \
+          openssl x509 -noout -enddate
+      delegate_to: localhost
+      register: verify_cert_expiry
+      changed_when: false
+      failed_when: false
+      when: openssl_check.rc == 0 and 'hyperion' not in group_names and 'octoprint' not in group_names
 
     - name: Set post-deployment status
       ansible.builtin.set_fact:
