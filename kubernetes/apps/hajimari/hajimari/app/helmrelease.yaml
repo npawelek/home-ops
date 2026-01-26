@@ -104,6 +104,17 @@ spec:
                   - name: pgAdmin
                     icon: mdi:database-cog
                     url: https://pgadmin.${SECRET_DOMAIN}
+              - group: budget
+                apps:
+                  - name: Wallos
+                    icon: mdi:wallet
+                    url: https://wallos.${SECRET_DOMAIN}
+                  - name: Firefly III
+                    icon: mdi:fire
+                    url: https://firefly.${SECRET_DOMAIN}
+                  - name: Firefly Importer
+                    icon: mdi:database-import
+                    url: https://firefly-importer.${SECRET_DOMAIN}
               - group: network
                 apps:
                   - name: Echo

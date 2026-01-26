@@ -8,6 +8,6 @@ components:
 
 resources:
   - ./namespace.yaml
-  # - ./wallos/ks.yaml
+  - ./wallos/ks.yaml
   # - ./firefly/ks.yaml
   # - ./firefly-importer/ks.yaml
