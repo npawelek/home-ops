@@ -1,0 +1,83 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: firefly
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: firefly
+  interval: 1h
+  values:
+    controllers:
+      firefly:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: fireflyiii/core
+              tag: version-6.4.3@sha256:7b4858314e746998559e435c35bd1e04a8317d3906f74992b3337fb75c453759
+            env:
+              TZ: ${TIMEZONE}
+              APP_ENV: production
+              APP_DEBUG: "false"
+              APP_LOG_LEVEL: notice
+              DEFAULT_LANGUAGE: en_US
+              DEFAULT_LOCALE: equal
+              TRUSTED_PROXIES: "**"
+              SEND_ERROR_MESSAGE: "true"
+              VALID_URL_PROTOCOLS: https
+              SEND_REPORT_JOURNALS: "true"
+              ENABLE_EXTERNAL_MAP: "false"
+              ENABLE_EXCHANGE_RATES: "false"
+              ENABLE_EXTERNAL_RATES: "false"
+              DKR_CHECK_SQLITE: "false"
+              USE_RUNNING_BALANCE: "false"
+              FIREFLY_III_LAYOUT: v1
+              QUERY_PARSER_IMPLEMENTATION: new
+              APP_URL: https://firefly.${SECRET_DOMAIN}
+            envFrom:
+              - secretRef:
+                  name: firefly-secrets
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 8080
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      upload:
+        existingClaim: firefly-upload
+        globalMounts:
+          - path: /var/www/html/storage/upload

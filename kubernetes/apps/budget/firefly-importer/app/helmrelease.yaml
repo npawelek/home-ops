@@ -1,0 +1,67 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: firefly-importer
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: firefly-importer
+  interval: 1h
+  values:
+    controllers:
+      firefly-importer:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: fireflyiii/data-importer
+              tag: version-1.9.1@sha256:40c843927de8fc92bc636394f7c6d9714ba45efbadbd840eb0b3aec7025b3ba1
+            env:
+              TZ: ${TIMEZONE}
+              FALLBACK_LOCALE: en_US
+              LOG_LEVEL: debug
+              TRUSTED_PROXIES: "**"
+              IGNORE_DUPLICATE_ERRORS: "false"
+              IGNORE_NOT_FOUND_TRANSACTIONS: "false"
+              VANITY_URL: https://firefly.${SECRET_DOMAIN}
+            envFrom:
+              - secretRef:
+                  name: firefly-importer-secrets
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 1Gi
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
