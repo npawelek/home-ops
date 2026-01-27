@@ -5,5 +5,14 @@ resources:
   - ./ocirepository.yaml
   - ./helmrelease.yaml
   - ./pvc.yaml
+  - ./secrets.sops.yaml
 components:
   - ../../../../components/authentik-proxy
+configMapGenerator:
+  - name: pinchflat-lifecycle-script
+    files:
+      - files/lifecycle
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled

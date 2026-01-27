@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+"""
+Pinchflat lifecycle script to trigger Autopulse when media is downloaded.
+This script is called by Pinchflat with event type and JSON payload.
+Uses only Python standard library (no external dependencies).
+"""
+
+import sys
+import json
+import os
+import base64
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
+from urllib.parse import urljoin, quote
+
+
+def trigger_autopulse(media_data):
+    """
+    Trigger Autopulse to scan for new media and notify Jellyfin.
+
+    Args:
+        media_data: Dictionary containing media information from Pinchflat
+    """
+    autopulse_url = os.environ.get(
+        'AUTOPULSE_URL',
+        'http://autopulse.downloads.svc.cluster.local:2875'
+    )
+    autopulse_username = os.environ.get('AUTOPULSE_USERNAME', '')
+    autopulse_password = os.environ.get('AUTOPULSE_PASSWORD', '')
+
+    media_filepath = media_data.get('media_filepath', '')
+
+    if not media_filepath:
+        print("Warning: No media_filepath in payload, skipping Autopulse trigger", file=sys.stderr)
+        return
+
+    autopulse_path = media_filepath.replace('/downloads', '/library/Youtube')
+
+    from urllib.parse import quote
+    trigger_endpoint = urljoin(autopulse_url, f'/triggers/pinchflat?path={quote(autopulse_path)}')
+
+    try:
+        request = Request(trigger_endpoint, method='GET')
+
+        if autopulse_username and autopulse_password:
+            credentials = f"{autopulse_username}:{autopulse_password}"
+            encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('ascii')
+            request.add_header('Authorization', f'Basic {encoded_credentials}')
+
+        with urlopen(request, timeout=30) as response:
+            status_code = response.getcode()
+            print(f"Successfully triggered Autopulse for: {media_data.get('title', 'Unknown')}")
+            print(f"Path: {autopulse_path}")
+            print(f"Response: {status_code}")
+
+    except HTTPError as e:
+        print(f"HTTP Error triggering Autopulse: {e.code} - {e.reason}", file=sys.stderr)
+        return
+    except URLError as e:
+        print(f"URL Error triggering Autopulse: {e.reason}", file=sys.stderr)
+        return
+    except Exception as e:
+        print(f"Error triggering Autopulse: {e}", file=sys.stderr)
+        return
+
+
+def log_payload(event_type, data):
+    """
+    Write the incoming payload to a file for debugging.
+
+    Args:
+        event_type: The event type string
+        data: The parsed JSON data
+    """
+    # Commented out - uncomment if debugging is needed
+    # try:
+    #     import datetime
+    #     timestamp = datetime.datetime.now().isoformat()
+    #     log_dir = "/config/logs"
+    #
+    #     # Create logs directory if it doesn't exist
+    #     os.makedirs(log_dir, exist_ok=True)
+    #
+    #     log_file = f"{log_dir}/{timestamp}-lifecycle-{event_type}.json"
+    #
+    #     with open(log_file, 'w') as f:
+    #         json.dump({
+    #             'timestamp': timestamp,
+    #             'event_type': event_type,
+    #             'data': data
+    #         }, f, indent=2)
+    #
+    #     print(f"Payload logged to: {log_file}")
+    # except Exception as e:
+    #     print(f"Warning: Could not write payload log: {e}", file=sys.stderr)
+    pass
+
+
+def main():
+    """Main entry point for the lifecycle script."""
+    if len(sys.argv) < 3:
+        print("Usage: lifecycle <event_type> <json_payload>", file=sys.stderr)
+        sys.exit(1)
+
+    event_type = sys.argv[1]
+    json_payload = sys.argv[2]
+
+    try:
+        data = json.loads(json_payload)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON payload: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    log_payload(event_type, data)
+
+    if event_type == "media_downloaded":
+        print(f"Media downloaded event received: {data.get('title', 'Unknown')}")
+        trigger_autopulse(data)
+    elif event_type == "app_init":
+        print("Pinchflat initialized - lifecycle script loaded")
+    elif event_type == "media_pre_download":
+        print(f"Pre-download check for: {data.get('title', 'Unknown')}")
+        sys.exit(0)
+    elif event_type == "media_deleted":
+        print(f"Media deleted: {data.get('title', 'Unknown')}")
+    else:
+        print(f"Unknown event type: {event_type}")
+
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

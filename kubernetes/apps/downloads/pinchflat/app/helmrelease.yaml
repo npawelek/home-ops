@@ -24,6 +24,9 @@ spec:
               http_proxy: ${HTTP_PROXY}
               https_proxy: ${HTTPS_PROXY}
               no_proxy: ${NO_PROXY}
+            envFrom:
+              - secretRef:
+                  name: pinchflat-autopulse-secrets
             probes:
               liveness: &probes
                 enabled: true
@@ -85,3 +88,10 @@ spec:
         path: /volume1/media/Youtube
         globalMounts:
           - path: /downloads
+      lifecycle-script:
+        type: configMap
+        name: pinchflat-lifecycle-script
+        defaultMode: 0755
+        globalMounts:
+          - path: /config/extras/user-scripts/lifecycle
+            subPath: lifecycle
