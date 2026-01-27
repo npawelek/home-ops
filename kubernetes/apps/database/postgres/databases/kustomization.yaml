@@ -5,3 +5,4 @@ resources:
   - ./hass.yaml
   - ./jellystat.yaml
   - ./firefly.yaml
+  - ./immich.yaml
