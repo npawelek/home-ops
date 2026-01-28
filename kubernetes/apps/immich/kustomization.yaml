@@ -8,6 +8,6 @@ components:
 
 resources:
   - ./namespace.yaml
-  # - ./redis/ks.yaml
-  # - ./ml/ks.yaml
-  # - ./server/ks.yaml
+  - ./redis/ks.yaml
+  - ./ml/ks.yaml
+  - ./server/ks.yaml

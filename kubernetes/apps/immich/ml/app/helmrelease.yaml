@@ -1,0 +1,111 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: immich-ml
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: immich-ml
+  interval: 1h
+  values:
+    controllers:
+      immich-ml:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/immich-app/immich-machine-learning
+              tag: v2.4.1-openvino@sha256:1c6c703477072b8878b5285d2186af7861f941458a55f2d994158bef373ef010
+            env:
+              TZ: ${TIMEZONE}
+              IMMICH_ENV: production
+              IMMICH_LOG_LEVEL: log
+              IMMICH_HOST: 0.0.0.0
+              IMMICH_PORT: "3003"
+              MACHINE_LEARNING_CACHE_FOLDER: /cache
+              MACHINE_LEARNING_REQUEST_THREADS: "4"
+              MACHINE_LEARNING_MAX_BATCH_SIZE__FACIAL_RECOGNITION: "1"
+              MACHINE_LEARNING_MODEL_TTL: "300"
+              MACHINE_LEARNING_WORKERS: "1"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: &port 3003
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              claims:
+                - name: gpu
+              requests:
+                cpu: 100m
+                memory: 1Gi
+              limits:
+                cpu: 4000m
+                memory: 8Gi
+    defaultPodOptions:
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: immich-ml-gpu
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        # supplementalGroups:
+        #   - 44   # video
+        #   - 104  # render
+        #   - 109  # render (additional)
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: In
+                    values:
+                      - arc
+            - weight: 50
+              preference:
+                matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: In
+                    values:
+                      - i915-igpu
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: intel.feature.node.kubernetes.io/gpu
+                    operator: In
+                    values:
+                      - arc
+                      - i915-igpu
+    service:
+      app:
+        controller: immich-ml
+        ports:
+          http:
+            port: *port
+    persistence:
+      cache:
+        existingClaim: immich-ml-cache
+        globalMounts:
+          - path: /cache
+      dot-cache:
+        existingClaim: immich-ml-dot-cache
+        globalMounts:
+          - path: /.cache
+      dot-config:
+        existingClaim: immich-ml-dot-config
+        globalMounts:
+          - path: /.config
