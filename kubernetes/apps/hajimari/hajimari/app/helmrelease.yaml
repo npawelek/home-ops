@@ -91,6 +91,9 @@ spec:
                     url: https://bazarr.${SECRET_DOMAIN}
               - group: media
                 apps:
+                  - name: Immich
+                    icon: simple-icons:immich
+                    url: https://immich.${SECRET_DOMAIN}
                   - name: Jellyfin
                     icon: simple-icons:jellyfin
                     url: https://jellyfin.${SECRET_DOMAIN}
