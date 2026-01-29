@@ -1,0 +1,11 @@
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: ntp
+spec:
+  endpoints:
+    - dnsName: ntp.${SECRET_DOMAIN}
+      recordType: A
+      targets:
+        - ${NTPD_LB}

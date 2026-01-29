@@ -12,4 +12,5 @@ resources:
   - ./external-dns/ks.yaml
   - ./external-dns/endpoints/ks.yaml
   - ./externalname/ks.yaml
+  - ./ntpd/ks.yaml
   - ./speedtest/ks.yaml

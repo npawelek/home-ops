@@ -1,0 +1,49 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ntpd
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: ntpd
+  interval: 1h
+  values:
+    controllers:
+      ntpd:
+        strategy: RollingUpdate
+        containers:
+          app:
+            image:
+              repository: cturra/ntp
+              tag: latest@sha256:7224d4e7c7833aabbcb7dd70c46c8a8dcccda365314c6db047b9b10403ace3bc
+            env:
+              TZ: ${TIMEZONE}
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+    service:
+      app:
+        controller: ntpd
+        type: LoadBalancer
+        externalTrafficPolicy: Cluster
+        annotations:
+          io.cilium/lb-ipam-ips: ${NTPD_LB}
+        ports:
+          ntp:
+            port: 123
+            protocol: UDP
+            targetPort: 123
