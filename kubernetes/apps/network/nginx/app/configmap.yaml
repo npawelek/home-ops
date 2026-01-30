@@ -4,12 +4,15 @@ kind: ConfigMap
 metadata:
   name: nginx-config
 data:
-  nginx.conf: |
+  default.conf: |
     server {
       server_name int.${SECRET_DOMAIN};
       listen 8080;
       root /usr/share/nginx/html/;
-      autoindex on;
+
+      location / {
+        autoindex on;
+      }
 
       location ~ /\.git {
         deny all;
