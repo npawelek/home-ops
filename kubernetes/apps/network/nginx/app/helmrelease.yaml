@@ -37,7 +37,16 @@ spec:
                   failureThreshold: 3
               readiness: *probes
               startup:
-                enabled: false
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
             securityContext:
               allowPrivilegeEscalation: false
               capabilities: {drop: ["ALL"]}
@@ -47,16 +56,24 @@ spec:
                 memory: 128Mi
               limits:
                 memory: 512Mi
-          git-sync:
+          git-pull:
             image:
-              repository: registry.k8s.io/git-sync/git-sync
-              tag: v4.5.1@sha256:1df295fdab03031f932f2b7dae82fa19bd77334e2510c311bbdfc7e09ef49ece
-            env:
-              GITSYNC_REPO: https://github.com/npawelek/firmware.git
-              GITSYNC_REF: main
-              GITSYNC_PERIOD: 60s
-              GITSYNC_ROOT: /git
-              GITSYNC_LINK: current
+              repository: alpine/git
+              tag: 2.52.0@sha256:e6c6c4fd5fdb742d681fcdc6018cad699ca0a75909f7fe788e626b542a9c0438
+            command:
+              - /bin/sh
+            args:
+              - -c
+              - |
+                export HOME=/tmp
+                cd /git
+                git clone --depth 1 https://github.com/npawelek/firmware.git current
+                cd current
+                git config --global --add safe.directory /git/current
+                while true; do
+                  git pull --depth 1 origin main
+                  sleep 60
+                done
             securityContext:
               allowPrivilegeEscalation: false
               capabilities: {drop: ["ALL"]}
@@ -65,7 +82,7 @@ spec:
                 cpu: 10m
                 memory: 64Mi
               limits:
-                memory: 128Mi
+                memory: 512Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -101,7 +118,7 @@ spec:
         type: emptyDir
         advancedMounts:
           nginx:
-            git-sync:
+            git-pull:
               - path: /git
             app:
               - path: /usr/share/nginx/html

@@ -9,11 +9,7 @@ data:
       server_name int.${SECRET_DOMAIN};
       listen 8080;
       root /usr/share/nginx/html/;
-      index no_index;
-
-      location / {
-        autoindex on;
-      }
+      autoindex on;
 
       location ~ /\.git {
         deny all;
