@@ -30,13 +30,36 @@ spec:
                 enabled: false
             securityContext:
               allowPrivilegeEscalation: false
-              capabilities: {drop: ["ALL"]}
+              readOnlyRootFilesystem: true
+              capabilities:
+                add: ["SYS_TIME"]
             resources:
               requests:
                 cpu: 10m
                 memory: 128Mi
               limits:
                 memory: 256Mi
+    persistence:
+      chrony-etc:
+        type: emptyDir
+        medium: Memory
+        globalMounts:
+          - path: /etc/chrony
+      chrony-run:
+        type: emptyDir
+        medium: Memory
+        globalMounts:
+          - path: /run/chrony
+      chrony-var-run:
+        type: emptyDir
+        medium: Memory
+        globalMounts:
+          - path: /var/run/chrony
+      chrony-lib:
+        type: emptyDir
+        medium: Memory
+        globalMounts:
+          - path: /var/lib/chrony
     service:
       app:
         controller: ntpd
