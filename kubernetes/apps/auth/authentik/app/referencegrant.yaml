@@ -27,9 +27,6 @@ spec:
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
       namespace: transcode
-    - group: gateway.envoyproxy.io
-      kind: SecurityPolicy
-      namespace: immich
       # Add more namespaces here as you protect more apps
   to:
     - group: ""
