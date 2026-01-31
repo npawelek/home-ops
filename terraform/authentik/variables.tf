@@ -19,3 +19,9 @@ variable "refresh_token_validity" {
   description = "Refresh token validity duration for OAuth providers"
   type        = string
 }
+
+variable "ldapservice_password" {
+  description = "Password for LDAP service user"
+  type        = string
+  sensitive   = true
+}
