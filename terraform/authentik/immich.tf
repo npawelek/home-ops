@@ -3,16 +3,29 @@ resource "authentik_provider_oauth2" "immich" {
   client_id          = "immich"
   authorization_flow = data.authentik_flow.default_authorization_flow.id
   invalidation_flow  = data.authentik_flow.default_invalidation_flow.id
-  property_mappings  = data.authentik_scope_mapping.oauth2.ids
-  redirect_uris = [
-    "app.immich:///oauth-callback",
-    "https://immich.${var.domain}/auth/login",
-    "https://immich.${var.domain}/user-settings"
+  property_mappings = [
+    data.authentik_property_mapping_provider_scope.scope_openid.id,
+    data.authentik_property_mapping_provider_scope.scope_profile.id,
+    data.authentik_property_mapping_provider_scope.scope_email.id,
   ]
-  signing_key               = data.authentik_certificate_key_pair.default.id
-  access_token_validity     = var.access_token_validity
-  refresh_token_validity    = var.refresh_token_validity
-  client_type               = "confidential"
+  allowed_redirect_uris = [
+    {
+      matching_mode = "strict"
+      url           = "app.immich:///oauth-callback"
+    },
+    {
+      matching_mode = "strict"
+      url           = "https://immich.${var.domain}/auth/login"
+    },
+    {
+      matching_mode = "strict"
+      url           = "https://immich.${var.domain}/user-settings"
+    }
+  ]
+  signing_key            = data.authentik_certificate_key_pair.default.id
+  access_token_validity  = var.access_token_validity
+  refresh_token_validity = var.refresh_token_validity
+  client_type            = "confidential"
   include_claims_in_id_token = true
 }
 
