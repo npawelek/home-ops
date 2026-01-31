@@ -19,6 +19,8 @@ spec:
       value: "${SECRET_DOMAIN}"
     - name: access_token_validity
       value: "${AUTH_VALIDITY_PERIOD}"
+    - name: refresh_token_validity
+      value: "${REFRESH_TOKEN_VALIDITY}"
   varsFrom:
     - kind: Secret
       name: authentik-terraform-secrets
