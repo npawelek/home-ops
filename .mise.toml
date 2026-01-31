@@ -34,7 +34,7 @@ enter = "mise run check-deps"
 "aqua:siderolabs/talos" = "1.12.2"
 "aqua:yannh/kubeconform" = "0.7.0"
 "aqua:pre-commit" = "4.5.1"
-"crane" = "0.20.7"
+"aqua:crane" = "0.20.7"
 
 [shell_alias]
 k = "kubectl"
