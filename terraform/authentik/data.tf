@@ -10,6 +10,12 @@ data "authentik_flow" "default_authentication_flow" {
   slug = "default-authentication-flow"
 }
 
+data "authentik_flow" "ldap_authentication_flow" {
+  slug = "ldap-authentication-flow"
+
+  depends_on = [authentik_flow.ldap_authentication]
+}
+
 data "authentik_property_mapping_provider_scope" "scope_openid" {
   managed = "goauthentik.io/providers/oauth2/scope-openid"
 }
