@@ -22,3 +22,9 @@ resource "authentik_outpost_provider_attachment" "sonarr_remux" {
   outpost           = data.authentik_outpost.embedded.id
   protocol_provider = authentik_provider_proxy.sonarr_remux.id
 }
+
+resource "authentik_policy_binding" "sonarr_remux_admins_access" {
+  target = authentik_application.sonarr_remux.uuid
+  group  = data.authentik_group.authentik_admins.id
+  order  = 0
+}

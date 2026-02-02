@@ -21,3 +21,9 @@ resource "authentik_outpost_provider_attachment" "unmanic" {
   outpost           = data.authentik_outpost.embedded.id
   protocol_provider = authentik_provider_proxy.unmanic.id
 }
+
+resource "authentik_policy_binding" "unmanic_admins_access" {
+  target = authentik_application.unmanic.uuid
+  group  = data.authentik_group.authentik_admins.id
+  order  = 0
+}

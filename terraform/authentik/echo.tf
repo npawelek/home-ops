@@ -21,3 +21,9 @@ resource "authentik_outpost_provider_attachment" "echo" {
   outpost           = data.authentik_outpost.embedded.id
   protocol_provider = authentik_provider_proxy.echo.id
 }
+
+resource "authentik_policy_binding" "echo_admins_access" {
+  target = authentik_application.echo.uuid
+  group  = data.authentik_group.authentik_admins.id
+  order  = 0
+}

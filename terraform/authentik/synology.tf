@@ -30,3 +30,9 @@ resource "authentik_application" "synology" {
   meta_launch_url    = "https://racknas.${var.domain}"
   policy_engine_mode = "any"
 }
+
+resource "authentik_policy_binding" "synology_admins_access" {
+  target = authentik_application.synology.uuid
+  group  = data.authentik_group.authentik_admins.id
+  order  = 0
+}

@@ -22,3 +22,9 @@ resource "authentik_outpost_provider_attachment" "bazarr" {
   outpost           = data.authentik_outpost.embedded.id
   protocol_provider = authentik_provider_proxy.bazarr.id
 }
+
+resource "authentik_policy_binding" "bazarr_admins_access" {
+  target = authentik_application.bazarr.uuid
+  group  = data.authentik_group.authentik_admins.id
+  order  = 0
+}

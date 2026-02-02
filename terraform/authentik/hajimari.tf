@@ -21,3 +21,9 @@ resource "authentik_outpost_provider_attachment" "hajimari" {
   outpost           = data.authentik_outpost.embedded.id
   protocol_provider = authentik_provider_proxy.hajimari.id
 }
+
+resource "authentik_policy_binding" "hajimari_admins_access" {
+  target = authentik_application.hajimari.uuid
+  group  = data.authentik_group.authentik_admins.id
+  order  = 0
+}

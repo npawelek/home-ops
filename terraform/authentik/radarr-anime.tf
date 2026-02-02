@@ -22,3 +22,9 @@ resource "authentik_outpost_provider_attachment" "radarr_anime" {
   outpost           = data.authentik_outpost.embedded.id
   protocol_provider = authentik_provider_proxy.radarr_anime.id
 }
+
+resource "authentik_policy_binding" "radarr_anime_admins_access" {
+  target = authentik_application.radarr_anime.uuid
+  group  = data.authentik_group.authentik_admins.id
+  order  = 0
+}
