@@ -1,5 +1,5 @@
 resource "authentik_application" "jellyseerr" {
-  name              = "Jellyseerr"
+  name              = "Requests"
   slug              = "jellyseerr"
   meta_launch_url   = "https://requests.${var.domain}"
   meta_icon         = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/jellyseerr.svg"
