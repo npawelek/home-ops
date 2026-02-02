@@ -31,3 +31,7 @@ data "authentik_property_mapping_provider_scope" "scope_email" {
 data "authentik_certificate_key_pair" "default" {
   name = "authentik Self-signed Certificate"
 }
+
+data "authentik_group" "authentik_admins" {
+  name = "authentik Admins"
+}
