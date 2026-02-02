@@ -49,8 +49,14 @@ resource "authentik_group" "jellyfin_users" {
   is_superuser = false
 }
 
-resource "authentik_policy_binding" "jellyfin_users_access" {
+resource "authentik_policy_binding" "jellyfin_ent_admins_access" {
+  target = authentik_application_entitlement.jellyfin_ent.id
+  group  = data.authentik_group.authentik_admins.id
+  order  = 0
+}
+
+resource "authentik_policy_binding" "jellyfin_ent_users_access" {
   target = authentik_application_entitlement.jellyfin_ent.id
   group  = authentik_group.jellyfin_users.id
-  order  = 0
+  order  = 1
 }
