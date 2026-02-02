@@ -1,13 +1,3 @@
-resource "authentik_flow" "ldap_authentication" {
-  name               = "ldap-authentication-flow"
-  title              = "LDAP Authentication Flow"
-  slug               = "ldap-authentication-flow"
-  authentication     = "none"
-  designation        = "authentication"
-  compatibility_mode = true
-  layout             = "stacked"
-}
-
 resource "authentik_user" "ldapservice" {
   username = "ldapservice"
   name     = "LDAP Service User"
