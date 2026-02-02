@@ -31,5 +31,3 @@ spec:
     substituteFrom:
       - kind: Secret
         name: cluster-secrets
-  components:
-    - ../../../../components/authentik-proxy
