@@ -25,7 +25,7 @@ resource "authentik_application" "wallos" {
   name               = "Wallos"
   slug               = "wallos"
   protocol_provider  = authentik_provider_oauth2.wallos.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/outline.svg"
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/dockge.svg"
   meta_launch_url    = "https://wallos.${var.domain}"
   policy_engine_mode = "any"
 }

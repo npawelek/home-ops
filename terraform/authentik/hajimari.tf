@@ -10,10 +10,11 @@ resource "authentik_provider_proxy" "hajimari" {
 }
 
 resource "authentik_application" "hajimari" {
-  name              = "Hajimari"
-  slug              = "hajimari"
-  protocol_provider = authentik_provider_proxy.hajimari.id
-  meta_launch_url   = "https://hajimari.${var.domain}"
+  name               = "Hajimari"
+  slug               = "hajimari"
+  protocol_provider  = authentik_provider_proxy.hajimari.id
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/hoarder.svg"
+  meta_launch_url    = "https://hajimari.${var.domain}"
   policy_engine_mode = "any"
 }
 

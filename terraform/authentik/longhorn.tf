@@ -10,11 +10,11 @@ resource "authentik_provider_proxy" "longhorn" {
 }
 
 resource "authentik_application" "longhorn" {
-  name              = "Longhorn"
-  slug              = "longhorn"
-  protocol_provider = authentik_provider_proxy.longhorn.id
-  meta_icon         = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/longhorn.svg"
-  meta_launch_url   = "https://longhorn.${var.domain}"
+  name               = "Longhorn"
+  slug               = "longhorn"
+  protocol_provider  = authentik_provider_proxy.longhorn.id
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/longhorn.svg"
+  meta_launch_url    = "https://longhorn.${var.domain}"
   policy_engine_mode = "any"
 }
 
