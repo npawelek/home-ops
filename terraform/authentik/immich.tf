@@ -37,3 +37,20 @@ resource "authentik_application" "immich" {
   meta_launch_url    = "https://immich.${var.domain}/auth/login?autoLaunch=1"
   policy_engine_mode = "any"
 }
+
+resource "authentik_group" "immich_users" {
+  name         = "immich-users"
+  is_superuser = false
+}
+
+resource "authentik_policy_binding" "immich_admins_access" {
+  target = authentik_application.immich.uuid
+  group  = data.authentik_group.authentik_admins.id
+  order  = 0
+}
+
+resource "authentik_policy_binding" "immich_users_access" {
+  target = authentik_application.immich.uuid
+  group  = authentik_group.immich_users.id
+  order  = 1
+}
