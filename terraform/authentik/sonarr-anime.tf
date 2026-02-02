@@ -13,6 +13,7 @@ resource "authentik_application" "sonarr_anime" {
   name               = "Sonarr Anime"
   slug               = "sonarr-anime"
   protocol_provider  = authentik_provider_proxy.sonarr_anime.id
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/sonarr.svg"
   meta_launch_url    = "https://sonarr-anime.${var.domain}"
   policy_engine_mode = "any"
 }

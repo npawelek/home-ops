@@ -13,6 +13,7 @@ resource "authentik_application" "bazarr" {
   name               = "Bazarr"
   slug               = "bazarr"
   protocol_provider  = authentik_provider_proxy.bazarr.id
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/bazarr.svg"
   meta_launch_url    = "https://bazarr.${var.domain}"
   policy_engine_mode = "any"
 }

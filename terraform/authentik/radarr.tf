@@ -13,6 +13,7 @@ resource "authentik_application" "radarr" {
   name               = "Radarr"
   slug               = "radarr"
   protocol_provider  = authentik_provider_proxy.radarr.id
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/radarr-dark.svg"
   meta_launch_url    = "https://radarr.${var.domain}"
   policy_engine_mode = "any"
 }

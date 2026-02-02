@@ -33,6 +33,7 @@ resource "authentik_application" "immich" {
   name               = "Immich"
   slug               = "immich"
   protocol_provider  = authentik_provider_oauth2.immich.id
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/immich.svg"
   meta_launch_url    = "https://immich.${var.domain}/auth/login?autoLaunch=1"
   policy_engine_mode = "any"
 }

@@ -13,6 +13,7 @@ resource "authentik_application" "sabnzbd" {
   name               = "SABnzbd"
   slug               = "sabnzbd"
   protocol_provider  = authentik_provider_proxy.sabnzbd.id
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/sabnzbd.svg"
   meta_launch_url    = "https://sabnzbd.${var.domain}"
   policy_engine_mode = "any"
 }

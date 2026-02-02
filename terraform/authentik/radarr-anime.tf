@@ -13,6 +13,7 @@ resource "authentik_application" "radarr_anime" {
   name               = "Radarr Anime"
   slug               = "radarr-anime"
   protocol_provider  = authentik_provider_proxy.radarr_anime.id
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/radarr-dark.svg"
   meta_launch_url    = "https://radarr-anime.${var.domain}"
   policy_engine_mode = "any"
 }
