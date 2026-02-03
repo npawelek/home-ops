@@ -13,7 +13,7 @@ resource "authentik_application" "echo" {
   name               = "Echo"
   slug               = "echo"
   protocol_provider  = authentik_provider_proxy.echo.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/antennas.svg"
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/eclipsemosquitto.svg"
   meta_launch_url    = "https://echo.${var.domain}"
   policy_engine_mode = "any"
 }
