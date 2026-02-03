@@ -13,12 +13,12 @@ spec:
         name: longhorn
   interval: 1h
   values:
-    # Use hotfix image for 1.10.1
-    image:
-      longhorn:
-        manager:
-          repository: longhornio/longhorn-manager
-          tag: v1.10.1-hotfix-2
+    # # Use hotfix image for 1.10.1
+    # image:
+    #   longhorn:
+    #     manager:
+    #       repository: longhornio/longhorn-manager
+    #       tag: v1.10.1-hotfix-2
 
     persistence:
       defaultClass: true
