@@ -13,7 +13,7 @@ resource "authentik_application" "pinchflat" {
   name               = "Pinchflat"
   slug               = "pinchflat"
   protocol_provider  = authentik_provider_proxy.pinchflat.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/tubesync.svg"
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/peertube.svg"
   meta_launch_url    = "https://pinchflat.${var.domain}"
   policy_engine_mode = "any"
 }
