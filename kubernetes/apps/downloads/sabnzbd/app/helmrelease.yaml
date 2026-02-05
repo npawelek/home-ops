@@ -46,7 +46,7 @@ spec:
                   periodSeconds: 30
                   timeoutSeconds: 5
                   failureThreshold: 5
-              readiness: &probes
+              readiness:
                 enabled: true
                 custom: true
                 spec:
