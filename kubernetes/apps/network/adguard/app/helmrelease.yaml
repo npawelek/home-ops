@@ -168,7 +168,7 @@ spec:
             namespace: gateway
             sectionName: https
         hostnames:
-          - "{{.Release.Name}}.${SECRET_DOMAIN}"
+          - "{{.Release.Name}}-primary.${SECRET_DOMAIN}"
         rules:
           - backendRefs:
               - identifier: primary
