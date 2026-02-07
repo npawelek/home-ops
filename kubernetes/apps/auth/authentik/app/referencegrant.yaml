@@ -8,22 +8,25 @@ spec:
     # Allows SecurityPolicy resources from associated namespaces to reference the authentik outpost service
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
-      namespace: echo
-    - group: gateway.envoyproxy.io
-      kind: SecurityPolicy
-      namespace: longhorn-system
-    - group: gateway.envoyproxy.io
-      kind: SecurityPolicy
-      namespace: network
-    - group: gateway.envoyproxy.io
-      kind: SecurityPolicy
-      namespace: hajimari
+      namespace: budget
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
       namespace: downloads
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
+      namespace: echo
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: hajimari
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: longhorn-system
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
       namespace: media
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
+      namespace: network
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
       namespace: transcode
