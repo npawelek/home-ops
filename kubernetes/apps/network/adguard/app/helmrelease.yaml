@@ -30,18 +30,14 @@ spec:
               - /bin/sh
               - -c
               - |
-                # Copy config if it doesn't exist
-                if [ ! -f /opt/adguardhome/conf/AdGuardHome.yaml ]; then
-                  echo "Copying initial config from secret..."
-                  cp /tmp/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
-                  chmod 0644 /opt/adguardhome/conf/AdGuardHome.yaml
-                else
-                  echo "Config already exists, skipping copy"
-                fi
+                # Always copy config from secret
+                echo "Copying config from secret..."
+                cp -fv /tmp/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
+                chmod 0644 /opt/adguardhome/conf/AdGuardHome.yaml
 
-                # Fix permissions on work directory
-                echo "Fixing permissions on work directory..."
-                chown -R 65534:65534 /opt/adguardhome/work
+                # Fix permissions on all directories
+                echo "Fixing permissions..."
+                chown -Rv 65534:65534 /opt/adguardhome
                 find /opt/adguardhome/work -type f -exec chmod 644 {} \; 2>/dev/null || true
                 find /opt/adguardhome/work -type d -exec chmod 755 {} \; 2>/dev/null || true
         containers:
