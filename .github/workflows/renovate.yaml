@@ -1,7 +1,6 @@
----
 name: Renovate
 
-on:
+"on":
   workflow_dispatch:
     inputs:
       dryRun:
@@ -22,7 +21,7 @@ on:
       - .renovaterc.json5
 
 env:
-  LOG_LEVEL: info
+  LOG_LEVEL: debug
   RENOVATE_DRY_RUN: false
   RENOVATE_CONFIG_FILE: .renovaterc.json5
   RENOVATE_REPOSITORIES: ${{ github.repository }}
