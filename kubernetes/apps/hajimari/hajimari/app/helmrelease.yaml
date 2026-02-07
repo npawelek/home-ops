@@ -122,6 +122,9 @@ spec:
                     url: https://firefly-importer.${SECRET_DOMAIN}
               - group: network
                 apps:
+                  - name: AdGuard Home (Primary)
+                    icon: mdi:shield-check
+                    url: https://adguard-primary.${SECRET_DOMAIN}
                   - name: Echo
                     icon: mdi:download-network-outline
                     url: https://echo.${SECRET_DOMAIN}
