@@ -6,8 +6,6 @@ resources:
   - ./helmrelease.yaml
   - ./pvc.yaml
   - ./secrets.sops.yaml
-components:
-  - ../../../../components/authentik-proxy
 configMapGenerator:
   - name: pinchflat-lifecycle-script
     files:

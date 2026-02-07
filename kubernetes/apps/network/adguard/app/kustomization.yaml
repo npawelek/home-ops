@@ -8,9 +8,6 @@ resources:
   - ./ocirepository.yaml
   - ./secret.sops.yaml
 
-components:
-  - ../../../../components/authentik-proxy
-
 replacements:
   - source:
       kind: HelmRelease
