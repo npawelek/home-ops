@@ -1,0 +1,185 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: adguard
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: adguard
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  values:
+    controllers:
+      adguard:
+        type: statefulset
+        replicas: 2
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-config:
+            image:
+              repository: public.ecr.aws/docker/library/alpine
+              tag: 3.23.3@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
+            securityContext:
+              runAsUser: 0
+            command:
+              - /bin/sh
+              - -c
+              - |
+                # Copy config if it doesn't exist
+                if [ ! -f /opt/adguardhome/conf/AdGuardHome.yaml ]; then
+                  echo "Copying initial config from secret..."
+                  cp /tmp/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
+                  chmod 0644 /opt/adguardhome/conf/AdGuardHome.yaml
+                else
+                  echo "Config already exists, skipping copy"
+                fi
+
+                # Fix permissions on work directory
+                echo "Fixing permissions on work directory..."
+                chown -R 65534:65534 /opt/adguardhome/work
+                find /opt/adguardhome/work -type f -exec chmod 644 {} \; 2>/dev/null || true
+                find /opt/adguardhome/work -type d -exec chmod 755 {} \; 2>/dev/null || true
+        containers:
+          app:
+            image:
+              repository: adguard/adguardhome
+              tag: v0.107.71@sha256:92929135ced2554aaf94706f766a98ad348f211df61b0704e2db7e8498cc00b7
+              pullPolicy: IfNotPresent
+            args:
+              - --config
+              - /opt/adguardhome/conf/AdGuardHome.yaml
+              - --work-dir
+              - /opt/adguardhome/work
+              - --no-check-update
+            env:
+              TZ: ${TIMEZONE}
+            probes:
+              liveness: &probe
+                enabled: true
+                type: HTTP
+                port: 3000
+                path: /login.html
+              readiness: *probe
+              startup:
+                <<: *probe
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            securityContext:
+              readOnlyRootFilesystem: true
+              runAsUser: 65534
+              runAsGroup: 65534
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+                add:
+                  - NET_BIND_SERVICE
+                  - NET_RAW
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 1Gi
+        pod:
+          securityContext:
+            fsGroup: 65534
+            fsGroupChangePolicy: OnRootMismatch
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - topologyKey: kubernetes.io/hostname
+                  labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: adguard
+        statefulset:
+          volumeClaimTemplates:
+            - name: data
+              storageClass: longhorn
+              accessMode: ReadWriteOnce
+              size: 2Gi
+              globalMounts:
+                - path: /opt/adguardhome/conf
+                  subPath: conf
+                - path: /opt/adguardhome/work
+                  subPath: work
+
+    service:
+      primary:
+        controller: adguard
+        extraSelectorLabels:
+          apps.kubernetes.io/pod-index: "0"
+        ports:
+          http:
+            port: 3000
+
+      primary-dns:
+        controller: adguard
+        extraSelectorLabels:
+          apps.kubernetes.io/pod-index: "0"
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: ${ADGUARD_LB_PRIMARY}
+        ports:
+          dns-tcp:
+            port: 53
+            protocol: TCP
+          dns-udp:
+            port: 53
+            protocol: UDP
+
+      secondary:
+        controller: adguard
+        extraSelectorLabels:
+          apps.kubernetes.io/pod-index: "1"
+        ports:
+          http:
+            port: 3000
+
+      secondary-dns:
+        controller: adguard
+        extraSelectorLabels:
+          apps.kubernetes.io/pod-index: "1"
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: ${ADGUARD_LB_SECONDARY}
+        ports:
+          dns-tcp:
+            port: 53
+            protocol: TCP
+          dns-udp:
+            port: 53
+            protocol: UDP
+
+    # Exposes primary via httproute with components/authentik-proxy
+    # Secondary should not be needed with declarative config
+    route:
+      adguard:
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        hostnames:
+          - "{{.Release.Name}}.${SECRET_DOMAIN}"
+        rules:
+          - backendRefs:
+              - identifier: primary
+                port: 3000
+
+    persistence:
+      config-secret:
+        type: secret
+        name: adguard-config
+        advancedMounts:
+          adguard:
+            init-config:
+              - path: /tmp
+                readOnly: true

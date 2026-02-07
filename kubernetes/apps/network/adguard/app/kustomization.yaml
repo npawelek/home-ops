@@ -1,0 +1,31 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: network
+
+resources:
+  - ./helmrelease.yaml
+  - ./ocirepository.yaml
+  - ./secret.sops.yaml
+
+components:
+  - ../../../../components/authentik-proxy
+
+replacements:
+  - source:
+      kind: HelmRelease
+      name: adguard
+      fieldPath: metadata.name
+    targets:
+      - select:
+          kind: SecurityPolicy
+        fieldPaths:
+          - metadata.name
+        options:
+          create: true
+      - select:
+          kind: SecurityPolicy
+        fieldPaths:
+          - spec.targetRefs.0.name
+        options:
+          create: true
