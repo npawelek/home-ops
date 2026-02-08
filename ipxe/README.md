@@ -14,7 +14,7 @@ ipxe/
 ### Current Schematic IDs
 
 <!-- SCHEMATIC_IDS_START -->
-**Talos Version**: v1.12.2
+**Talos Version**: v1.12.3
 
 - **Intel i915**: `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da`
 - **Intel XE Arc**: `92cdade33f77e1c7ec5a581e3415952d107414facf9da5383ad8c9f579064377`
