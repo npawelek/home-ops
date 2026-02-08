@@ -70,7 +70,7 @@ spec:
         use_tls: true
 
       postgresql:
-        host: authentik-postgres-rw
+        host: authentik-postgres-pooler
         name: authentik
 
       embeddedOutpost:
