@@ -120,7 +120,7 @@ spec:
             metadata:
               name: "postgres-external-rw"
               annotations:
-                io.cilium/lb-ipam-ips: ${CNPG_LB}
+                metallb.universe.tf/loadBalancerIPs: ${CNPG_LB}
             spec:
               type: LoadBalancer
               externalTrafficPolicy: Local

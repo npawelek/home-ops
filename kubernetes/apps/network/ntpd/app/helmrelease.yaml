@@ -64,9 +64,9 @@ spec:
       app:
         controller: ntpd
         type: LoadBalancer
-        externalTrafficPolicy: Cluster
+        externalTrafficPolicy: Local
         annotations:
-          io.cilium/lb-ipam-ips: ${NTPD_LB}
+          metallb.universe.tf/loadBalancerIPs: ${NTPD_LB}
         ports:
           ntp:
             port: 123

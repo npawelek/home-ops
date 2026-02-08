@@ -6,5 +6,4 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-    - 192.168.0.76-192.168.0.79
-    - 192.168.0.81-192.168.0.99
+    - 192.168.0.76-192.168.0.99

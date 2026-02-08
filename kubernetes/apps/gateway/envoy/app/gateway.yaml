@@ -33,7 +33,7 @@ spec:
               cpu: 2000m
               memory: 1Gi
       envoyService:
-        externalTrafficPolicy: Cluster
+        externalTrafficPolicy: Local
   shutdown:
     drainTimeout: 180s
   telemetry:
@@ -66,7 +66,7 @@ spec:
     annotations:
       external-dns.alpha.kubernetes.io/hostname: internal.${SECRET_DOMAIN}
       external-dns.alpha.kubernetes.io/ttl: "60"
-      lbipam.cilium.io/ips: "192.168.0.80"
+      metallb.universe.tf/loadBalancerIPs: "192.168.0.80"
   listeners:
     - name: http
       protocol: HTTP
