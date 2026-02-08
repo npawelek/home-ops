@@ -1,3 +1,4 @@
+# yamllint disable-line rule:line-length
 # yaml-language-server: $schema=https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/config/crd/bases/postgresql.cnpg.io_clusters.yaml
 ---
 apiVersion: postgresql.cnpg.io/v1
@@ -6,7 +7,8 @@ metadata:
   name: authentik-postgres
 spec:
   instances: 3
-  imageName: ghcr.io/cloudnative-pg/postgresql:18.1-standard-trixie@sha256:f445b2f8e9b4b3b9a4df56d944c976a2d7eb9b50280f3a6986b0fc7c422f7f27
+  imageName: >-
+    ghcr.io/cloudnative-pg/postgresql:18.1-standard-trixie@sha256:f445b2f8e9b4b3b9a4df56d944c976a2d7eb9b50280f3a6986b0fc7c422f7f27
   primaryUpdateStrategy: unsupervised
 
   postgresql:
@@ -27,6 +29,9 @@ spec:
       log_min_duration_statement: "500"
       password_encryption: "scram-sha-256"
       ssl_min_protocol_version: "TLSv1.2"
+      # Authentik 2025.10+ moved caching from Redis to Postgres
+      # Allows Postgres to return success before disk sync
+      synchronous_commit: "off"
 
     pg_hba:
       - local all all scram-sha-256
@@ -74,10 +79,9 @@ spec:
       cpu: 2000m
       memory: 2000Mi
 
-  # TODO: Change podAntiAffinityType to 'required' after adding 3rd worker node
   affinity:
     enablePodAntiAffinity: true
-    podAntiAffinityType: preferred
+    podAntiAffinityType: required
     topologyKey: kubernetes.io/hostname
 
   monitoring:
