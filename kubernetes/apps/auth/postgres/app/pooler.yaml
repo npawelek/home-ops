@@ -22,3 +22,4 @@ spec:
       server_lifetime: "1800"
       query_wait_timeout: "30"
       stats_period: "60"
+      ignore_startup_parameters: "search_path"
