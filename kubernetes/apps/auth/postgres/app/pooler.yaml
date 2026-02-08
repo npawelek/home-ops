@@ -1,0 +1,24 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/config/crd/bases/postgresql.cnpg.io_poolers.yaml
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: authentik-postgres-pooler
+spec:
+  cluster:
+    name: authentik-postgres
+  instances: 2
+  type: rw
+  pgbouncer:
+    poolMode: transaction
+    parameters:
+      max_client_conn: "300"
+      default_pool_size: "25"
+      min_pool_size: "5"
+      reserve_pool_size: "5"
+      reserve_pool_timeout: "3"
+      server_idle_timeout: "300"
+      server_lifetime: "1800"
+      query_wait_timeout: "30"
+      stats_period: "60"

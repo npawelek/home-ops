@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./cluster.yaml
   - ./credentials.sops.yaml
+  - ./pooler.yaml
