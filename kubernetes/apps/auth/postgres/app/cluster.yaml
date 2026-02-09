@@ -22,15 +22,13 @@ spec:
       default_statistics_target: "100"
       random_page_cost: "1.0"
       effective_io_concurrency: "200"
-      work_mem: "16MB"
+      work_mem: "8MB"
       min_wal_size: "1GB"
       max_wal_size: "4GB"
       log_statement: "none"
       log_min_duration_statement: "500"
       password_encryption: "scram-sha-256"
       ssl_min_protocol_version: "TLSv1.2"
-      idle_in_transaction_session_timeout: "30000"
-      statement_timeout: "60000"
       # Authentik 2025.10+ moved caching from Redis to Postgres
       # Allows Postgres to return success before disk sync
       synchronous_commit: "off"
