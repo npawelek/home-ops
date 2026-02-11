@@ -37,8 +37,8 @@ spec:
                     port: &port 8096
                   initialDelaySeconds: 0
                   periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
+                  timeoutSeconds: 5
+                  failureThreshold: 6
               readiness: *probes
             resources:
               claims:
