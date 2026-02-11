@@ -66,7 +66,7 @@ spec:
     annotations:
       external-dns.alpha.kubernetes.io/hostname: internal.${SECRET_DOMAIN}
       external-dns.alpha.kubernetes.io/ttl: "60"
-      metallb.universe.tf/loadBalancerIPs: "192.168.0.80"
+      metallb.io/loadBalancerIPs: ${CLUSTER_GATEWAY_INTERNAL_ADDR}
   listeners:
     - name: http
       protocol: HTTP

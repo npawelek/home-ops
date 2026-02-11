@@ -120,7 +120,7 @@ spec:
             metadata:
               name: "postgres-external-rw"
               annotations:
-                metallb.universe.tf/loadBalancerIPs: ${CNPG_LB}
+                metallb.io/loadBalancerIPs: ${CNPG_LB}
             spec:
               type: LoadBalancer
               externalTrafficPolicy: Local

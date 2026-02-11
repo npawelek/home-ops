@@ -100,7 +100,7 @@ spec:
         controller: sabnzbd
         type: LoadBalancer
         annotations:
-          metallb.universe.tf/loadBalancerIPs: ${PROXY_LB}
+          metallb.io/loadBalancerIPs: ${PROXY_LB}
         externalTrafficPolicy: Local
         ports:
           proxy:
