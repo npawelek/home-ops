@@ -45,7 +45,7 @@ spec:
     global:
       image:
         repository: ghcr.io/goauthentik/server
-        tag: 2025.12.3
+        tag: 2025.12.4
 
       affinity:
         podAntiAffinity: hard
