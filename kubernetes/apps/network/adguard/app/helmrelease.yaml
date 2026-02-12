@@ -123,6 +123,19 @@ spec:
         externalTrafficPolicy: Local
         annotations:
           metallb.io/loadBalancerIPs: ${ADGUARD_LB_PRIMARY}
+        ports:
+          dns-tcp:
+            port: 53
+            protocol: TCP
+          dns-udp:
+            port: 53
+            protocol: UDP
+
+      primary-dns-internal:
+        controller: adguard
+        extraSelectorLabels:
+          apps.kubernetes.io/pod-index: "0"
+        type: ClusterIP
         clusterIP: 10.96.0.77
         ports:
           dns-tcp:
@@ -148,6 +161,19 @@ spec:
         externalTrafficPolicy: Local
         annotations:
           metallb.io/loadBalancerIPs: ${ADGUARD_LB_SECONDARY}
+        ports:
+          dns-tcp:
+            port: 53
+            protocol: TCP
+          dns-udp:
+            port: 53
+            protocol: UDP
+
+      secondary-dns-internal:
+        controller: adguard
+        extraSelectorLabels:
+          apps.kubernetes.io/pod-index: "1"
+        type: ClusterIP
         clusterIP: 10.96.0.78
         ports:
           dns-tcp:
