@@ -123,6 +123,7 @@ spec:
         externalTrafficPolicy: Local
         annotations:
           metallb.io/loadBalancerIPs: ${ADGUARD_LB_PRIMARY}
+        clusterIP: 10.96.0.77
         ports:
           dns-tcp:
             port: 53
@@ -147,6 +148,7 @@ spec:
         externalTrafficPolicy: Local
         annotations:
           metallb.io/loadBalancerIPs: ${ADGUARD_LB_SECONDARY}
+        clusterIP: 10.96.0.78
         ports:
           dns-tcp:
             port: 53

@@ -41,7 +41,7 @@ spec:
           - name: autopath
             parameters: "@kubernetes"
           - name: forward
-            parameters: . /etc/resolv.conf
+            parameters: . 10.96.0.77 10.96.0.78
           - name: cache
             configBlock: |-
               prefetch 20
