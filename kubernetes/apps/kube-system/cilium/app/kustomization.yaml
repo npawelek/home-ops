@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./ocirepository.yaml
-  - ./networks.yaml
+  # - ./networks.yaml  # Disabled - using MetalLB instead
