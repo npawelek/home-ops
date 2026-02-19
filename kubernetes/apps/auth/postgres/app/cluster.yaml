@@ -43,12 +43,12 @@ spec:
       - hostssl all all 192.168.30.99/32 scram-sha-256
       - hostssl all all 192.168.30.100/32 scram-sha-256
 
-  bootstrap:
-    initdb:
-      database: authentik
-      owner: authentik
-      secret:
-        name: credentials-authentik
+  # bootstrap:
+  #   initdb:
+  #     database: authentik
+  #     owner: authentik
+  #     secret:
+  #       name: credentials-authentik
 
   enableSuperuserAccess: true
   superuserSecret:
