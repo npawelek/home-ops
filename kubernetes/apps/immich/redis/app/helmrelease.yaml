@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: valkey/valkey
-              tag: 8.1.5-alpine@sha256:918228e4ff7da6b3a4213cb18067f6e09d9f0503d0a08868699ba227cff71861
+              tag: 9.0.2-alpine@sha256:68677f85c863830af7836ff07c4a13b7f085ebeff62f4dedb71499ca27d229f2
             env:
               TZ: ${TIMEZONE}
             command:
