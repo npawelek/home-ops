@@ -7,7 +7,7 @@ spec:
   components:
     - ../../../../components/authentik-proxy
   interval: 1h
-  path: ./kubernetes/apps/echo/echo/app
+  path: ./kubernetes/apps/network/echo/app
   postBuild:
     substitute:
       APP: *app
@@ -19,5 +19,5 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  targetNamespace: echo
+  targetNamespace: network
   wait: false

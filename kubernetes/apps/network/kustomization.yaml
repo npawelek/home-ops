@@ -16,3 +16,4 @@ resources:
   - ./nginx/ks.yaml
   - ./ntpd/ks.yaml
   - ./speedtest/ks.yaml
+  - ./echo/ks.yaml
