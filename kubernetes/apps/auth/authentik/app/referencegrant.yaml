@@ -29,6 +29,9 @@ spec:
       namespace: network
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
+      namespace: storage
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
       namespace: transcode
       # Add more namespaces here as you protect more apps
   to:
