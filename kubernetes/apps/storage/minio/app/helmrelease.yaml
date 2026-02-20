@@ -24,33 +24,11 @@ spec:
               - server
               - --console-address=:9001
               - http://minio-{0...1}.minio.storage.svc.cluster.local/data
+            envFrom:
+              - secretRef:
+                  name: minio-secrets
             env:
-              MINIO_ROOT_USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: minio-secrets
-                    key: MINIO_ROOT_USER
-              MINIO_ROOT_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: minio-secrets
-                    key: MINIO_ROOT_PASSWORD
               MINIO_UPDATE: "off"
-              MINIO_BROWSER_REDIRECT_URL: https://minio.${SECRET_DOMAIN}
-              MINIO_IDENTITY_OPENID_DISPLAY_NAME: Login with Authentik
-              # yamllint disable-line rule:line-length
-              MINIO_IDENTITY_OPENID_CONFIG_URL: https://auth.${SECRET_DOMAIN}/application/o/minio/.well-known/openid-configuration
-              MINIO_IDENTITY_OPENID_CLIENT_ID:
-                valueFrom:
-                  secretKeyRef:
-                    name: minio-secrets
-                    key: MINIO_OIDC_CLIENT_ID
-              MINIO_IDENTITY_OPENID_CLIENT_SECRET:
-                valueFrom:
-                  secretKeyRef:
-                    name: minio-secrets
-                    key: MINIO_OIDC_CLIENT_SECRET
-              MINIO_IDENTITY_OPENID_SCOPES: openid,profile,email
               MINIO_SCANNER_SPEED: slowest
             probes:
               liveness: &probe
