@@ -19,4 +19,6 @@ spec:
               name: cert-manager-secret
               key: aws-secret-access-key
         selector:
-          dnsZones: ["${SECRET_DOMAIN}"]
+          dnsZones:
+            - "${SECRET_DOMAIN}"
+            - "${OLD_SECRET_DOMAIN}"
