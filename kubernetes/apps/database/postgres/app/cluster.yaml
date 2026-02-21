@@ -69,6 +69,26 @@ spec:
     size: 30Gi
     storageClass: longhorn-6h
 
+  backup:
+    retentionPolicy: 14d
+    barmanObjectStore:
+      destinationPath: ${BACKUP_DESTINATION_PATH_MAIN}
+      endpointURL: http://garage.storage.svc.cluster.local:3900
+      s3Credentials:
+        accessKeyId:
+          name: credentials-backup-s3
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: credentials-backup-s3
+          key: ACCESS_SECRET_KEY
+        region:
+          name: credentials-backup-s3
+          key: REGION
+      wal:
+        compression: gzip
+      data:
+        compression: gzip
+
   managed:
     roles:
       - name: hass
