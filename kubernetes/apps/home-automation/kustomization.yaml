@@ -9,6 +9,6 @@ components:
 resources:
   - ./namespace.yaml
   - ./whisper/ks.yaml
-  - ./piper/ks.yaml
-  - ./node-red/ks.yaml
-  - ./mosquitto/ks.yaml
+  # - ./piper/ks.yaml
+  # - ./node-red/ks.yaml
+  # - ./mosquitto/ks.yaml
