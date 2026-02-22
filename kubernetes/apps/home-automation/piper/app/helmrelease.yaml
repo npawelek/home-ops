@@ -1,0 +1,53 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: piper
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: piper
+  interval: 1h
+  values:
+    controllers:
+      piper:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          app:
+            image:
+              repository: rhasspy/wyoming-piper
+              tag: 2.2.2@sha256:c874e4a04657ae3381332ee5d0c8c70a310dae6722892840f530ac0890b44eb3
+            args:
+              - --voice
+              - en_US-libritts_r-medium
+            env:
+              TZ: ${TIMEZONE}
+            resources:
+              requests:
+                memory: 250Mi
+                cpu: 500m
+              limits:
+                memory: 500Mi
+    service:
+      piper:
+        controller: piper
+        ports:
+          http:
+            port: 10200
+            protocol: TCP
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        existingClaim: piper-data
+        globalMounts:
+          - path: /data
