@@ -12,7 +12,7 @@ spec:
     crds:
       enabled: true
     replicaCount: 2
-    dns01RecursiveNameservers: https://9.9.9.9:443/dns-query,https://149.112.112.112:443/dns-query
+    dns01RecursiveNameservers: ${ADGUARD_LB_PRIMARY}:53,${ADGUARD_LB_SECONDARY}:53
     dns01RecursiveNameserversOnly: true
     prometheus:
       enabled: true
