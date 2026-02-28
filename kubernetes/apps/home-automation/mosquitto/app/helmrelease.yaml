@@ -1,0 +1,69 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mosquitto
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: mosquitto
+  interval: 1h
+  values:
+    controllers:
+      mosquitto:
+        type: statefulset
+        replicas: 1
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: public.ecr.aws/docker/library/eclipse-mosquitto
+              tag: 2.0.18@sha256:d12c8f80dfc65b768bb9acecc7ef182b976f71fb681640b66358e5e0cf94e9e9
+            env:
+              TZ: ${TIMEZONE}
+            resources:
+              requests:
+                cpu: 15m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+    service:
+      mosquitto:
+        controller: mosquitto
+        type: LoadBalancer
+        annotations:
+          metallb.io/loadBalancerIPs: ${MOSQUITTO_LB}
+        externalTrafficPolicy: Local
+        ports:
+          mqtt:
+            port: 1883
+            protocol: TCP
+          mqtts:
+            port: 8883
+            protocol: TCP
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        existingClaim: mosquitto-data
+        globalMounts:
+          - path: /mosquitto/data
+      configinc:
+        type: configMap
+        name: mosquitto-conf
+        globalMounts:
+          - path: /mosquitto/configinc
+      mosquitto-auth:
+        type: secret
+        name: mosquitto-secrets
+        globalMounts:
+          - path: /mosquitto/configinc/auth
+            readOnly: true
+      mosquitto-tls:
+        type: secret
+        name: mqtt-${OLD_SECRET_DOMAIN/./-}-tls
+        globalMounts:
+          - path: /etc/ssl/mosquitto
+            readOnly: true
