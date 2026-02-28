@@ -1,0 +1,64 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nodered
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: node-red
+  interval: 1h
+  values:
+    controllers:
+      nodered:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          app:
+            image:
+              repository: nodered/node-red
+              tag: 4.1.3-18-minimal@sha256:507e36ee3684b50adc066f49c8b1481a716a9b017b7575fae31ac463d1c6b23e
+            env:
+              TZ: ${TIMEZONE}
+              FLOWS: flows.json
+              NODE_RED_ENABLE_PROJECTS: 'true'
+              NODE_RED_ENABLE_SAFE_MODE: 'false'
+            resources:
+              requests:
+                cpu: 100m
+                memory: 500Mi
+              limits:
+                memory: 1000Mi
+    service:
+      nodered:
+        controller: nodered
+        ports:
+          http:
+            port: 1880
+            protocol: TCP
+    route:
+      nodered:
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+        hostnames:
+          - "{{.Release.Name}}.${SECRET_DOMAIN}"
+        rules:
+          - backendRefs:
+              - identifier: nodered
+                port: 1880
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        existingClaim: node-red-data
+        globalMounts:
+          - path: /data
