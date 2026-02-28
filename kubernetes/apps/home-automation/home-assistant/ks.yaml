@@ -15,8 +15,8 @@ spec:
       namespace: gateway
     - name: metallb
       namespace: metallb-system
-    - name: mosquitto
-      namespace: home-automation
+    - name: database-postgres-databases
+      namespace: database
   path: ./kubernetes/apps/home-automation/home-assistant/app
   prune: true
   sourceRef:
