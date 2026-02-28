@@ -12,7 +12,7 @@ spec:
     size: 4096
     algorithm: RSA
   issuerRef:
-    name: letsencrypt-prod
+    name: letsencrypt-production
     kind: ClusterIssuer
   dnsNames:
     - mqtt.${OLD_SECRET_DOMAIN}
