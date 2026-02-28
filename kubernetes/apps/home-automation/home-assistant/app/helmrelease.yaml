@@ -1,0 +1,130 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: home-assistant
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: home-assistant
+  interval: 1h
+  values:
+    controllers:
+      home-assistant:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          app:
+            image:
+              # TODO: switch to home-operations container
+              repository: ghcr.io/home-assistant/home-assistant
+              tag: 2026.1.0@sha256:85322ed6a661e8a83fb685209b2c35bd84233b2fac3f2e1436c13e408f37aefd
+            env:
+              TZ: ${TIMEZONE}
+            envFrom:
+              - secretRef:
+                  name: home-assistant-secrets
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /manifest.json
+                    port: &port 8123
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /manifest.json
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 20
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+            resources:
+              requests:
+                cpu: 100m
+                memory: 1000Mi
+              limits:
+                memory: 2500Mi
+          codeserver:
+            image:
+              repository: ghcr.io/coder/code-server
+              tag: 4.107.1@sha256:b6ca653b4490903fdc9622cccf4970c39d7fcbf31ea3d71791db939a46bd51b0
+            args:
+              - --user-data-dir
+              - /config/.vscode
+              - --auth
+              - none
+            env:
+              TZ: ${TIMEZONE}
+              HASS_SERVER: http://localhost:8123
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+    service:
+      app:
+        controller: home-assistant
+        type: LoadBalancer
+        annotations:
+          metallb.io/loadBalancerIPs: ${HOME_ASSISTANT_LB}
+        externalTrafficPolicy: Local
+        ports:
+          http:
+            port: 8123
+            protocol: TCP
+      codeserver:
+        controller: home-assistant
+        ports:
+          http:
+            port: 8080
+            protocol: TCP
+    route:
+      app:
+        hostnames: ["{{.Release.Name}}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 8123
+      codeserver:
+        hostnames: ["{{.Release.Name}}-code.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: codeserver
+                port: 8080
+    persistence:
+      config:
+        existingClaim: home-assistant-config
+        globalMounts:
+          - path: /config
+      sshconfig:
+        type: configMap
+        name: home-assistant-ssh-config
+        globalMounts:
+          - path: /root/.ssh/config
+            subPath: config
+            readOnly: true
