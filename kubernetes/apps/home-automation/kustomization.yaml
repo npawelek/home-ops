@@ -9,7 +9,7 @@ components:
 resources:
   - ./namespace.yaml
   - ./home-assistant/ks.yaml
-  - ./whisper/ks.yaml
-  - ./piper/ks.yaml
+  - ./mosquitto/ks.yaml
   # - ./node-red/ks.yaml
-  # - ./mosquitto/ks.yaml
+  - ./piper/ks.yaml
+  - ./whisper/ks.yaml
