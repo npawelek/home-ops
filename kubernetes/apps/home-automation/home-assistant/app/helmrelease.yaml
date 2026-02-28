@@ -30,7 +30,7 @@ spec:
               TZ: ${TIMEZONE}
             envFrom:
               - secretRef:
-                  name: home-assistant-secrets
+                  name: home-assistant-env-secrets
             probes:
               liveness:
                 enabled: true
