@@ -54,7 +54,10 @@ spec:
         type: configMap
         name: mosquitto-conf
         globalMounts:
-          - path: /mosquitto/configinc
+          - path: /mosquitto/config/mosquitto.conf
+            subPath: mosquitto.conf
+          - path: /mosquitto/configinc/mqtt.conf
+            subPath: mqtt.conf
       mosquitto-auth:
         type: secret
         name: mosquitto-secrets

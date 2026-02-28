@@ -4,6 +4,9 @@ kind: ConfigMap
 metadata:
   name: mosquitto-conf
 data:
+  mosquitto.conf: |-
+    per_listener_settings true
+    include_dir /mosquitto/configinc
   mqtt.conf: |-
     listener 8883 0.0.0.0
     cafile /etc/ssl/mosquitto/tls.crt
