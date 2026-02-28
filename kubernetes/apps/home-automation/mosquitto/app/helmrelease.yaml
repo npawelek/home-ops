@@ -17,6 +17,19 @@ spec:
         replicas: 1
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          init-auth:
+            image:
+              repository: public.ecr.aws/docker/library/alpine
+              tag: 3.23.3@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
+            command:
+              - /bin/sh
+              - -c
+              - |
+                cp /tmp/auth/passwd /mosquitto/configinc/auth/passwd
+                cp /tmp/auth/acl /mosquitto/configinc/auth/acl
+                chmod 0700 /mosquitto/configinc/auth/passwd /mosquitto/configinc/auth/acl
+                chown 1883:1883 /mosquitto/configinc/auth/passwd /mosquitto/configinc/auth/acl
         containers:
           app:
             image:
@@ -61,9 +74,15 @@ spec:
       mosquitto-auth:
         type: secret
         name: mosquitto-secrets
+        advancedMounts:
+          mosquitto:
+            init-auth:
+              - path: /tmp/auth
+                readOnly: true
+      mosquitto-auth-rw:
+        type: emptyDir
         globalMounts:
           - path: /mosquitto/configinc/auth
-            readOnly: true
       mosquitto-tls:
         type: secret
         name: mqtt-${OLD_SECRET_DOMAIN/./-}-tls
