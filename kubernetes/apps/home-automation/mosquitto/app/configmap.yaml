@@ -5,13 +5,14 @@ metadata:
   name: mosquitto-conf
 data:
   mosquitto.conf: |-
-    per_listener_settings true
     include_dir /mosquitto/configinc
   mqtt.conf: |-
     listener 8883 0.0.0.0
     cafile /etc/ssl/mosquitto/tls.crt
     certfile /etc/ssl/mosquitto/tls.crt
     keyfile /etc/ssl/mosquitto/tls.key
-    acl_file /mosquitto/configinc/auth/acl
-    password_file /mosquitto/configinc/auth/passwd
+    global_plugin /usr/lib/mosquitto_password_file.so
+    plugin_opt_password_file /mosquitto/configinc/auth/passwd
+    global_plugin /usr/lib/mosquitto_acl_file.so
+    plugin_opt_acl_file /mosquitto/configinc/auth/acl
     autosave_interval 60
