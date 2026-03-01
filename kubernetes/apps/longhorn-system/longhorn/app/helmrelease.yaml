@@ -13,6 +13,19 @@ spec:
         name: longhorn
   interval: 1h
   values:
+    # hotfix for instance-manager memory leak in 1.11.0
+    #####
+    image:
+      longhorn:
+        manager:
+          tag: v1.11.0-hotfix-1
+        instanceManager:
+          tag: v1.11.0-hotfix-1
+    preUpgradeChecker:
+      upgradeVersionCheck: false
+    upgradeCheck:
+      enabled: false
+    #####
     persistence:
       defaultClass: true
       defaultClassReplicaCount: 3
@@ -61,22 +74,3 @@ spec:
     # Disable built-in ingress - using Envoy Gateway HTTPRoute instead
     ingress:
       enabled: false
-
-    # Deploy HTTPRoute via extraObjects
-    extraObjects:
-      - apiVersion: gateway.networking.k8s.io/v1
-        kind: HTTPRoute
-        metadata:
-          name: longhorn
-          namespace: longhorn-system
-        spec:
-          hostnames:
-            - longhorn.${SECRET_DOMAIN}
-          parentRefs:
-            - name: envoy-internal
-              namespace: gateway
-              sectionName: https
-          rules:
-            - backendRefs:
-                - name: longhorn-frontend
-                  port: 80
