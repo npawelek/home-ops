@@ -71,7 +71,7 @@ spec:
                 cd current
                 git config --global --add safe.directory /git/current
                 while true; do
-                  git pull --depth 1 origin main
+                  git pull --ff-only --depth 1 origin main
                   sleep 60
                 done
             securityContext:
