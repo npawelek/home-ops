@@ -7,12 +7,20 @@ data:
   mosquitto.conf: |-
     include_dir /mosquitto/configinc
   mqtt.conf: |-
+    listener 1883 0.0.0.0
+    allow_anonymous false
+    plugin /usr/lib/mosquitto_password_file.so
+    plugin_opt_password_file /mosquitto/configinc/auth/passwd
+    plugin /usr/lib/mosquitto_acl_file.so
+    plugin_opt_acl_file /mosquitto/configinc/auth/acl
+
     listener 8883 0.0.0.0
     cafile /etc/ssl/mosquitto/tls.crt
     certfile /etc/ssl/mosquitto/tls.crt
     keyfile /etc/ssl/mosquitto/tls.key
-    global_plugin /usr/lib/mosquitto_password_file.so
+    plugin /usr/lib/mosquitto_password_file.so
     plugin_opt_password_file /mosquitto/configinc/auth/passwd
-    global_plugin /usr/lib/mosquitto_acl_file.so
+    plugin /usr/lib/mosquitto_acl_file.so
     plugin_opt_acl_file /mosquitto/configinc/auth/acl
+
     autosave_interval 60
