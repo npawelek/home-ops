@@ -84,6 +84,12 @@ spec:
               limits:
                 memory: 1Gi
         pod:
+          dnsPolicy: None
+          dnsConfig:
+            nameservers:
+              - ${ADGUARD_BOOTSTRAP_DNS1}
+              - ${ADGUARD_BOOTSTRAP_DNS2}
+            searches: []
           securityContext:
             fsGroup: 65534
             fsGroupChangePolicy: OnRootMismatch
