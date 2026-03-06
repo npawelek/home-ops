@@ -8,6 +8,8 @@ components:
 
 resources:
   - ./namespace.yaml
+  - ./esphome/ks.yaml
+  # - ./fireboard2mqtt/ks.yaml
   - ./home-assistant/ks.yaml
   - ./mosquitto/ks.yaml
   - ./node-red/ks.yaml
