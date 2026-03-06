@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/esphome
-              tag: 2026.2.2@sha256:84d248412dd4421415cc4d4710096974d9ed9c573a4e9bf2fe8b245d2d406b7a
+              tag: 2026.2.4@sha256:5db69ebce7773c0fdea582fc73f75c15cab3aab1567199e45e9044854df5ea8b
             env:
               TZ: ${TIMEZONE}
               ESPHOME_DASHBOARD_USE_PING: "true"
