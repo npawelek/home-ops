@@ -132,6 +132,44 @@ nodes:
         mtu: 9000
     patches:
       - "@./patches/nodes/rocinante-longhorn-volume.yaml"
+  - hostname: "donnager"
+    ipAddress: "192.168.0.33"
+    installDisk: "/dev/sda"
+    machineSpec:
+      secureboot: false
+    talosImageURL: factory.talos.dev/installer/0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da
+    controlPlane: false
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "54:b2:03:f0:a6:54"
+        dhcp: false
+        addresses:
+          - "192.168.0.33/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "192.168.0.1"
+        mtu: 9000
+    patches:
+      - "@./patches/nodes/donnager-longhorn-volume.yaml"
+  - hostname: "hammurabi"
+    ipAddress: "192.168.0.34"
+    installDisk: "/dev/sda"
+    machineSpec:
+      secureboot: false
+    talosImageURL: factory.talos.dev/installer/0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da
+    controlPlane: false
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "54:b2:03:f0:a4:b5"
+        dhcp: false
+        addresses:
+          - "192.168.0.34/24"
+        routes:
+          - network: "0.0.0.0/0"
+            gateway: "192.168.0.1"
+        mtu: 9000
+    patches:
+      - "@./patches/nodes/hammurabi-longhorn-volume.yaml"
 
 # Global patches
 patches:

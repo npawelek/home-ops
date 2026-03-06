@@ -244,6 +244,81 @@ task talos:apply-node IP=? MODE=?
 # e.g. task talos:apply-node IP=10.10.10.10 MODE=auto
 ```
 
+### ➕ Adding a new node
+
+#### 1. PXE boot the node
+
+Boot the machine via netboot.xyz, select the appropriate Talos build (e.g. Intel i915), and enable both **Maintenance Mode** and **Disk Wipe** before booting.
+
+#### 2. Gather disk and network info
+
+```sh
+# List disks to identify OS disk and Longhorn data disk
+talosctl get disks -n <IP> --insecure
+
+# Wipe the Longhorn data disk if it has existing partitions
+talosctl -n <IP> wipe disk <disk> --insecure # e.g. nvme0n1
+
+# Get MAC address for network interface config
+talosctl get links -n <IP> --insecure
+```
+
+#### 3. Add the node to `talos/talconfig.yaml`
+
+```yaml
+- hostname: "newnode"                                       # update
+  ipAddress: "192.168.0.XX"                                 # update
+  installDisk: "/dev/sda"                                   # update (OS disk)
+  machineSpec:
+    secureboot: false
+  talosImageURL: factory.talos.dev/installer/<schematic-id> # update
+  controlPlane: false
+  networkInterfaces:
+    - deviceSelector:
+        hardwareAddr: "xx:xx:xx:xx:xx:xx"                   # update
+      dhcp: false
+      addresses:
+        - "192.168.0.XX/24"                                 # update
+      routes:
+        - network: "0.0.0.0/0"
+          gateway: "192.168.0.1"
+      mtu: 9000
+  patches:
+- "@./patches/nodes/newnode-longhorn-volume.yaml"           # update
+```
+
+#### 4. Create the Longhorn volume patch
+
+Create `talos/patches/nodes/newnode-longhorn-volume.yaml`:
+
+```yaml
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: longhorn
+provisioning:
+  diskSelector:
+    match: disk.dev_path == "/dev/nvme0n1"  # Longhorn data disk
+  grow: true
+  maxSize: 1TB
+```
+
+#### 5. Generate config and apply
+
+```sh
+task talos:generate-config
+task talos:bootstrap-new-node IP=192.168.0.XX
+```
+
+#### 6. Verify
+
+```sh
+# Node joins the cluster
+kubectl get node <hostname>
+
+# Longhorn volume provisioned
+talosctl -n <IP> get volumestatus
+```
+
 ### ⬆️ Updating Talos and Kubernetes versions
 
 > [!TIP]

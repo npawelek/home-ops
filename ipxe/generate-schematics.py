@@ -54,7 +54,7 @@ BUILD_CONFIGS = [
         "YOUR_INTEL_IGPU_SCHEMATIC_ID",
         ["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         None,
-        ["m1", "m2", "m3", "karakum", "pella"],
+        ["m1", "m2", "m3", "karakum", "pella", "donnager", "hammurabi"],
         [],
     ),
     (

@@ -10,20 +10,20 @@ iseq ${os_arch} x86_64 && set os_arch amd64 ||
 iseq ${os_arch} aarch64 && set os_arch arm64 ||
 
 isset ${talos_platform} || set talos_platform metal
+isset ${talos_version} || set talos_version v1.12.4
 
 # Force local boot domain for Talos assets
 set talos_base http://192.168.0.9/
 
 menu ${os} - Select Version
 item --gap Talos Versions:
-item v1_12_1 ${space} v1.12.1 (Latest)
+item v_latest ${space} ${talos_version} (Latest)
 item --gap Options:
 item talos_version_custom ${space} Custom version
 item back ${space} Back to main menu
-choose --default v1_12_1 --timeout 10000 target && goto ${target}
+choose --default v_latest --timeout 10000 target && goto ${target}
 
-:v1_12_1
-set talos_version v1.12.1
+:v_latest
 goto build_menu
 
 :talos_version_custom

@@ -5,3 +5,5 @@ kubernetes-karakum.yaml
 talosconfig
 kubernetes-pella.yaml
 kubernetes-rocinante.yaml
+kubernetes-donnager.yaml
+kubernetes-hammurabi.yaml
