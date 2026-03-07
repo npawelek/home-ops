@@ -36,16 +36,31 @@ spec:
               capabilities:
                 drop:
                   - ALL
-          codeserver:
-            dependsOn: app
+      code-server:
+        type: statefulset
+        pod:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: esphome
+                  topologyKey: kubernetes.io/hostname
+        containers:
+          code-server:
             image:
               repository: ghcr.io/coder/code-server
               tag: 4.109.5@sha256:f9ccfeb5a3de80d16342a6a842519c481522d80aafe65fb24a16393235a34f71
             args:
-              - --user-data-dir
-              - /config/.vscode
               - --auth
               - none
+              - --disable-telemetry
+              - --disable-update-check
+              - --user-data-dir
+              - /config/.vscode
+              - --extensions-dir
+              - /config/.vscode
+              - /config
             env:
               TZ: ${TIMEZONE}
             resources:
@@ -54,9 +69,6 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 1Gi
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
     defaultPodOptions:
       securityContext:
         runAsUser: 2000
@@ -70,8 +82,8 @@ spec:
         ports:
           http:
             port: 6052
-      codeserver:
-        controller: esphome
+      code-server:
+        controller: code-server
         ports:
           http:
             port: 8080
@@ -86,7 +98,7 @@ spec:
           - backendRefs:
               - identifier: app
                 port: 6052
-      codeserver:
+      code-server:
         hostnames: ["{{.Release.Name}}-code.${SECRET_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
@@ -94,14 +106,31 @@ spec:
             sectionName: https
         rules:
           - backendRefs:
-              - identifier: codeserver
+              - identifier: code-server
                 port: 8080
     persistence:
       config:
         existingClaim: esphome-config
-        globalMounts:
-          - path: /config
+        advancedMounts:
+          esphome:
+            app:
+              - path: /config
+          code-server:
+            code-server:
+              - path: /config
       cache:
         existingClaim: esphome-cache
-        globalMounts:
-          - path: /cache
+        advancedMounts:
+          esphome:
+            app:
+              - path: /cache
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          esphome:
+            app:
+              - path: /tmp
+          code-server:
+            code-server:
+              - path: /tmp
+              - path: /nonexistent
