@@ -60,18 +60,39 @@ spec:
                 memory: 1000Mi
               limits:
                 memory: 2500Mi
-          codeserver:
+      code-server:
+        type: statefulset
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: hass
+                  topologyKey: kubernetes.io/hostname
+        containers:
+          code-server:
             image:
               repository: ghcr.io/coder/code-server
               tag: 4.109.5@sha256:f9ccfeb5a3de80d16342a6a842519c481522d80aafe65fb24a16393235a34f71
             args:
-              - --user-data-dir
-              - /config/.vscode
               - --auth
               - none
+              - --disable-telemetry
+              - --disable-update-check
+              - --user-data-dir
+              - /config/.vscode
+              - --extensions-dir
+              - /config/.vscode
+              - /config
             env:
               TZ: ${TIMEZONE}
-              HASS_SERVER: http://localhost:8123
+              HASS_SERVER: http://hass-app.home-automation.svc.cluster.local:8123
             resources:
               requests:
                 cpu: 10m
@@ -89,8 +110,8 @@ spec:
           http:
             port: 8123
             protocol: TCP
-      codeserver:
-        controller: home-assistant
+      code-server:
+        controller: code-server
         ports:
           http:
             port: 8080
@@ -106,7 +127,7 @@ spec:
           - backendRefs:
               - identifier: app
                 port: 8123
-      codeserver:
+      code-server:
         hostnames: ["{{.Release.Name}}-code.${SECRET_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
@@ -114,17 +135,31 @@ spec:
             sectionName: https
         rules:
           - backendRefs:
-              - identifier: codeserver
+              - identifier: code-server
                 port: 8080
     persistence:
       config:
         existingClaim: home-assistant-config
-        globalMounts:
-          - path: /config
+        advancedMounts:
+          home-assistant:
+            app:
+              - path: /config
+          code-server:
+            code-server:
+              - path: /config
       sshconfig:
         type: configMap
         name: home-assistant-ssh-config
-        globalMounts:
-          - path: /root/.ssh/config
-            subPath: config
-            readOnly: true
+        advancedMounts:
+          home-assistant:
+            app:
+              - path: /root/.ssh/config
+                subPath: config
+                readOnly: true
+      tmpfs:
+        type: emptyDir
+        advancedMounts:
+          code-server:
+            code-server:
+              - path: /tmp
+              - path: /nonexistent
