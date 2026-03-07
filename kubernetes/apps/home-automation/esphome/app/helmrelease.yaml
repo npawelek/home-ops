@@ -23,7 +23,6 @@ spec:
               tag: 2026.2.4@sha256:5db69ebce7773c0fdea582fc73f75c15cab3aab1567199e45e9044854df5ea8b
             env:
               TZ: ${TIMEZONE}
-              ESPHOME_DASHBOARD_USE_PING: "true"
             resources:
               requests:
                 cpu: 100m
