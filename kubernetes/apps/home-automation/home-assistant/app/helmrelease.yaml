@@ -12,7 +12,7 @@ spec:
   interval: 1h
   values:
     controllers:
-      home-assistant:
+      hass:
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
@@ -92,7 +92,7 @@ spec:
               - /config
             env:
               TZ: ${TIMEZONE}
-              HASS_SERVER: http://hass-app.home-automation.svc.cluster.local:8123
+              # HASS_SERVER: http://hass-app.home-automation.svc.cluster.local:8123
             resources:
               requests:
                 cpu: 10m
@@ -101,7 +101,7 @@ spec:
                 memory: 1Gi
     service:
       app:
-        controller: home-assistant
+        controller: hass
         type: LoadBalancer
         annotations:
           metallb.io/loadBalancerIPs: ${HOME_ASSISTANT_LB}
@@ -141,7 +141,7 @@ spec:
       config:
         existingClaim: home-assistant-config
         advancedMounts:
-          home-assistant:
+          hass:
             app:
               - path: /config
           code-server:
@@ -151,7 +151,7 @@ spec:
         type: configMap
         name: home-assistant-ssh-config
         advancedMounts:
-          home-assistant:
+          hass:
             app:
               - path: /root/.ssh/config
                 subPath: config
