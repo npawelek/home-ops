@@ -14,10 +14,12 @@ spec:
     allowCrossNamespaceRefs: true
 
     image:
+      repository: ghcr.io/flux-iac/tofu-controller
       tag: v0.16.1
 
     runner:
       image:
+        repository: ghcr.io/flux-iac/tf-runner
         tag: v0.16.1
       grpc:
         maxMessageSize: 30
