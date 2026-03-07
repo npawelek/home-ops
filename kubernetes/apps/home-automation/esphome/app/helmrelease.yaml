@@ -13,7 +13,7 @@ spec:
   values:
     controllers:
       esphome:
-        type: deployment
+        type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -56,10 +56,7 @@ spec:
                 memory: 1Gi
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
+              readOnlyRootFilesystem: false
     defaultPodOptions:
       securityContext:
         runAsUser: 2000
