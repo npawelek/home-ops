@@ -163,3 +163,7 @@ spec:
             code-server:
               - path: /tmp
               - path: /nonexistent
+              - path: /config/.vscode/User/History
+                subPath: history
+              - path: /config/.vscode/logs
+                subPath: logs
