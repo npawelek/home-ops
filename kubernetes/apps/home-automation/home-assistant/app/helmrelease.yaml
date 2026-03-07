@@ -88,7 +88,7 @@ spec:
               - --user-data-dir
               - /config/.vscode
               - --extensions-dir
-              - /config/.vscode
+              - /config/.vscode/extensions
               - /config
             env:
               TZ: ${TIMEZONE}
