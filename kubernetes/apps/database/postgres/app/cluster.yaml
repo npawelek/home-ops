@@ -131,6 +131,16 @@ spec:
         createrole: false
         replication: false
         bypassrls: false
+      - name: lubelogger
+        ensure: present
+        passwordSecret:
+          name: credentials-lubelogger
+        login: true
+        createdb: true
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
 
     services:
       disabledDefaultServices: ["ro", "r"]

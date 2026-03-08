@@ -6,3 +6,4 @@ resources:
   - ./jellystat.yaml
   - ./firefly.yaml
   - ./immich.yaml
+  - ./lubelogger.yaml
