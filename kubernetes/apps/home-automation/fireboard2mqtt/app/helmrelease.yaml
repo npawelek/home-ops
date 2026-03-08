@@ -1,0 +1,47 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: fireboard2mqtt
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: fireboard2mqtt
+  interval: 1h
+  values:
+    controllers:
+      fireboard2mqtt:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          app:
+            image:
+              repository: gordlea/fireboard2mqtt
+              tag: 3.1.5-beta.0@sha256:b900d906b96399b4567289fe4162e34e823eb2b65a08c9aa2a7e02f070e7431a
+            env:
+              TZ: ${TIMEZONE}
+              RUST_LOG: fireboard2mqtt=debug
+              FB2MQTT_FIREBOARD_ENABLE_DRIVE: "true"
+              FB2MQTT_MQTT_BASE_TOPIC: homeassistant/fireboard2mqtt
+            envFrom:
+              - secretRef:
+                  name: fireboard2mqtt-secrets
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 128Mi
+    service:
+      app:
+        controller: fireboard2mqtt
+        enabled: false
