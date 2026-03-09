@@ -13,6 +13,8 @@ spec:
       namespace: longhorn-system
     - name: envoy-gateway
       namespace: gateway
+    - name: database-postgres-databases
+      namespace: database
     - name: intel-gpu-resource-driver
       namespace: kube-system
     - name: immich-redis

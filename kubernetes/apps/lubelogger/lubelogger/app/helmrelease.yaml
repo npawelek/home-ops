@@ -1,0 +1,72 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: lubelogger
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: lubelogger
+  interval: 1h
+  values:
+    controllers:
+      lubelogger:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/hargata/lubelogger
+              tag: v1.5.7@sha256:5998d88211abd0675d4707be125f788c4332ad46f8de366c72e8a371b52ee092
+            env:
+              TZ: ${TIMEZONE}
+              LC_ALL: en_US.UTF-8
+              LANG: en_US.UTF-8
+            envFrom:
+              - secretRef:
+                  name: lubelogger-secrets
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8080
+                  initialDelaySeconds: 20
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 1Gi
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{.Release.Name}}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      data:
+        existingClaim: lubelogger-data
+        globalMounts:
+          - path: /App/data
+          - path: /root/.aspnet/DataProtection-Keys
+            subPath: DataProtection-Keys
