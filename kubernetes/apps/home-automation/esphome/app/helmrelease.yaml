@@ -23,6 +23,9 @@ spec:
               tag: 2026.2.4@sha256:2082446b40f029b4779e5f44d641b8e1d864d7ffdfcc993a78cb954622037f4d
             env:
               TZ: ${TIMEZONE}
+              PLATFORMIO_CORE_DIR: /cache/platformio
+              PLATFORMIO_GLOBALLIB_DIR: /cache/platformio/lib
+              PLATFORMIO_SETTING_ENABLE_TELEMETRY: false
             resources:
               requests:
                 cpu: 100m
