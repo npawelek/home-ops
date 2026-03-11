@@ -25,13 +25,13 @@ spec:
               TZ: ${TIMEZONE}
               PLATFORMIO_CORE_DIR: /cache/platformio
               PLATFORMIO_GLOBALLIB_DIR: /cache/platformio/lib
-              PLATFORMIO_SETTING_ENABLE_TELEMETRY: false
+              PLATFORMIO_SETTING_ENABLE_TELEMETRY: "false"
             resources:
               requests:
                 cpu: 100m
                 memory: 250Mi
               limits:
-                memory: 3072Mi
+                memory: 4Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
