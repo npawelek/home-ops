@@ -13,7 +13,7 @@ resource "authentik_application" "speedtest" {
   name               = "Speedtest"
   slug               = "speedtest"
   protocol_provider  = authentik_provider_proxy.speedtest.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/ittools.svg"
+  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/opensourcehardware.svg"
   meta_launch_url    = "https://speedtest.${var.domain}"
   policy_engine_mode = "any"
 }
