@@ -25,6 +25,11 @@ spec:
               TZ: ${TIMEZONE}
               LC_ALL: en_US.UTF-8
               LANG: en_US.UTF-8
+              OpenIDConfig__AuthURL: "https://auth.${SECRET_DOMAIN}/application/o/authorize/"
+              OpenIDConfig__TokenURL: "https://auth.${SECRET_DOMAIN}/application/o/token/"
+              OpenIDConfig__UserInfoURL: "https://auth.${SECRET_DOMAIN}/application/o/userinfo/"
+              OpenIDConfig__RedirectURL: "https://lubelogger.${SECRET_DOMAIN}/Login/RemoteAuth"
+              OpenIDConfig__LogOutURL: "https://auth.${SECRET_DOMAIN}/application/o/lubelogger/end-session/"
             envFrom:
               - secretRef:
                   name: lubelogger-secrets
