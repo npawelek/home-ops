@@ -13,19 +13,6 @@ spec:
         name: longhorn
   interval: 1h
   values:
-    # hotfix for instance-manager memory leak in 1.11.0
-    #####
-    image:
-      longhorn:
-        manager:
-          tag: v1.11.0-hotfix-1
-        instanceManager:
-          tag: v1.11.0-hotfix-1
-    preUpgradeChecker:
-      upgradeVersionCheck: false
-    upgradeCheck:
-      enabled: false
-    #####
     persistence:
       defaultClass: true
       defaultClassReplicaCount: 3
