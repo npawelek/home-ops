@@ -36,7 +36,7 @@ enter = "mise run check-deps"
 "aqua:yannh/kubeconform" = "0.7.0"
 "aqua:pre-commit" = "4.5.1"
 "aqua:crane" = "latest"
-"aqua:awscli" = "2.34.17"
+"aqua:awscli" = "2.34.18"
 
 [shell_alias]
 k = "kubectl"
