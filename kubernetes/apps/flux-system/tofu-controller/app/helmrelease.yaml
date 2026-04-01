@@ -15,7 +15,7 @@ spec:
 
     image:
       repository: ghcr.io/flux-iac/tofu-controller
-      tag: v0.16.1
+      tag: v0.16.2
 
     runner:
       image:
