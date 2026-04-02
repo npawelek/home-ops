@@ -10,4 +10,4 @@ spec:
     operation: copy
   url: oci://ghcr.io/flux-iac/charts/tofu-controller
   ref:
-    tag: 0.16.1
+    tag: 0.16.2
