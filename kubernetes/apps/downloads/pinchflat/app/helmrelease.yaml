@@ -73,7 +73,7 @@ spec:
             namespace: gateway
             sectionName: https
         hostnames:
-          - "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - "{{.Release.Name}}.${SECRET_DOMAIN}"
         rules:
           - backendRefs:
               - port: *port

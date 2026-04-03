@@ -35,7 +35,7 @@ spec:
             port: 3000
     route:
       app:
-        hostnames: ["{{ .Release.Name }}.${SECRET_DOMAIN}"]
+        hostnames: ["{{.Release.Name}}.${SECRET_DOMAIN}"]
         parentRefs:
           - name: envoy-internal
             namespace: gateway
