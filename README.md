@@ -84,8 +84,6 @@ See [ipxe/README.md](./ipxe/README.md) for detailed setup instructions.
 | m1        | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A        | amd64        | Intel  |
 | m2        | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A        | amd64        | Intel  |
 | m3        | Master | Talos | 4     | 8GB    | 256GB NVMe  | N/A        | amd64        | Intel  |
-| karakum   | Worker | Talos | 4     | 32GB   | 120GB SSD   | 500GB NVMe | amd64        | Intel  |
-| rocinante | Worker | Talos | 8     | 64GB   | 120GB SSD   | 1TB NVMe   | amd64        | AMD    |
 | donnager  | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe   | amd64        | Intel  |
 | hammurabi | Worker | Talos | 4     | 64GB   | 240GB SSD   | 1TB NVMe   | amd64        | Intel  |
 | pella     | Worker | Talos | 20    | 64GB   | 500GB SSD   | 2TB NVMe   | amd64        | Intel  |
