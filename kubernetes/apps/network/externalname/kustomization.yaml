@@ -10,3 +10,4 @@ resources:
   - ./hdhomerun.yaml
   - ./hyp-samsung55.yaml
   - ./octopi.yaml
+  - ./ollama.yaml
