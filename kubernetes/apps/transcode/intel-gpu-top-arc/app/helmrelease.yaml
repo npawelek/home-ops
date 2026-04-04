@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: public.ecr.aws/ubuntu/ubuntu
-              tag: 26.04@sha256:8942f886e72a726bbea0b363b5f79fe3a41486eb072eb5dbf654040f2409b660
+              tag: 26.04@sha256:f2a22c549032a731b81666e8fd9adbb7bacb1522b0871b14636aadb3380dede5
               pullPolicy: IfNotPresent
 
             command:
