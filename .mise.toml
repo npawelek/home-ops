@@ -36,7 +36,7 @@ enter = "mise run check-deps"
 "aqua:yannh/kubeconform" = "0.7.0"
 "aqua:pre-commit" = "4.5.1"
 "aqua:crane" = "latest"
-"aqua:awscli" = "2.34.23"
+"aqua:awscli" = "2.34.24"
 "node" = "latest"
 "aqua:opencode" = "1.3.12"
 
