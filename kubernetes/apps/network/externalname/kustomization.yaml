@@ -11,3 +11,4 @@ resources:
   - ./hyp-samsung55.yaml
   - ./octopi.yaml
   - ./ollama.yaml
+  - ./lmstudio.yaml
