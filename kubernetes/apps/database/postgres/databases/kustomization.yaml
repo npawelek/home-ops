@@ -7,3 +7,4 @@ resources:
   - ./firefly.yaml
   - ./immich.yaml
   - ./lubelogger.yaml
+  - ./openbrain.yaml

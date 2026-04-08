@@ -1,0 +1,98 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: openbrain
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: openbrain
+  interval: 1h
+  values:
+    controllers:
+      openbrain:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: denoland/deno
+              tag: 2.7.11@sha256:869e31370dca82b10abefeabe92a2efae44c0d8c70e03776b05ca07ce6b2e062
+            command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read", "--no-lock", "index.ts"]
+            workingDir: /app
+            securityContext:
+              runAsUser: 1993
+              runAsGroup: 1993
+              runAsNonRoot: true
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+            env:
+              TZ: ${TIMEZONE}
+              PORT: "8000"
+              DB_HOST: postgres-rw.database.svc.cluster.local
+              DB_PORT: "5432"
+              DB_NAME: openbrain
+            envFrom:
+              - secretRef:
+                  name: openbrain-secrets
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: &port 8000
+                  initialDelaySeconds: 15
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: *port
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    service:
+      app:
+        controller: openbrain
+        ports:
+          http:
+            port: *port
+            protocol: TCP
+    route:
+      app:
+        hostnames:
+          - "{{.Release.Name}}.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      deno-cache:
+        type: emptyDir
+        globalMounts:
+          - path: /deno-dir
+      app-source:
+        type: configMap
+        name: openbrain-source
+        globalMounts:
+          - path: /app
+            readOnly: true

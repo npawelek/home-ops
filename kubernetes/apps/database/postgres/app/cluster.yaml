@@ -141,6 +141,16 @@ spec:
         createrole: false
         replication: false
         bypassrls: false
+      - name: openbrain
+        ensure: present
+        passwordSecret:
+          name: credentials-openbrain
+        login: true
+        createdb: true
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
 
     services:
       disabledDefaultServices: ["ro", "r"]
