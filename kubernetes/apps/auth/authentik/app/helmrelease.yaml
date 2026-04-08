@@ -7,7 +7,7 @@ spec:
   chart:
     spec:
       chart: authentik
-      version: 2026.2.1
+      version: 2026.2.2
       sourceRef:
         kind: HelmRepository
         name: authentik
@@ -43,10 +43,6 @@ spec:
       targetPath: authentik.postgresql.password
   values:
     global:
-      image:
-        repository: ghcr.io/goauthentik/server
-        tag: 2026.2.2@sha256:40f0df709957c11324420fa387f1135c427f16086f12ca266b2d883d39c71fe3
-
       affinity:
         podAntiAffinity: hard
 
