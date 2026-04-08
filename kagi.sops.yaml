@@ -1,0 +1,17 @@
+KAGI_API_KEY: ENC[AES256_GCM,data:ctZWLvpCU3S0PNZHjV70cUs2LuKgK6SWQN8EjlWh5/SvPWN09ckXP97joo4rywWO2kuFP1BCYGwyXL5mngWZxe+7qlnk3unlbwPf5gDdl8En1+r3HDtb,iv:lyuRAE4L8gZ0VMm5egB61tkLZo3LqDWkJhkoC09NAo8=,tag:1kek5WNvx9xo0fkirby7pQ==,type:str]
+sops:
+  age:
+    - recipient: age185l4m6q0d4dxv4kd6slhlqgl88fyz3xlx8xkv76tyfr4chvw6eys96xsu9
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBTTmlTOXBhbk5XLzJNbXhx
+        MjdnNXZnUE1iL0piZlFVOEhDcGFuRURqL0UwClovNjBQUDJzTkxWdVRQOFIySnRX
+        UXlIWDZIT0FkZzVXa2E0QnRVY1o0dmcKLS0tIFVOY0wyVjJadUlKTkhseXUvY05D
+        YXBQSno0b1F2eUoyTnJyVlk1L1hZRlUKWR+00+B13dUUbMhyui+pIQ96CxitvIhw
+        B1uOYpZwmmOllC4M3l9ZqAH/qib6SZftCS1ihqiiSkPFWQdz6RWl7Q==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-04-08T04:21:50Z"
+  mac: ENC[AES256_GCM,data:tO+3hBgD615ptV/5moXmsTNQXY94+TjFCKs8QORA88D/nVzvAC+5sM5wz3q03csmimViAOpnj3ggB0wu5Z7cLscKQTZKLqnP8D2w+V2IUQKeRGATiFymsbW04PYhgc4BC1xmmNfnOigg7JO+MR2ScQoe0txFNutOi7mcCEsy7eg=,iv:7JaeJfVEfXYKi7v2LlXT5lRLfKNUcwFjXFzEdTI7Cc0=,tag:i9z4E94ibgUG6kx6cm2FbQ==,type:str]
+  unencrypted_suffix: _unencrypted
+  mac_only_encrypted: true
+  version: 3.12.2
