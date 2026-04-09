@@ -13,6 +13,8 @@
 kubeconfig
 talosconfig
 # Misc.
+00_inspiration/
+02_cluster-template/
 .private/
 .task/
 .venv/
