@@ -1,6 +1,6 @@
 ---
 creation_rules:
-  - path_regex: kagi\.sops\.ya?ml
+  - path_regex: env\.sops\.ya?ml
     mac_only_encrypted: true
     age: "age185l4m6q0d4dxv4kd6slhlqgl88fyz3xlx8xkv76tyfr4chvw6eys96xsu9"
   - path_regex: talos/.*\.sops\.ya?ml
