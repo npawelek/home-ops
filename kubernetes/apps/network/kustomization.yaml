@@ -17,3 +17,4 @@ resources:
   - ./ntpd/ks.yaml
   - ./speedtest/ks.yaml
   - ./echo/ks.yaml
+  - ./searxng/ks.yaml

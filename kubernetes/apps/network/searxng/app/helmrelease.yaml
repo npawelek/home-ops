@@ -1,0 +1,74 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: searxng
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: searxng
+  interval: 1h
+  values:
+    controllers:
+      searxng:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        type: deployment
+        containers:
+          app:
+            image:
+              repository: ghcr.io/searxng/searxng
+              tag: 2026.4.13-ee66b070a@sha256:4c6b4f3e1fc10a907a40b7eaaf5b92d50f5b4097d6fb5b02041c0f9926233b36
+            env:
+              TZ: ${TIMEZONE}
+              SEARXNG_BASE_URL: "https://{{.Release.Name}}.${SECRET_DOMAIN}"
+            envFrom:
+              - secretRef:
+                  name: searxng-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - "ALL"
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1024Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 977
+        runAsGroup: 977
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{.Release.Name}}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
