@@ -8,7 +8,7 @@ spec:
     - ../../../../components/authentik-proxy
   dependsOn:
     - name: envoy-gateway
-    - name: gateway
+      namespace: gateway
   interval: 1h
   path: ./kubernetes/apps/network/searxng/app
   postBuild:

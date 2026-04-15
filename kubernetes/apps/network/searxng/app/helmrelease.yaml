@@ -56,6 +56,11 @@ spec:
         runAsNonRoot: true
         runAsUser: 977
         runAsGroup: 977
+    persistence:
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
     service:
       app:
         ports:
