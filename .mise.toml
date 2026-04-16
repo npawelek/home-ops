@@ -22,7 +22,7 @@ enter = "mise run check-deps"
 "pipx:jcodemunch-mcp" = { version = "1.36.0", extras = "watch,http" }
 "pipx:makejinja" = "2.8.2"
 "pipx:asitop" = "0.0.24"
-"aqua:awscli" = "2.34.29"
+"aqua:awscli" = "2.34.30"
 "aqua:budimanjojo/talhelper" = "3.1.7"
 "aqua:cilium/cilium-cli" = "0.19.2"
 "aqua:cli/cli" = "2.89.0"
