@@ -34,7 +34,7 @@ spec:
           app:
             image:
               repository: public.ecr.aws/docker/library/eclipse-mosquitto
-              tag: 2.1.2-alpine@sha256:db2e17af6d4ee7765267bccb65cb37c8b7193fa17112e77775f842d75c77478b
+              tag: 2.1.2-alpine@sha256:5bfaa4de338df2ee62871846e458d79adb765f539eeb58e68369faef029f3e0c
             env:
               TZ: ${TIMEZONE}
             resources:
