@@ -19,7 +19,7 @@ enter = "mise run check-deps"
 "python" = "3.14.4"
 "uv" = "0.11.6"
 "pipx:flux-local" = "8.2.0"
-"pipx:jcodemunch-mcp" = { version = "1.40.1", extras = "watch,http" }
+"pipx:jcodemunch-mcp" = { version = "1.43.0", extras = "watch,http" }
 "pipx:makejinja" = "2.8.2"
 "pipx:asitop" = "0.0.24"
 "aqua:awscli" = "2.34.30"
