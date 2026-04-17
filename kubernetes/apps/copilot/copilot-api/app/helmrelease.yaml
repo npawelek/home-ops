@@ -26,7 +26,7 @@ spec:
               - -c
               - |
                 npm install -g copilot-api@0.7.0 @anthropic-ai/claude-code@2.1.112 \
-                  && copilot-api start --proxy-env
+                  && copilot-api start --proxy-env --github-token "$GH_TOKEN"
             env:
               TZ: ${TIMEZONE}
             envFrom:
