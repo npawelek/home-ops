@@ -1,0 +1,24 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app copilot-api
+spec:
+  dependsOn:
+    - name: envoy-gateway
+      namespace: gateway
+  interval: 1h
+  path: ./kubernetes/apps/copilot/copilot-api/app
+  postBuild:
+    substitute:
+      APP: *app
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: copilot
+  wait: false
