@@ -46,7 +46,7 @@ enter = "mise run check-deps"
 "aqua:pre-commit" = "4.5.1"
 "aqua:siderolabs/talos" = "1.12.6"
 "aqua:yannh/kubeconform" = "0.7.0"
-"kubectl" = "1.35.3"
+"kubectl" = "1.35.4"
 "node" = "25.9.0"
 
 [shell_alias]
