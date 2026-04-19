@@ -20,6 +20,7 @@ spec:
           app:
             image:
               repository: fireflyiii/core
+              # renovate: datasource=docker depName=fireflyiii/core extractVersion=^version-(?<version>[^@]+)$
               tag: version-6.4.3@sha256:7b4858314e746998559e435c35bd1e04a8317d3906f74992b3337fb75c453759
             env:
               TZ: ${TIMEZONE}
