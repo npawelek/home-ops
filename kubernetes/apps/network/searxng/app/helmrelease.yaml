@@ -60,6 +60,11 @@ spec:
         runAsUser: 977
         runAsGroup: 977
     persistence:
+      config:
+        type: persistentVolumeClaim
+        existingClaim: searxng-config
+        globalMounts:
+          - path: /etc/searxng
       tmp:
         type: emptyDir
         globalMounts:
