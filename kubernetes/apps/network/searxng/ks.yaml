@@ -4,8 +4,6 @@ kind: Kustomization
 metadata:
   name: &app searxng
 spec:
-  components:
-    - ../../../../components/authentik-proxy
   dependsOn:
     - name: envoy-gateway
       namespace: gateway
