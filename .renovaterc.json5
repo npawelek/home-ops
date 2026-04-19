@@ -29,6 +29,9 @@
   kustomize: {
     managerFilePatterns: ["/^kustomization\\.ya?ml(?:\\.j2)?$/"],
   },
+  "pre-commit": {
+    managerFilePatterns: ["/(^|/)\\.pre-commit-config\\.ya?ml$/"],
+  },
   packageRules: [
     {
       description: "Override Helmfile Dependency Name",
