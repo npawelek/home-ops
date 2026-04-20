@@ -1,0 +1,82 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-4.6.2/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: audiobookshelf
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: audiobookshelf
+  interval: 1h
+  values:
+    controllers:
+      audiobookshelf:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: advplyr/audiobookshelf
+              tag: 2.33.2@sha256:a44ed89b3e845faa1f7d353f2cc89b2fcd8011737dd14075fa963cf9468da3a5
+            env:
+              TZ: ${TIMEZONE}
+              http_proxy: ${HTTP_PROXY}
+              https_proxy: ${HTTPS_PROXY}
+              no_proxy: ${NO_PROXY}
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /status
+                    port: &port 80
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{.Release.Name}}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      config:
+        existingClaim: audiobookshelf-config
+        globalMounts:
+          - path: /config
+          - path: /metadata
+      audiobooks:
+        type: nfs
+        server: ${RACKNAS_ADDR}
+        path: /volume1/media/Audiobooks
+        globalMounts:
+          - path: /audiobooks
