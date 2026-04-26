@@ -30,6 +30,7 @@
     managerFilePatterns: ["/^kustomization\\.ya?ml(?:\\.j2)?$/"],
   },
   "pre-commit": {
+    enabled: true,
     managerFilePatterns: ["/(^|/)\\.pre-commit-config\\.ya?ml$/"],
   },
   packageRules: [
