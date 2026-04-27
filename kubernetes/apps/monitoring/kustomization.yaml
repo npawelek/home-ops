@@ -1,0 +1,16 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: monitoring
+
+components:
+  - ../../components/sops
+
+resources:
+  - ./namespace.yaml
+  - ./prometheus-operator-crds/ks.yaml
+  # - ./victoriametrics/ks.yaml
+  # - ./loki/ks.yaml
+  # - ./opentelemetry-operator/ks.yaml
+  # - ./opentelemetry-operator/collectors-ks.yaml
+  # - ./grafana/ks.yaml
