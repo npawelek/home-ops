@@ -11,6 +11,6 @@ resources:
   - ./prometheus-operator-crds/ks.yaml
   # - ./victoriametrics/ks.yaml
   # - ./loki/ks.yaml
-  # - ./opentelemetry-operator/ks.yaml
+  - ./opentelemetry-operator/ks.yaml
   # - ./opentelemetry-operator/collectors-ks.yaml
   # - ./grafana/ks.yaml
