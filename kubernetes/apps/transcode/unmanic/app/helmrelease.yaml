@@ -20,7 +20,7 @@ spec:
           app:
             image:
               repository: josh5/unmanic
-              tag: 0.3.1@sha256:3c7d1013770e6f5a97199b555851b74674d8ee1df9d616c007f060abcf2bd1a8
+              tag: 0.4.0@sha256:018165a8d80f1ec53a29a71063e322eacd8323fc0cbe0e57baf34ed5deb5b384
             env:
               TZ: ${TIMEZONE}
             probes:
