@@ -28,7 +28,7 @@ spec:
                 # renovate: datasource=npm depName=copilot-api
                 COPILOT_API_VERSION=0.7.0
                 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-                CLAUDE_CODE_VERSION=2.1.120
+                CLAUDE_CODE_VERSION=2.1.121
                 npm install -g copilot-api@${COPILOT_API_VERSION} @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} \
                   && copilot-api start --proxy-env --github-token "$GH_TOKEN"
             env:
