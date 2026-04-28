@@ -11,6 +11,10 @@ spec:
     name: jellyseerr
   interval: 1h
   values:
+    defaultPodOptions:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
     controllers:
       jellyseerr:
         type: statefulset
@@ -19,14 +23,11 @@ spec:
         containers:
           app:
             image:
-              repository: fallenbagel/jellyseerr
-              tag: 2.6.0@sha256:8f320036d937d84c385ea5800f87d69ba16ec4d3770fccf6cad803b5e8d66a52
+              repository: ghcr.io/seerr-team/seerr
+              tag: v3.2.0@sha256:c4cbd5121236ac2f70a843a0b920b68a27976be57917555f1c45b08a1e6b2aad
             env:
               TZ: ${TIMEZONE}
               LOG_LEVEL: debug
-              http_proxy: ${HTTP_PROXY}
-              https_proxy: ${HTTPS_PROXY}
-              no_proxy: ${NO_PROXY}
             probes:
               liveness: &probes
                 enabled: true
@@ -40,6 +41,18 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+              privileged: false
+              runAsUser: 1000
+              runAsGroup: 1000
+              seccompProfile:
+                type: RuntimeDefault
             resources:
               requests:
                 cpu: 100m
