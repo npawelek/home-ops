@@ -57,6 +57,12 @@
       versioning: "regex:^(?<major>\\d{4})\\.(?<minor>\\d{1,2})\\.(?<patch>\\d{1,2})-.*$",
     },
     {
+      description: "Vane slim tag versioning",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["docker.io/itzcrazykns1337/vane"],
+      versioning: "regex:^slim-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+    },
+    {
       description: "Auto-merge GitHub Actions",
       matchManagers: ["github-actions"],
       automerge: true,
