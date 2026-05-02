@@ -18,4 +18,3 @@ resources:
   - ./speedtest/ks.yaml
   - ./echo/ks.yaml
   - ./searxng/ks.yaml
-  - ./vane/ks.yaml
