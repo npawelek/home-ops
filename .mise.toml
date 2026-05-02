@@ -24,7 +24,7 @@ enter = "mise run check-deps"
 
 [tools]
 "aqua:FiloSottile/age" = "1.3.1"
-"aqua:awscli" = "2.34.38"
+"aqua:awscli" = "2.34.39"
 "aqua:budimanjojo/talhelper" = "3.1.9"
 "aqua:cilium/cilium-cli" = "0.19.2"
 "aqua:cli/cli" = "2.92.0"
