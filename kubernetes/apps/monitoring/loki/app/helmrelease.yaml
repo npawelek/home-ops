@@ -35,8 +35,14 @@ spec:
     singleBinary:
       replicas: 1
       persistence:
-        enabled: true
-        existingClaim: loki-data
+        enabled: false
+      extraVolumes:
+        - name: loki-data
+          persistentVolumeClaim:
+            claimName: loki-data
+      extraVolumeMounts:
+        - name: loki-data
+          mountPath: /var/loki
     backend:
       replicas: 0
     read:
