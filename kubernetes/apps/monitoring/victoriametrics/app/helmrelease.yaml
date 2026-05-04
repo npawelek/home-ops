@@ -13,8 +13,7 @@ spec:
     server:
       persistentVolume:
         enabled: true
-        storageClassName: longhorn
-        size: 20Gi
+        existingClaim: victoriametrics-data
       retentionPeriod: 21d
       serviceMonitor:
         enabled: true
