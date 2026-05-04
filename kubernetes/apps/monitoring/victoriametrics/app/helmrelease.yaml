@@ -1,0 +1,30 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoriametrics
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: victoriametrics
+  interval: 1h
+  values:
+    fullnameOverride: victoriametrics
+    server:
+      persistentVolume:
+        enabled: true
+        storageClassName: longhorn
+        size: 20Gi
+      retentionPeriod: 21d
+      serviceMonitor:
+        enabled: true
+        extraLabels:
+          monitoring: otel
+      route:
+        enabled: true
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        hostnames:
+          - victoriametrics.${SECRET_DOMAIN}
