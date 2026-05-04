@@ -5,6 +5,9 @@ SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
 TALOSCONFIG = "{{config_root}}/talos/clusterconfig/talosconfig"
 KAGI_API_KEY = { value = "{{exec(command='sops -d env.sops.yaml | yq .KAGI_API_KEY')}}", tools = true, redact = true }
 SEARXNG_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .SEARXNG_URL')}}", tools = true, redact = true }
+LOCAL_LLM_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .LOCAL_LLM_URL')}}", tools = true, redact = true }
+LMSTUDIO_API_KEY = { value = "{{exec(command='sops -d env.sops.yaml | yq .LMSTUDIO_API_KEY')}}", tools = true, redact = true }
+LMSTUDIO_MODEL = { value = "{{exec(command='sops -d env.sops.yaml | yq .LMSTUDIO_MODEL')}}", tools = true, redact = true }
 SECRET_DOMAIN = { value = "{{exec(command='sops -d env.sops.yaml | yq .SECRET_DOMAIN')}}", tools = true, redact = true }
 OPENBRAIN_MCP_KEY = { value = "{{exec(command='sops -d env.sops.yaml | yq .OPENBRAIN_MCP_KEY')}}", tools = true, redact = true }
 ANTHROPIC_BASE_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .ANTHROPIC_BASE_URL')}}", tools = true, redact = true }
