@@ -22,35 +22,31 @@ spec:
       GF_EXPLORE_ENABLED: "true"
       GF_LOG_MODE: console
       GF_NEWS_NEWS_FEED_ENABLED: "false"
-    # phase 2: uncomment after terraform applies authentik oauth config
-    # and client_secret is retrieved
-    # envValueFrom:
-    #   GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
-    #     secretKeyRef:
-    #       name: grafana-secret
-    #       key: client_secret
+    envValueFrom:
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+        secretKeyRef:
+          name: grafana-secrets
+          key: client_secret
     grafana.ini:
       analytics:
         check_for_updates: false
       server:
         root_url: "{{.Release.Name}}.${SECRET_DOMAIN}"
       auth:
-        # oauth_auto_login: true
-        disable_login_form: false
-        # phase 2: uncomment after terraform applies authentik oauth config
-        # and client_secret is retrieved
-        # auth.generic_oauth:
-        #   enabled: true
-        #   name: Authentik
-        #   icon: signin
-        #   client_id: grafana
-        #   client_secret: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
-        #   scopes: openid profile email
-        #   auth_url: https://auth.${SECRET_DOMAIN}/application/o/authorize/
-        #   token_url: https://auth.${SECRET_DOMAIN}/application/o/token/
-        #   api_url: https://auth.${SECRET_DOMAIN}/application/o/userinfo/
-        #   role_attribute_path: "contains(groups[*], 'authentik_admins') && 'Admin' || 'Viewer'"
-        #   signout_redirect_url: https://auth.${SECRET_DOMAIN}/application/o/grafana/end-session/
+        oauth_auto_login: true
+        disable_login_form: true
+        auth.generic_oauth:
+          enabled: true
+          name: Authentik
+          icon: signin
+          client_id: grafana
+          client_secret: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
+          scopes: openid profile email
+          auth_url: https://auth.${SECRET_DOMAIN}/application/o/authorize/
+          token_url: https://auth.${SECRET_DOMAIN}/application/o/token/
+          api_url: https://auth.${SECRET_DOMAIN}/application/o/userinfo/
+          role_attribute_path: "contains(groups[*], 'authentik_admins') && 'Admin' || 'Viewer'"
+          signout_redirect_url: https://auth.${SECRET_DOMAIN}/application/o/grafana/end-session/
     datasources:
       datasources.yaml:
         apiVersion: 1
