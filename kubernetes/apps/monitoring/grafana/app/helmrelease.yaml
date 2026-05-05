@@ -31,22 +31,22 @@ spec:
       analytics:
         check_for_updates: false
       server:
-        root_url: "%(protocol)s://%(domain)s/"
+        root_url: "https://%(domain)s/"
       auth:
         oauth_auto_login: true
         disable_login_form: true
-        auth.generic_oauth:
-          enabled: true
-          name: Authentik
-          icon: signin
-          client_id: grafana
-          client_secret: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
-          scopes: openid profile email
-          auth_url: https://auth.${SECRET_DOMAIN}/application/o/authorize/
-          token_url: https://auth.${SECRET_DOMAIN}/application/o/token/
-          api_url: https://auth.${SECRET_DOMAIN}/application/o/userinfo/
-          role_attribute_path: "contains(groups[*], 'authentik_admins') && 'Admin' || 'Viewer'"
-          signout_redirect_url: https://auth.${SECRET_DOMAIN}/application/o/grafana/end-session/
+      auth.generic_oauth:
+        enabled: true
+        name: Authentik
+        icon: signin
+        client_id: grafana
+        client_secret: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
+        scopes: openid profile email
+        auth_url: https://auth.${SECRET_DOMAIN}/application/o/authorize/
+        token_url: https://auth.${SECRET_DOMAIN}/application/o/token/
+        api_url: https://auth.${SECRET_DOMAIN}/application/o/userinfo/
+        role_attribute_path: "contains(groups[*], 'authentik_admins') && 'Admin' || 'Viewer'"
+        signout_redirect_url: https://auth.${SECRET_DOMAIN}/application/o/grafana/end-session/
     datasources:
       datasources.yaml:
         apiVersion: 1
