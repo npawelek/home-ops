@@ -7,6 +7,7 @@ resource "authentik_provider_oauth2" "grafana" {
     data.authentik_property_mapping_provider_scope.scope_openid.id,
     data.authentik_property_mapping_provider_scope.scope_profile.id,
     data.authentik_property_mapping_provider_scope.scope_email.id,
+    data.authentik_property_mapping_provider_scope.scope_entitlements.id,
   ]
   allowed_redirect_uris = [
     {
@@ -36,4 +37,11 @@ resource "authentik_policy_binding" "grafana_admins_access" {
   target = authentik_application.grafana.uuid
   group  = data.authentik_group.authentik_admins.id
   order  = 0
+}
+
+# Application entitlements for Grafana roles
+resource "authentik_application_entitlement" "grafana_admins" {
+  name         = "Grafana Admins"
+  application  = authentik_application.grafana.id
+  groups       = [data.authentik_group.authentik_admins.id]
 }
