@@ -31,7 +31,7 @@ spec:
       analytics:
         check_for_updates: false
       server:
-        root_url: "{{.Release.Name}}.${SECRET_DOMAIN}"
+        root_url: "%(protocol)s://%(domain)s/"
       auth:
         oauth_auto_login: true
         disable_login_form: true
