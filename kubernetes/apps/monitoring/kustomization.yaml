@@ -13,4 +13,4 @@ resources:
   - ./victoriametrics/ks.yaml
   - ./opentelemetry-operator/ks.yaml
   # - ./opentelemetry-operator/collectors-ks.yaml
-  # - ./grafana/ks.yaml
+  - ./grafana/ks.yaml
