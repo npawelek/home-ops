@@ -28,8 +28,17 @@ data "authentik_property_mapping_provider_scope" "scope_email" {
   managed = "goauthentik.io/providers/oauth2/scope-email"
 }
 
-data "authentik_property_mapping_provider_scope" "scope_entitlements" {
-  name = "authentik default OAuth Mapping: OpenID 'entitlements'"
+
+resource "authentik_property_mapping_provider_scope" "scope_entitlements" {
+  name       = "authentik default OAuth Mapping: OpenID 'entitlements'"
+  scope_name = "entitlements"
+  expression = <<-EOF
+    entitlements = [entitlement.name for entitlement in request.user.app_entitlements(provider.application)]
+    return {
+      "entitlements": entitlements,
+      "roles": entitlements,
+    }
+  EOF
 }
 
 data "authentik_certificate_key_pair" "default" {
