@@ -74,15 +74,9 @@ spec:
         globalMounts:
           - path: /config
           - path: /metadata
-      audiobooks:
+      books:
         type: nfs
         server: ${RACKNAS_ADDR}
-        path: /volume1/media/Audiobooks
+        path: /volume1/media/Books
         globalMounts:
-          - path: /library/audiobooks
-      technical-books:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media/TechBooks
-        globalMounts:
-          - path: /library/tech-books
+          - path: /library
