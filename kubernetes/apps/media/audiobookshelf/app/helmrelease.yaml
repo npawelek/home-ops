@@ -79,4 +79,10 @@ spec:
         server: ${RACKNAS_ADDR}
         path: /volume1/media/Audiobooks
         globalMounts:
-          - path: /audiobooks
+          - path: /library/audiobooks
+      technical-books:
+        type: nfs
+        server: ${RACKNAS_ADDR}
+        path: /volume1/media/TechBooks
+        globalMounts:
+          - path: /library/tech-books
