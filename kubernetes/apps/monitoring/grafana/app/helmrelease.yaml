@@ -81,10 +81,6 @@ spec:
       targetPort: 3000
     serviceMonitor:
       enabled: true
-      labels:
-        monitoring: otel
-      path: /metrics
-      interval: 60s
     persistence:
       enabled: true
       storageClassName: longhorn
