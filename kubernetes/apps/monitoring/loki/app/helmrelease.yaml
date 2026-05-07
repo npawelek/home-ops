@@ -31,7 +31,7 @@ spec:
       limits_config:
         allow_structured_metadata: true
         volume_enabled: true
-        retention_period: 504h
+        retention_period: 336h
     singleBinary:
       replicas: 1
       persistence:

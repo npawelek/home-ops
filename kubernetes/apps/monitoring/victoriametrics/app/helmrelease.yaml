@@ -14,11 +14,9 @@ spec:
       persistentVolume:
         enabled: true
         existingClaim: victoriametrics-data
-      retentionPeriod: 21d
+      retentionPeriod: 14d
       serviceMonitor:
         enabled: true
-        extraLabels:
-          monitoring: otel
       route:
         enabled: true
         parentRefs:
