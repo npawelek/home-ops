@@ -1,0 +1,216 @@
+---
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: gateway
+spec:
+  mode: statefulset
+  replicas: 2
+  serviceAccount: opentelemetry-collector-gateway
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: opentelemetry-collector
+              app.kubernetes.io/instance: gateway
+          topologyKey: kubernetes.io/hostname
+  targetAllocator:
+    enabled: true
+    replicas: 1
+    allocationStrategy: consistent-hashing
+    serviceAccount: opentelemetry-targetallocator
+    prometheusCR:
+      enabled: true
+      serviceMonitorSelector: {}
+      podMonitorSelector: {}
+  env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: OTEL_RESOURCE_ATTRIBUTES
+      value: k8s.cluster.name=home-ops
+  observability:
+    metrics:
+      enableMetrics: true
+      disablePrometheusAnnotations: true
+  volumeMounts:
+    - name: storage
+      mountPath: /var/lib/otelcol_gateway
+  volumes:
+    - name: storage
+      hostPath:
+        path: /var/lib/otelcol_gateway
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  config:
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+      file_storage:
+        directory: /var/lib/otelcol_gateway
+      zpages:
+        endpoint: 0.0.0.0:55679
+
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+            max_recv_msg_size_mib: 16
+          http:
+            endpoint: 0.0.0.0:4318
+
+      prometheus:
+        target_allocator:
+          endpoint: http://gateway-targetallocator.monitoring.svc.cluster.local:8080
+          interval: 30s
+          collector_id: ${env:POD_NAME}
+
+      syslog:
+        tcp:
+          listen_address: 0.0.0.0:1514
+        udp:
+          listen_address: 0.0.0.0:1514
+        protocol: rfc3164
+        location: America/Chicago
+        enable_octet_counting: false
+        operators:
+          - type: move
+            from: attributes.hostname
+            to: resource["host.name"]
+          - type: move
+            from: attributes.appname
+            to: resource["service.name"]
+          - type: move
+            from: attributes.message
+            to: body
+
+    processors:
+      memory_limiter:
+        check_interval: 2s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+
+      batch:
+        send_batch_size: 2000
+        timeout: 10s
+
+      resourcedetection:
+        detectors: [env]
+        timeout: 5s
+
+      # Agent already enriched k8s attributes — preserve without re-lookup.
+      # passthrough: true avoids from: connection, which would resolve to the
+      # agent pod IP rather than the original source pod.
+      k8sattributes/passthrough:
+        auth_type: serviceAccount
+        passthrough: true
+
+      k8sattributes/enrich:
+        auth_type: serviceAccount
+        passthrough: false
+        wait_for_metadata: true
+        extract:
+          metadata:
+            - k8s.pod.name
+            - k8s.deployment.name
+            - k8s.statefulset.name
+            - k8s.daemonset.name
+            - k8s.cronjob.name
+            - k8s.job.name
+            - k8s.namespace.name
+            - k8s.node.name
+            - container.image.name
+            - container.image.tag
+          labels:
+            - tag_name: app.kubernetes.io/name
+              key: app.kubernetes.io/name
+              from: pod
+            - tag_name: app.kubernetes.io/component
+              key: app.kubernetes.io/component
+              from: pod
+        pod_association:
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.ip
+          - sources:
+              - from: connection
+
+      filter/metrics_drop:
+        error_mode: ignore
+        metrics:
+          metric:
+            - 'name matches "^scrape_"'
+            - 'name matches "^go_"'
+            - 'name matches "^process_"'
+
+      filter/logs_drop:
+        error_mode: ignore
+        logs:
+          log_record:
+            - 'severity_number < SEVERITY_NUMBER_INFO'
+
+    exporters:
+      prometheusremotewrite:
+        endpoint: http://victoriametrics-server.monitoring.svc.cluster.local:8428/api/v1/write
+        tls:
+          insecure: true
+        resource_to_telemetry_conversion:
+          enabled: true
+        retry_on_failure:
+          enabled: true
+          initial_interval: 5s
+          max_interval: 30s
+          max_elapsed_time: 300s
+        sending_queue:
+          enabled: true
+          storage: file_storage
+          num_consumers: 10
+          queue_size: 200
+
+      otlphttp/loki:
+        endpoint: http://loki.monitoring.svc.cluster.local:3100/otlp
+        tls:
+          insecure: true
+        retry_on_failure:
+          enabled: true
+          initial_interval: 5s
+          max_interval: 30s
+          max_elapsed_time: 300s
+        sending_queue:
+          enabled: true
+          storage: file_storage
+          num_consumers: 10
+          queue_size: 200
+
+    service:
+      telemetry:
+        logs:
+          level: warn
+        metrics:
+          level: detailed
+      extensions: [health_check, file_storage, zpages]
+      pipelines:
+        metrics/scraped:
+          receivers: [prometheus]
+          processors: [memory_limiter, filter/metrics_drop, k8sattributes/enrich, resourcedetection, batch]
+          exporters: [prometheusremotewrite]
+        metrics/agent:
+          receivers: [otlp]
+          processors: [memory_limiter, k8sattributes/passthrough, resourcedetection, batch]
+          exporters: [prometheusremotewrite]
+        logs/agent:
+          receivers: [otlp]
+          processors: [memory_limiter, k8sattributes/passthrough, resourcedetection, batch]
+          exporters: [otlphttp/loki]
+        logs/syslog:
+          receivers: [syslog]
+          processors: [memory_limiter, filter/logs_drop, resourcedetection, batch]
+          exporters: [otlphttp/loki]

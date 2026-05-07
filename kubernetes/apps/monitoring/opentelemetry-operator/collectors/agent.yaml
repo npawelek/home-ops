@@ -1,0 +1,305 @@
+---
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: agent
+spec:
+  mode: daemonset
+  serviceAccount: opentelemetry-collector-agent
+  volumeMounts:
+    - name: varlogpods
+      mountPath: /var/log/pods
+      readOnly: true
+    - name: varlogcontainers
+      mountPath: /var/log/containers
+      readOnly: true
+    - name: hostroot
+      mountPath: /hostfs
+      readOnly: true
+      mountPropagation: HostToContainer
+    - name: storage
+      mountPath: /var/lib/otelcol_agent
+  volumes:
+    - name: varlogpods
+      hostPath:
+        path: /var/log/pods
+    - name: varlogcontainers
+      hostPath:
+        path: /var/log/containers
+    - name: hostroot
+      hostPath:
+        path: /
+    - name: storage
+      hostPath:
+        path: /var/lib/otelcol_agent
+  env:
+    # NODE_NAME not NODE_IP: kubelet TLS cert SANs use the hostname, not the IP.
+    # NODE_NAME also matches k8s.node.name in all telemetry, keeping identifiers consistent.
+    - name: NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+    - name: OTEL_RESOURCE_ATTRIBUTES
+      value: k8s.cluster.name=home-ops
+  observability:
+    metrics:
+      enableMetrics: true
+      disablePrometheusAnnotations: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+  config:
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+      file_storage:
+        directory: /var/lib/otelcol_agent
+      zpages:
+        endpoint: 0.0.0.0:55679
+
+    receivers:
+      filelog:
+        storage: file_storage
+        include:
+          - /var/log/pods/*/*/*.log
+        start_at: end
+        include_file_path: true
+        include_file_name: false
+        operators:
+          - type: regex_parser
+            regex: '^(?P<time>[^ ^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$'
+            timestamp:
+              parse_from: attributes.time
+              layout: "%Y-%m-%dT%H:%M:%S.%LZ"
+          - type: remove
+            field: attributes.time
+          - type: remove
+            field: attributes.logtag
+          - type: regex_parser
+            id: extract-metadata-from-filepath
+            # yamllint disable-line rule:line-length
+            regex: '^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]+)\/(?P<container_name>[^\._]+)\/(?P<restart_count>\d+)\.log$'
+            parse_from: attributes["log.file.path"]
+            cache:
+              size: 128
+          - type: move
+            from: attributes.log
+            to: body
+          # Combine multi-line entries (Java stack traces, Python tracebacks, .NET exceptions).
+          # A new entry starts when body begins with a JSON object, ISO timestamp, or klog prefix.
+          # Lines that don't match (stack frames, traceback lines) are folded into the previous entry.
+          - type: recombine
+            combine_field: body
+            combine_with: "\n"
+            is_first_entry: 'body matches "^(\\{|\\d{4}-\\d{2}-\\d{2}[T\\s]|[A-Z]\\d{4}\\s)"'
+            source_identifier: attributes["log.file.path"]
+            max_unmatched_batch_size: 100
+            timeout: 5s
+          - type: move
+            from: attributes.stream
+            to: attributes["log.iostream"]
+          - type: move
+            from: attributes.container_name
+            to: resource["k8s.container.name"]
+          - type: move
+            from: attributes.namespace
+            to: resource["k8s.namespace.name"]
+          - type: move
+            from: attributes.pod_name
+            to: resource["k8s.pod.name"]
+          - type: move
+            from: attributes.restart_count
+            to: resource["k8s.container.restart_count"]
+          - type: move
+            from: attributes.uid
+            to: resource["k8s.pod.uid"]
+          # Try to parse body as JSON (zerolog, zap, logrus, etc.)
+          - type: json_parser
+            parse_from: body
+            if: 'body matches "^\\{"'
+            on_error: send
+          # Normalize severity field names to attributes.level before parsing:
+          #   @l        = Serilog (.NET)
+          #   levelname = Python standard logging / python-json-logger
+          #   severity  = Google Cloud Logging convention
+          - type: move
+            from: attributes["@l"]
+            to: attributes.level
+            if: 'attributes["@l"] != nil and attributes["level"] == nil'
+          - type: move
+            from: attributes.levelname
+            to: attributes.level
+            if: 'attributes["levelname"] != nil and attributes["level"] == nil'
+          - type: move
+            from: attributes.severity
+            to: attributes.level
+            if: 'attributes["severity"] != nil and attributes["level"] == nil'
+          # Parse severity from structured field; only runs when level is present.
+          # mapping extends preset: default with pino/bunyan numeric levels and
+          # Serilog string aliases ("information", "warning").
+          - type: severity_parser
+            preset: default
+            parse_from: attributes.level
+            if: 'attributes["level"] != nil'
+            mapping:
+              trace: 10
+              debug: 20
+              info: [30, "information"]
+              warn: [40, "warning"]
+              error: 50
+              fatal: 60
+
+      kubeletstats:
+        collection_interval: 60s
+        auth_type: serviceAccount
+        endpoint: "https://${env:NODE_NAME}:10250"
+        insecure_skip_verify: true
+        metric_groups:
+          - node
+          - pod
+          - container
+          - volume
+
+      hostmetrics:
+        collection_interval: 60s
+        root_path: /hostfs
+        scrapers:
+          cpu: {}
+          disk: {}
+          filesystem:
+            exclude_mount_points:
+              mount_points:
+                - /dev
+                - /proc
+                - /sys
+                - /run/containerd/.*
+                - /var/lib/docker/.*
+                - /var/lib/kubelet/.*
+                - /snap/.*
+              match_type: regexp
+            exclude_fs_types:
+              fs_types:
+                - autofs
+                - binfmt_misc
+                - bpf
+                - cgroup2
+                - configfs
+                - debugfs
+                - devpts
+                - devtmpfs
+                - fusectl
+                - hugetlbfs
+                - iso9660
+                - mqueue
+                - nsfs
+                - overlay
+                - proc
+                - procfs
+                - pstore
+                - rpc_pipefs
+                - securityfs
+                - selinuxfs
+                - squashfs
+                - sysfs
+                - tracefs
+              match_type: strict
+          load: {}
+          memory: {}
+          network: {}
+          # TODO: eval whether swap is enabled on any nodes before enabling
+          # paging: {}
+          # TODO: eval process count metrics for anomaly detection value
+          # processes: {}
+
+    processors:
+      memory_limiter:
+        check_interval: 2s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+
+      batch:
+        send_batch_size: 1000
+        timeout: 10s
+
+      resourcedetection:
+        detectors: [env, k8snode]
+        timeout: 5s
+        k8snode:
+          node_from_env_var: NODE_NAME
+
+      k8sattributes:
+        auth_type: serviceAccount
+        passthrough: false
+        wait_for_metadata: true
+        filter:
+          node_from_env_var: NODE_NAME
+        extract:
+          metadata:
+            - k8s.pod.name
+            - k8s.deployment.name
+            - k8s.statefulset.name
+            - k8s.daemonset.name
+            - k8s.cronjob.name
+            - k8s.job.name
+            - k8s.namespace.name
+            - k8s.node.name
+            - container.image.name
+            - container.image.tag
+          labels:
+            - tag_name: app.kubernetes.io/name
+              key: app.kubernetes.io/name
+              from: pod
+            - tag_name: app.kubernetes.io/component
+              key: app.kubernetes.io/component
+              from: pod
+        pod_association:
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.ip
+          - sources:
+              - from: connection
+
+    exporters:
+      otlp:
+        endpoint: opentelemetry-collector-gateway-collector.monitoring.svc.cluster.local:4317
+        tls:
+          insecure: true
+        retry_on_failure:
+          enabled: true
+          initial_interval: 5s
+          max_interval: 30s
+          max_elapsed_time: 300s
+        sending_queue:
+          enabled: true
+          storage: file_storage
+          num_consumers: 10
+          queue_size: 100
+
+    service:
+      telemetry:
+        logs:
+          level: warn
+        metrics:
+          level: detailed
+      extensions: [health_check, file_storage, zpages]
+      pipelines:
+        metrics:
+          receivers: [kubeletstats, hostmetrics]
+          processors: [memory_limiter, resourcedetection, k8sattributes, batch]
+          exporters: [otlp]
+        logs:
+          receivers: [filelog]
+          processors: [memory_limiter, resourcedetection, k8sattributes, batch]
+          exporters: [otlp]
