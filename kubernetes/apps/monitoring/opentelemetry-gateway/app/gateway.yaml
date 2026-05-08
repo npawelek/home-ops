@@ -9,12 +9,14 @@ spec:
   serviceAccount: opentelemetry-collector-gateway
   affinity:
     podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: opentelemetry-collector
-              app.kubernetes.io/instance: gateway
-          topologyKey: kubernetes.io/hostname
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: opentelemetry-collector
+                app.kubernetes.io/instance: gateway
+            topologyKey: kubernetes.io/hostname
   targetAllocator:
     enabled: true
     replicas: 1
