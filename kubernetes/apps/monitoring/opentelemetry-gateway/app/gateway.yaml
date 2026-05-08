@@ -179,7 +179,7 @@ spec:
         error_mode: ignore
         metrics:
           metric:
-            - 'IsMatch(name, "^go_")'
+            - 'IsMatch(name, "^go_") and not IsMatch(resource.attributes["service.name"], "otelcol.*")'
 
     # filter/logs_drop:
     #   error_mode: ignore
@@ -217,7 +217,7 @@ spec:
           enabled: true
           storage: file_storage
           num_consumers: 10
-          queue_size: 200
+          queue_size: 5000
 
     service:
       telemetry:
