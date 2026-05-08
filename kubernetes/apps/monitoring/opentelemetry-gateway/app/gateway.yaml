@@ -22,6 +22,7 @@ spec:
     serviceAccount: opentelemetry-targetallocator
     prometheusCR:
       enabled: true
+      scrapeInterval: 60s
       serviceMonitorSelector: {}
       podMonitorSelector: {}
   env:
@@ -156,13 +157,12 @@ spec:
           - sources:
               - from: connection
 
-    # filter/metrics_drop:
-    #   error_mode: ignore
-    #   metrics:
-    #     metric:
-    #       - 'IsMatch(name, "^scrape_")'
-    #       - 'IsMatch(name, "^go_")'
-    #       - 'IsMatch(name, "^process_")'
+      filter/metrics_drop:
+        error_mode: ignore
+        metrics:
+          metric:
+            - 'IsMatch(name, "^go_")'
+
     # filter/logs_drop:
     #   error_mode: ignore
     #   logs:
@@ -211,11 +211,11 @@ spec:
       pipelines:
         metrics/scraped:
           receivers: [prometheus]
-          processors: [memory_limiter, k8s_attributes/enrich, resourcedetection, batch]
+          processors: [memory_limiter, filter/metrics_drop, k8s_attributes/enrich, resourcedetection, batch]
           exporters: [prometheusremotewrite]
         metrics/agent:
           receivers: [otlp]
-          processors: [memory_limiter, k8s_attributes/passthrough, resourcedetection, batch]
+          processors: [memory_limiter, filter/metrics_drop, k8s_attributes/passthrough, resourcedetection, batch]
           exporters: [prometheusremotewrite]
         logs/agent:
           receivers: [otlp]
