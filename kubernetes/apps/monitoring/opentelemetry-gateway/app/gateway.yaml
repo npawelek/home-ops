@@ -73,10 +73,7 @@ spec:
             endpoint: 0.0.0.0:4318
 
       prometheus:
-        target_allocator:
-          endpoint: http://gateway-targetallocator.monitoring.svc.cluster.local:8080
-          interval: 30s
-          collector_id: ${env:POD_NAME}
+        config: {}
 
       syslog:
         tcp:
