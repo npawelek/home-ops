@@ -181,8 +181,8 @@ spec:
           max_elapsed_time: 300s
         remote_write_queue:
           enabled: true
+          num_consumers: 10
           queue_size: 10000
-          max_batch_request_parallelism: 10
 
       otlp_http/loki:
         endpoint: http://loki.monitoring.svc.cluster.local:3100/otlp
