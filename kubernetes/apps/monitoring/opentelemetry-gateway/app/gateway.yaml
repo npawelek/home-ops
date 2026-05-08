@@ -171,11 +171,10 @@ spec:
           initial_interval: 5s
           max_interval: 30s
           max_elapsed_time: 300s
-        sending_queue:
+        remote_write_queue:
           enabled: true
-          storage: file_storage
           num_consumers: 10
-          queue_size: 200
+          queue_size: 10000
 
       otlphttp/loki:
         endpoint: http://loki.monitoring.svc.cluster.local:3100/otlp
