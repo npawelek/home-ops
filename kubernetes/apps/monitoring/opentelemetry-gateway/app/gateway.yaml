@@ -23,8 +23,12 @@ spec:
     prometheusCR:
       enabled: true
       scrapeInterval: 60s
-      serviceMonitorSelector: {}
-      podMonitorSelector: {}
+      serviceMonitorSelector:
+        matchLabels:
+          monitoring: otel
+      podMonitorSelector:
+        matchLabels:
+          monitoring: otel
   env:
     - name: POD_NAME
       valueFrom:
