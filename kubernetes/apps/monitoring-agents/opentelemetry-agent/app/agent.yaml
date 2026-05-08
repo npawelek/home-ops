@@ -205,6 +205,7 @@ spec:
 
       batch:
         send_batch_size: 1000
+        send_batch_max_size: 1500
         timeout: 10s
 
       resourcedetection:
@@ -272,13 +273,29 @@ spec:
           level: warn
         metrics:
           level: detailed
-      extensions: [health_check, file_storage, zpages]
+      extensions:
+        - health_check
+        - file_storage
+        - zpages
       pipelines:
         metrics:
-          receivers: [kubeletstats, host_metrics]
-          processors: [memory_limiter, resourcedetection, k8s_attributes, batch]
-          exporters: [otlp_grpc]
+          receivers:
+            - kubeletstats
+            - host_metrics
+          processors:
+            - memory_limiter
+            - resourcedetection
+            - k8s_attributes
+            - batch
+          exporters:
+            - otlp_grpc
         logs:
-          receivers: [file_log]
-          processors: [memory_limiter, resourcedetection, k8s_attributes, batch]
-          exporters: [otlp_grpc]
+          receivers:
+            - file_log
+          processors:
+            - memory_limiter
+            - resourcedetection
+            - k8s_attributes
+            - batch
+          exporters:
+            - otlp_grpc
