@@ -35,6 +35,16 @@ spec:
     metrics:
       enableMetrics: true
       disablePrometheusAnnotations: true
+  initContainers:
+    - name: fix-storage-permissions
+      # yamllint disable-line rule:line-length
+      image: public.ecr.aws/docker/library/alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+      command: ["sh", "-c", "chown -R 10001:10001 /var/lib/otelcol_gateway"]
+      volumeMounts:
+        - name: storage
+          mountPath: /var/lib/otelcol_gateway
+      securityContext:
+        runAsUser: 0
   volumeMounts:
     - name: storage
       mountPath: /var/lib/otelcol_gateway
@@ -171,10 +181,10 @@ spec:
           max_elapsed_time: 300s
         remote_write_queue:
           enabled: true
-          num_consumers: 10
           queue_size: 10000
+          max_batch_request_parallelism: 10
 
-      otlphttp/loki:
+      otlp_http/loki:
         endpoint: http://loki.monitoring.svc.cluster.local:3100/otlp
         tls:
           insecure: true
@@ -208,8 +218,8 @@ spec:
         logs/agent:
           receivers: [otlp]
           processors: [memory_limiter, k8s_attributes/passthrough, resourcedetection, batch]
-          exporters: [otlphttp/loki]
+          exporters: [otlp_http/loki]
         logs/syslog:
           receivers: [syslog]
           processors: [memory_limiter, resourcedetection, batch]
-          exporters: [otlphttp/loki]
+          exporters: [otlp_http/loki]
