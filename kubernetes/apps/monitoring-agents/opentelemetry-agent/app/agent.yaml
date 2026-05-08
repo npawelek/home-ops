@@ -241,6 +241,9 @@ spec:
         pod_association:
           - sources:
               - from: resource_attribute
+                name: k8s.pod.uid
+          - sources:
+              - from: resource_attribute
                 name: k8s.pod.ip
           - sources:
               - from: connection
