@@ -7,6 +7,9 @@ spec:
   mode: daemonset
   dnsPolicy: Default
   serviceAccount: opentelemetry-collector-agent
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
   initContainers:
     - name: fix-storage-permissions
       # yamllint disable-line rule:line-length
