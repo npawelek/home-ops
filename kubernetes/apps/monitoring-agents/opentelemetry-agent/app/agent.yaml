@@ -5,11 +5,15 @@ metadata:
   name: agent
 spec:
   mode: daemonset
-  dnsPolicy: Default
   serviceAccount: opentelemetry-collector-agent
   securityContext:
     runAsUser: 0
     runAsGroup: 0
+    privileged: true
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
   initContainers:
     - name: fix-storage-permissions
       # yamllint disable-line rule:line-length
