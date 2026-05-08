@@ -179,6 +179,7 @@ spec:
           initial_interval: 5s
           max_interval: 30s
           max_elapsed_time: 300s
+        max_batch_request_parallelism: 10
         remote_write_queue:
           enabled: true
           num_consumers: 10
