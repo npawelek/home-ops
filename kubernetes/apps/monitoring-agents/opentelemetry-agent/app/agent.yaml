@@ -286,7 +286,7 @@ spec:
 
     exporters:
       otlp_grpc:
-        endpoint: opentelemetry-collector-gateway-collector.monitoring.svc.cluster.local:4317
+        endpoint: gateway-collector.monitoring.svc.cluster.local:4317
         tls:
           insecure: true
         retry_on_failure:
@@ -298,7 +298,7 @@ spec:
           enabled: true
           storage: file_storage
           num_consumers: 10
-          queue_size: 100
+          queue_size: 10000
 
     service:
       telemetry:
