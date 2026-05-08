@@ -145,20 +145,18 @@ spec:
           - sources:
               - from: connection
 
-      filter/metrics_drop:
-        error_mode: ignore
-        metrics:
-          metric:
-            - 'name matches "^scrape_"'
-            - 'name matches "^go_"'
-            - 'name matches "^process_"'
-
-      filter/logs_drop:
-        error_mode: ignore
-        logs:
-          log_record:
-            - 'severity_number < SEVERITY_NUMBER_INFO'
-
+    # filter/metrics_drop:
+    #   error_mode: ignore
+    #   metrics:
+    #     metric:
+    #       - 'IsMatch(name, "^scrape_")'
+    #       - 'IsMatch(name, "^go_")'
+    #       - 'IsMatch(name, "^process_")'
+    # filter/logs_drop:
+    #   error_mode: ignore
+    #   logs:
+    #     log_record:
+    #       - 'severity_number < SEVERITY_NUMBER_INFO'
     exporters:
       prometheusremotewrite:
         endpoint: http://victoriametrics-server.monitoring.svc.cluster.local:8428/api/v1/write
@@ -201,7 +199,7 @@ spec:
       pipelines:
         metrics/scraped:
           receivers: [prometheus]
-          processors: [memory_limiter, filter/metrics_drop, k8s_attributes/enrich, resourcedetection, batch]
+          processors: [memory_limiter, k8s_attributes/enrich, resourcedetection, batch]
           exporters: [prometheusremotewrite]
         metrics/agent:
           receivers: [otlp]
@@ -213,5 +211,5 @@ spec:
           exporters: [otlphttp/loki]
         logs/syslog:
           receivers: [syslog]
-          processors: [memory_limiter, filter/logs_drop, resourcedetection, batch]
+          processors: [memory_limiter, resourcedetection, batch]
           exporters: [otlphttp/loki]
