@@ -5,6 +5,7 @@ metadata:
   name: agent
 spec:
   mode: daemonset
+  dnsPolicy: Default
   serviceAccount: opentelemetry-collector-agent
   initContainers:
     - name: fix-storage-permissions
@@ -43,8 +44,6 @@ spec:
       hostPath:
         path: /var/lib/otelcol_agent
   env:
-    # NODE_NAME not NODE_IP: kubelet TLS cert SANs use the hostname, not the IP.
-    # NODE_NAME also matches k8s.node.name in all telemetry, keeping identifiers consistent.
     - name: NODE_NAME
       valueFrom:
         fieldRef:
@@ -80,7 +79,7 @@ spec:
         endpoint: 0.0.0.0:55679
 
     receivers:
-      filelog:
+      file_log:
         storage: file_storage
         include:
           - /var/log/pods/*/*/*.log
@@ -182,7 +181,7 @@ spec:
           - container
           - volume
 
-      hostmetrics:
+      host_metrics:
         collection_interval: 60s
         root_path: /hostfs
         scrapers:
@@ -249,7 +248,7 @@ spec:
         k8snode:
           node_from_env_var: NODE_NAME
 
-      k8sattributes:
+      k8s_attributes:
         auth_type: serviceAccount
         passthrough: false
         wait_for_metadata: true
@@ -282,7 +281,7 @@ spec:
               - from: connection
 
     exporters:
-      otlp:
+      otlp_grpc:
         endpoint: opentelemetry-collector-gateway-collector.monitoring.svc.cluster.local:4317
         tls:
           insecure: true
@@ -306,10 +305,10 @@ spec:
       extensions: [health_check, file_storage, zpages]
       pipelines:
         metrics:
-          receivers: [kubeletstats, hostmetrics]
-          processors: [memory_limiter, resourcedetection, k8sattributes, batch]
-          exporters: [otlp]
+          receivers: [kubeletstats, host_metrics]
+          processors: [memory_limiter, resourcedetection, k8s_attributes, batch]
+          exporters: [otlp_grpc]
         logs:
-          receivers: [filelog]
-          processors: [memory_limiter, resourcedetection, k8sattributes, batch]
-          exporters: [otlp]
+          receivers: [file_log]
+          processors: [memory_limiter, resourcedetection, k8s_attributes, batch]
+          exporters: [otlp_grpc]

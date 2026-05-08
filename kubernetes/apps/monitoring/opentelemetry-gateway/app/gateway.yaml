@@ -111,11 +111,11 @@ spec:
       # Agent already enriched k8s attributes — preserve without re-lookup.
       # passthrough: true avoids from: connection, which would resolve to the
       # agent pod IP rather than the original source pod.
-      k8sattributes/passthrough:
+      k8s_attributes/passthrough:
         auth_type: serviceAccount
         passthrough: true
 
-      k8sattributes/enrich:
+      k8s_attributes/enrich:
         auth_type: serviceAccount
         passthrough: false
         wait_for_metadata: true
@@ -201,15 +201,15 @@ spec:
       pipelines:
         metrics/scraped:
           receivers: [prometheus]
-          processors: [memory_limiter, filter/metrics_drop, k8sattributes/enrich, resourcedetection, batch]
+          processors: [memory_limiter, filter/metrics_drop, k8s_attributes/enrich, resourcedetection, batch]
           exporters: [prometheusremotewrite]
         metrics/agent:
           receivers: [otlp]
-          processors: [memory_limiter, k8sattributes/passthrough, resourcedetection, batch]
+          processors: [memory_limiter, k8s_attributes/passthrough, resourcedetection, batch]
           exporters: [prometheusremotewrite]
         logs/agent:
           receivers: [otlp]
-          processors: [memory_limiter, k8sattributes/passthrough, resourcedetection, batch]
+          processors: [memory_limiter, k8s_attributes/passthrough, resourcedetection, batch]
           exporters: [otlphttp/loki]
         logs/syslog:
           receivers: [syslog]
