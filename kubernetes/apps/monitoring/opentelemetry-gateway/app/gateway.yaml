@@ -83,7 +83,8 @@ spec:
             endpoint: 0.0.0.0:4318
 
       prometheus:
-        config: {}
+        config:
+          scrape_configs: []
 
       syslog:
         tcp:
