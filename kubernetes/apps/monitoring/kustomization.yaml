@@ -12,5 +12,5 @@ resources:
   - ./loki/ks.yaml
   - ./victoriametrics/ks.yaml
   - ./opentelemetry-operator/ks.yaml
-  - ./opentelemetry-operator/collectors-ks.yaml
+  - ./opentelemetry-gateway/ks.yaml
   - ./grafana/ks.yaml

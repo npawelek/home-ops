@@ -1,55 +1,4 @@
 ---
-# ServiceAccount for agent DaemonSet
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: opentelemetry-collector-agent
-  namespace: monitoring
----
-# ClusterRole for agent: kubeletstats + k8sattributes + filelog enrichment
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: opentelemetry-collector-agent
-rules:
-  - apiGroups: [""]
-    resources:
-      - pods
-      - nodes
-      - nodes/metrics
-      - nodes/proxy
-      - nodes/stats
-      - namespaces
-      - services
-      - replicationcontrollers
-      - endpoints
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["apps"]
-    resources:
-      - replicasets
-      - deployments
-      - statefulsets
-      - daemonsets
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["batch"]
-    resources:
-      - jobs
-      - cronjobs
-    verbs: ["get", "list", "watch"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: opentelemetry-collector-agent
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: opentelemetry-collector-agent
-subjects:
-  - kind: ServiceAccount
-    name: opentelemetry-collector-agent
-    namespace: monitoring
----
 # ServiceAccount for gateway Deployment
 apiVersion: v1
 kind: ServiceAccount
@@ -69,7 +18,6 @@ rules:
       - nodes
       - namespaces
       - services
-      - replicationcontrollers
       - endpoints
     verbs: ["get", "list", "watch"]
   - apiGroups: ["apps"]
@@ -129,10 +77,6 @@ rules:
   - apiGroups: ["discovery.k8s.io"]
     resources:
       - endpointslices
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["networking.k8s.io"]
-    resources:
-      - ingresses
     verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

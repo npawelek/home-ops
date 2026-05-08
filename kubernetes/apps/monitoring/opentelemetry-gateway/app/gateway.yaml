@@ -38,10 +38,15 @@ spec:
   volumeMounts:
     - name: storage
       mountPath: /var/lib/otelcol_gateway
-  volumes:
-    - name: storage
-      hostPath:
-        path: /var/lib/otelcol_gateway
+  volumeClaimTemplates:
+    - metadata:
+        name: storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 3Gi
   resources:
     requests:
       cpu: 100m
