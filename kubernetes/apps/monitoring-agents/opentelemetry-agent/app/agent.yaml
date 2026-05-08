@@ -135,41 +135,6 @@ spec:
           - type: move
             from: attributes.uid
             to: resource["k8s.pod.uid"]
-          # Try to parse body as JSON (zerolog, zap, logrus, etc.)
-          - type: json_parser
-            parse_from: body
-            if: 'body matches "^\\{"'
-            on_error: send
-          # Normalize severity field names to attributes.level before parsing:
-          #   @l        = Serilog (.NET)
-          #   levelname = Python standard logging / python-json-logger
-          #   severity  = Google Cloud Logging convention
-          - type: move
-            from: attributes["@l"]
-            to: attributes.level
-            if: 'attributes["@l"] != nil and attributes["level"] == nil'
-          - type: move
-            from: attributes.levelname
-            to: attributes.level
-            if: 'attributes["levelname"] != nil and attributes["level"] == nil'
-          - type: move
-            from: attributes.severity
-            to: attributes.level
-            if: 'attributes["severity"] != nil and attributes["level"] == nil'
-          # Parse severity from structured field; only runs when level is present.
-          # mapping extends preset: default with pino/bunyan numeric levels and
-          # Serilog string aliases ("information", "warning").
-          - type: severity_parser
-            preset: default
-            parse_from: attributes.level
-            if: 'attributes["level"] != nil'
-            mapping:
-              trace: 10
-              debug: 20
-              info: [30, "information"]
-              warn: [40, "warning"]
-              error: 50
-              fatal: 60
 
       kubeletstats:
         collection_interval: 60s
