@@ -56,6 +56,7 @@ enter = "mise run check-deps"
 "python" = "3.14.4"
 "uv" = "0.11.10"
 yamllint = "1.38.0"
+"aqua:grafana/mcp-grafana" = "0.14.0"
 
 [shell_alias]
 k = "kubectl"

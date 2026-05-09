@@ -80,6 +80,9 @@ spec:
       type: ClusterIP
       port: 80
       targetPort: 3000
+    plugins:
+      - grafana-llm-app
+      - grafana-metrics-drilldown-app
     serviceMonitor:
       enabled: true
     persistence:
