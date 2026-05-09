@@ -9,13 +9,10 @@ LOCAL_LLM_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .LOCAL_LLM
 LMSTUDIO_API_KEY = { value = "{{exec(command='sops -d env.sops.yaml | yq .LMSTUDIO_API_KEY')}}", tools = true, redact = true }
 LMSTUDIO_MODEL = { value = "{{exec(command='sops -d env.sops.yaml | yq .LMSTUDIO_MODEL')}}", tools = true, redact = true }
 SECRET_DOMAIN = { value = "{{exec(command='sops -d env.sops.yaml | yq .SECRET_DOMAIN')}}", tools = true, redact = true }
+GRAFANA_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .GRAFANA_URL')}}", tools = true, redact = true }
+GRAFANA_SERVICE_ACCOUNT_TOKEN = { value = "{{exec(command='sops -d env.sops.yaml | yq .GRAFANA_SERVICE_ACCOUNT_TOKEN')}}", tools = true, redact = true }
+GRAFANA_ORG_ID = "1"
 OPENBRAIN_MCP_KEY = { value = "{{exec(command='sops -d env.sops.yaml | yq .OPENBRAIN_MCP_KEY')}}", tools = true, redact = true }
-ANTHROPIC_BASE_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .ANTHROPIC_BASE_URL')}}", tools = true, redact = true }
-ANTHROPIC_AUTH_TOKEN = { value = "{{exec(command='sops -d env.sops.yaml | yq .ANTHROPIC_AUTH_TOKEN')}}", tools = true, redact = true }
-ANTHROPIC_MODEL = { value = "{{exec(command='sops -d env.sops.yaml | yq .ANTHROPIC_MODEL')}}", tools = true, redact = true }
-ANTHROPIC_DEFAULT_HAIKU_MODEL = { value = "{{exec(command='sops -d env.sops.yaml | yq .ANTHROPIC_DEFAULT_HAIKU_MODEL')}}", tools = true, redact = true }
-DISABLE_NON_ESSENTIAL_MODEL_CALLS = { value = "{{exec(command='sops -d env.sops.yaml | yq .DISABLE_NON_ESSENTIAL_MODEL_CALLS')}}", tools = true, redact = true }
-CLAUDE_CODE_ATTRIBUTION_HEADER = { value = "{{exec(command='sops -d env.sops.yaml | yq .CLAUDE_CODE_ATTRIBUTION_HEADER')}}", tools = true, redact = true }
 
 [settings]
 experimental = true
