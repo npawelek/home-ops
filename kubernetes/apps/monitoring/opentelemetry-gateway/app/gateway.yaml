@@ -42,6 +42,8 @@ spec:
     metrics:
       enableMetrics: true
       disablePrometheusAnnotations: true
+      extraLabels:
+        monitoring: otel
   initContainers:
     - name: fix-storage-permissions
       # yamllint disable-line rule:line-length

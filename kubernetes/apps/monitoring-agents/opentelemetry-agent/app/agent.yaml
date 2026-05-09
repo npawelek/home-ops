@@ -62,6 +62,8 @@ spec:
     metrics:
       enableMetrics: true
       disablePrometheusAnnotations: true
+      extraLabels:
+        monitoring: otel
   resources:
     requests:
       cpu: 50m
