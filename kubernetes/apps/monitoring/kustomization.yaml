@@ -14,3 +14,4 @@ resources:
   - ./opentelemetry-operator/ks.yaml
   - ./opentelemetry-gateway/ks.yaml
   - ./grafana/ks.yaml
+  - ./grafana/terraform-ks.yaml

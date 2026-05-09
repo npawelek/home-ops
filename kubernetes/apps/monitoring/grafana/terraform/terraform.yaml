@@ -1,0 +1,24 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha2
+kind: Terraform
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  interval: 1h
+  approvePlan: auto
+  destroyResourcesOnDeletion: false
+  path: ./terraform/grafana
+  serviceAccountName: tf-runner
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  vars:
+    - name: grafana_url
+      value: "https://grafana.${SECRET_DOMAIN}"
+  varsFrom:
+    - kind: Secret
+      name: grafana-terraform-secrets
+  writeOutputsToSecret:
+    name: grafana-terraform-outputs

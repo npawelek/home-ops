@@ -81,8 +81,7 @@ spec:
       port: 80
       targetPort: 3000
     plugins:
-      - grafana-llm-app
-      - grafana-metrics-drilldown-app
+      - grafana-llm-app@1.0.8
     serviceMonitor:
       enabled: true
     persistence:
