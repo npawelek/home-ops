@@ -13,6 +13,14 @@ spec:
       staticPath: /var/cdi/static
       dynamicPath: /var/cdi/dynamic
     kubeletPlugin:
+      # TODO: xpumd (Intel XPU Manager Daemon) is not available as a Talos extension. Without it,
+      # health monitoring cannot watch device health via /run/xpumd/intelxpuinfo.sock, causing the
+      # kubelet plugin to panic and restart every ~5 minutes. Disabling prevents the crash loop.
+      # If xpumd ever becomes a Talos extension, re-enable this and remove privileged mode is NOT
+      # needed — xpumd supplies hardware details so the driver doesn't need direct device access.
+      # With health monitoring enabled, unhealthy GPUs get a NoSchedule DRADeviceTaint (k8s 1.33+).
+      healthMonitoring:
+        enabled: false
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
