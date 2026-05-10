@@ -61,3 +61,10 @@ spec:
     # Disable built-in ingress - using Envoy Gateway HTTPRoute instead
     ingress:
       enabled: false
+
+    metrics:
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          monitoring: otel
+        interval: "30s"
