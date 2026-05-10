@@ -21,3 +21,9 @@ resource "grafana_dashboard" "metrics_server_health" {
   config_json = file("${path.module}/dashboards/metrics-server-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "nfd_health" {
+  folder      = grafana_folder.infrastructure.uid
+  config_json = file("${path.module}/dashboards/nfd-health.json")
+  overwrite   = true
+}
