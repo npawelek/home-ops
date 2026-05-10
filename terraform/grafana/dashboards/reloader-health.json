@@ -1,0 +1,275 @@
+{
+  "id": 4397108132831232,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "panels": [],
+      "title": "Rate",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of Kubernetes watch events received by the active reloader replica, broken down by resource type (configmaps, secrets) and event type (add, update, delete). This reflects the volume of cluster activity reloader must evaluate. High rates are normal in active clusters; only events matching annotated workloads trigger actual reloads.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 1},
+      "id": 2,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum by (resource_type, event_type) (rate(reloader_events_received_total{job=\"kube-system/reloader\"}[$__rate_interval]))",
+          "legendFormat": "{{resource_type}} / {{event_type}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Events Received/s",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of rolling restarts executed by the active reloader replica, split by outcome. 'success=true' means the workload was successfully patched to trigger a rollout; 'success=false' indicates a failure to apply the restart. Healthy clusters typically see bursts of reloads only when ConfigMaps or Secrets are updated. A non-zero failure rate warrants investigation.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1},
+      "id": 3,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(rate(reloader_reload_executed_total{job=\"kube-system/reloader\", success=\"true\"}[$__rate_interval]))",
+          "legendFormat": "Success",
+          "refId": "A"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(rate(reloader_reload_executed_total{job=\"kube-system/reloader\", success=\"false\"}[$__rate_interval]))",
+          "legendFormat": "Failed",
+          "refId": "B"
+        }
+      ],
+      "title": "Reloads Executed/s",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+      "id": 4,
+      "panels": [],
+      "title": "Errors",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Cumulative count of failed rolling restarts across all reloader replicas. Healthy value is 0. A failure means reloader detected a ConfigMap or Secret change and attempted to patch a workload annotation but the Kubernetes API call failed. Check reloader pod logs for the specific resource and error.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 10},
+      "id": 5,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(reloader_reload_executed_total{job=\"kube-system/reloader\", success=\"false\"})",
+          "legendFormat": "Failures",
+          "refId": "A"
+        }
+      ],
+      "title": "Reload Failures",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 14},
+      "id": 6,
+      "panels": [],
+      "title": "Duration",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "P99 and P50 latency for each reconcile loop iteration, split by result. 'success' means the reconcile completed and at least one workload was evaluated; 'skipped' means the event did not match any annotated workload and no action was taken. Skipped reconciles are fast (sub-millisecond). Elevated success latency may indicate API server slowness.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 15},
+      "id": 7,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "histogram_quantile(0.99, sum by (le, result) (rate(reloader_reconcile_duration_seconds_bucket{job=\"kube-system/reloader\"}[$__rate_interval])))",
+          "legendFormat": "P99 {{result}}",
+          "refId": "A"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "histogram_quantile(0.50, sum by (le, result) (rate(reloader_reconcile_duration_seconds_bucket{job=\"kube-system/reloader\"}[$__rate_interval])))",
+          "legendFormat": "P50 {{result}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Reconcile Duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "P99 and P50 latency for patching a workload to trigger a rolling restart, split by workload kind (Deployment, StatefulSet). This measures the time from deciding a reload is needed to the Kubernetes API call completing. Values above 1s may indicate API server saturation or network issues between reloader and the API server.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 15},
+      "id": 8,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "histogram_quantile(0.99, sum by (le, workload_kind) (rate(reloader_action_latency_seconds_bucket{job=\"kube-system/reloader\"}[$__rate_interval])))",
+          "legendFormat": "P99 {{workload_kind}}",
+          "refId": "A"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "histogram_quantile(0.50, sum by (le, workload_kind) (rate(reloader_action_latency_seconds_bucket{job=\"kube-system/reloader\"}[$__rate_interval])))",
+          "legendFormat": "P50 {{workload_kind}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Action Latency",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 23},
+      "id": 9,
+      "panels": [],
+      "title": "State / Inventory",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Number of reloader replicas currently reporting metrics. Expected value is 2 in HA mode. Only the elected leader processes events; the standby replica holds the lock and waits. If this drops to 1, a replica pod has stopped reporting.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 8, "x": 0, "y": 24},
+      "id": 10,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "count(reloader_reload_executed_total{job=\"kube-system/reloader\", success=\"true\"})",
+          "legendFormat": "Replicas",
+          "refId": "A"
+        }
+      ],
+      "title": "Active Replicas",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Cumulative number of Deployment rolling restarts triggered by reloader since the leader pod started. Reflects total workload reload activity for Deployments. Resets when the leader pod restarts.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 8, "x": 8, "y": 24},
+      "id": 11,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(reloader_action_total{job=\"kube-system/reloader\", workload_kind=\"Deployment\"})",
+          "legendFormat": "Deployments",
+          "refId": "A"
+        }
+      ],
+      "title": "Deployment Restarts",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Cumulative number of StatefulSet rolling restarts triggered by reloader since the leader pod started. Reflects total workload reload activity for StatefulSets. Resets when the leader pod restarts.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 8, "x": 16, "y": 24},
+      "id": 12,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(reloader_action_total{job=\"kube-system/reloader\", workload_kind=\"StatefulSet\"})",
+          "legendFormat": "StatefulSets",
+          "refId": "A"
+        }
+      ],
+      "title": "StatefulSet Restarts",
+      "type": "stat"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["reloader", "infrastructure"],
+  "templating": {"list": []},
+  "time": {"from": "now-3h", "to": "now"},
+  "timezone": "browser",
+  "title": "Reloader Health",
+  "uid": "reloader-health",
+  "version": 1
+}

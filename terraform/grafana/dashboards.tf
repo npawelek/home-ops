@@ -27,3 +27,9 @@ resource "grafana_dashboard" "nfd_health" {
   config_json = file("${path.module}/dashboards/nfd-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "reloader_health" {
+  folder      = grafana_folder.infrastructure.uid
+  config_json = file("${path.module}/dashboards/reloader-health.json")
+  overwrite   = true
+}
