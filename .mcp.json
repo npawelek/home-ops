@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "grafana": {
+      "command": "mise",
+      "args": [
+        "x",
+        "--",
+        "mcp-compressor",
+        "{\"mcpServers\":{\"grafana\":{\"command\":\"mcp-grafana\",\"args\":[\"--disable-incident\",\"--disable-alerting\",\"--disable-sift\",\"--disable-oncall\"]}}}"
+      ]
+    }
+  }
+}
