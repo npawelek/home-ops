@@ -32,6 +32,8 @@ spec:
       prometheus:
         serviceMonitor:
           enabled: true
+          labels:
+            monitoring: otel
     gatewayAPI:
       enabled: true
     hubble:
@@ -56,6 +58,8 @@ spec:
         enabled: true
         serviceMonitor:
           enabled: true
+          labels:
+            monitoring: otel
       replicas: 1
       rollOutPods: true
     prometheus:
@@ -63,6 +67,8 @@ spec:
       serviceMonitor:
         enabled: true
         trustCRDsExist: true
+        labels:
+          monitoring: otel
     rollOutCiliumPods: true
     routingMode: native
     securityContext:
