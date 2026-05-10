@@ -1,0 +1,226 @@
+{
+  "id": 4425747905896448,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total requests per hour window.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+        },
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "hit"}, "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "miss"}, "properties": [{"id": "color", "value": {"fixedColor": "orange", "mode": "fixed"}}]}
+        ]
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (cache) (increase(spegel_mirror_requests_total{job=\"spegel\"}[1h]))", "legendFormat": "{{cache}}", "refId": "A"}],
+      "title": "Mirror Request Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Requests per hour per node.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (node) (increase(spegel_mirror_requests_total{job=\"spegel\"}[1h]))", "legendFormat": "{{node}}", "refId": "A"}],
+      "title": "Mirror Request Rate by Node",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Hit ratio using increase.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "orange", "value": 0.5}, {"color": "green", "value": 0.8}]},
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "single", "sort": "none"}},
+      "targets": [{"expr": "sum(increase(spegel_mirror_requests_total{job=\"spegel\",cache=\"hit\"}[1h])) / sum(increase(spegel_mirror_requests_total{job=\"spegel\"}[1h]))", "legendFormat": "hit ratio", "refId": "A"}],
+      "title": "Cache Hit Ratio",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Average latency (sum/count).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false, "thresholdsStyle": {"mode": "dashed"}},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 0.005}, {"color": "red", "value": 0.01}]},
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 4,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "spegel_resolve_duration_seconds_sum{job=\"spegel\"} / spegel_resolve_duration_seconds_count{job=\"spegel\"}", "legendFormat": "{{node}}", "refId": "A"}],
+      "title": "Average Resolve Latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Image digests per node/registry.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "id": 5,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (node, registry) (spegel_advertised_image_digests{job=\"spegel\"})", "legendFormat": "{{node}}/{{registry}}", "refId": "A"}],
+      "title": "Advertised Image Digests",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Requests by registry.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "id": 6,
+      "options": {"legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (registry, cache) (increase(spegel_mirror_requests_total{job=\"spegel\"}[1h]))", "legendFormat": "{{registry}} - {{cache}}", "refId": "A"}],
+      "title": "Mirror Requests by Registry",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total digests.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "custom": {"fillOpacity": 10, "lineWidth": 0, "showPoints": "never", "spanNulls": false},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 24},
+      "id": 7,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name"},
+      "targets": [{"expr": "sum(spegel_advertised_image_digests{job=\"spegel\"})", "legendFormat": "Total Digests", "refId": "A"}],
+      "title": "Total Cluster Cache Size",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total requests.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "custom": {"fillOpacity": 10, "lineWidth": 0, "showPoints": "never", "spanNulls": false},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 24},
+      "id": 8,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name"},
+      "targets": [{"expr": "sum(spegel_mirror_requests_total{job=\"spegel\"})", "legendFormat": "Total", "refId": "A"}],
+      "title": "Total Requests",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Shows count per node (node × registry combos).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "custom": {"fillOpacity": 10, "lineWidth": 0, "showPoints": "never", "spanNulls": false},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 24},
+      "id": 9,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name"},
+      "targets": [{"expr": "count by (node) (spegel_advertised_image_digests{job=\"spegel\"})", "legendFormat": "{{node}}", "refId": "A"}],
+      "title": "Registries per Node",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total (node × registry) combos.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "custom": {"fillOpacity": 10, "lineWidth": 0, "showPoints": "never", "spanNulls": false},
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 24},
+      "id": 10,
+      "options": {"colorMode": "background", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "value_and_name"},
+      "targets": [{"expr": "count(spegel_advertised_image_digests{job=\"spegel\"})", "legendFormat": "Series", "refId": "A"}],
+      "title": "Total Time Series",
+      "type": "stat"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["spegel", "infrastructure"],
+  "templating": {
+    "list": [
+      {
+        "current": {"selected": true, "text": "All", "value": "$__all"},
+        "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+        "definition": "label_values(spegel_mirror_requests_total{job=\"spegel\"}, node)",
+        "includeAll": true,
+        "label": "Node",
+        "multi": true,
+        "name": "node",
+        "options": [
+          {"selected": true, "text": "All", "value": "$__all"},
+          {"selected": false, "text": "donnager", "value": "donnager"},
+          {"selected": false, "text": "hammurabi", "value": "hammurabi"},
+          {"selected": false, "text": "m1", "value": "m1"},
+          {"selected": false, "text": "m2", "value": "m2"},
+          {"selected": false, "text": "m3", "value": "m3"},
+          {"selected": false, "text": "pella", "value": "pella"}
+        ],
+        "query": {"label": "node", "query": "label_values(spegel_mirror_requests_total{job=\"spegel\"}, node)", "refId": "StandardVariableQuery"},
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-3h", "to": "now"},
+  "timepicker": {"refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"], "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]},
+  "timezone": "",
+  "title": "Spegel Health",
+  "uid": "spegel-health",
+  "version": 4
+}
