@@ -1,0 +1,537 @@
+{
+  "id": 4332826636574720,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Rate",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Rate of inbound DNS queries by query type per pod.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "id": 2,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum by (pod, node, type) (rate(coredns_dns_requests_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{pod}} ({{node}}) {{type}}",
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Request Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Rate of DNS responses broken down by rcode per pod.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "id": 3,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum by (pod, node, rcode) (rate(coredns_dns_responses_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{pod}} ({{node}}) {{rcode}}",
+          "refId": "A"
+        }
+      ],
+      "title": "DNS Response Rate by rcode",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Rate of cache hits (success = positive, denial = NXDOMAIN cached) and misses per pod.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "id": 4,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum by (pod, node, type) (rate(coredns_cache_hits_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{pod}} ({{node}}) {{type}} hit",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum by (pod, node) (rate(coredns_cache_misses_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{pod}} ({{node}}) miss",
+          "refId": "B"
+        }
+      ],
+      "title": "Cache Hit Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Rate of DNS queries forwarded to each upstream resolver per pod.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "id": 5,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum by (pod, node, to) (rate(coredns_proxy_request_duration_seconds_count{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{pod}} ({{node}}) -> {{to}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Upstream Forward Rate",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "id": 6,
+      "title": "Errors",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Lifetime count of CoreDNS process panics. Non-zero indicates a past crash.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }]
+          }
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 18 },
+      "id": 7,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum(coredns_panics_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"})",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Panics",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Lifetime count of failed Corefile reload attempts.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }]
+          }
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 18 },
+      "id": 8,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum(coredns_reload_failed_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"})",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Config Reload Failures",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Lifetime count of times all upstream resolvers were simultaneously unhealthy.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }]
+          }
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 18 },
+      "id": 9,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum(coredns_forward_healthcheck_broken_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"})",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Forward Healthcheck Broken",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Rate of DNS responses with error rcodes (SERVFAIL, FORMERR, NOTIMP) per pod.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 22 },
+      "id": 10,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum by (pod, node, rcode) (rate(coredns_dns_responses_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\", rcode=~\"SERVFAIL|FORMERR|NOTIMP\"}[$__rate_interval]))",
+          "legendFormat": "{{pod}} ({{node}}) {{rcode}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Response Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Rate of upstream DNS resolver healthcheck failures per pod.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 22 },
+      "id": 11,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum by (pod, node) (rate(coredns_proxy_healthcheck_failures_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval]))",
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Upstream Healthcheck Failure Rate",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 },
+      "id": 12,
+      "title": "Duration",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "P99 and P50 end-to-end latency of DNS requests handled by CoreDNS per pod.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 31 },
+      "id": 13,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "histogram_quantile(0.99, sum by (le, pod, node) (rate(coredns_dns_request_duration_seconds_bucket{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval])))",
+          "legendFormat": "P99 {{pod}} ({{node}})",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "histogram_quantile(0.50, sum by (le, pod, node) (rate(coredns_dns_request_duration_seconds_bucket{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval])))",
+          "legendFormat": "P50 {{pod}} ({{node}})",
+          "refId": "B"
+        }
+      ],
+      "title": "DNS Request Latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "P99 and P50 latency of DNS queries forwarded to upstream resolvers, per upstream and pod.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 31 },
+      "id": 14,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "histogram_quantile(0.99, sum by (le, pod, node, to) (rate(coredns_proxy_request_duration_seconds_bucket{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval])))",
+          "legendFormat": "P99 {{pod}} ({{node}}) {{to}}",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "histogram_quantile(0.50, sum by (le, pod, node, to) (rate(coredns_proxy_request_duration_seconds_bucket{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval])))",
+          "legendFormat": "P50 {{pod}} ({{node}}) {{to}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Upstream Forward Latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "P99 and P50 time CoreDNS takes to program new Kubernetes service DNS records.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 39 },
+      "id": 15,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "histogram_quantile(0.99, sum by (le, pod, node) (rate(coredns_kubernetes_dns_programming_duration_seconds_bucket{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval])))",
+          "legendFormat": "P99 {{pod}} ({{node}})",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "histogram_quantile(0.50, sum by (le, pod, node) (rate(coredns_kubernetes_dns_programming_duration_seconds_bucket{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval])))",
+          "legendFormat": "P50 {{pod}} ({{node}})",
+          "refId": "B"
+        }
+      ],
+      "title": "K8s DNS Programming Latency",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 47 },
+      "id": 16,
+      "title": "Saturation",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Current cache size by type: success = positive responses, denial = negative/NXDOMAIN responses.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 48 },
+      "id": 17,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "coredns_cache_entries{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}",
+          "legendFormat": "{{pod}} ({{node}}) {{type}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Cache Entries",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Fraction of DNS lookups served from cache. Low ratio suggests cache is undersized or TTLs are short.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "max": 1,
+          "min": 0,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 48 },
+      "id": 18,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum by (pod, node) (rate(coredns_cache_hits_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval])) / (sum by (pod, node) (rate(coredns_cache_hits_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval])) + sum by (pod, node) (rate(coredns_cache_misses_total{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}[$__rate_interval])))",
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Cache Hit Ratio",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Ratio of open file descriptors to the process limit per pod.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "fillOpacity": 10, "lineWidth": 1, "spanNulls": false },
+          "max": 1,
+          "min": 0,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 48 },
+      "id": 19,
+      "options": {
+        "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "process_open_fds{job=\"coredns-metrics\", pod=~\"${pod:regex}\"} / process_max_fds{job=\"coredns-metrics\", pod=~\"${pod:regex}\"}",
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
+        }
+      ],
+      "title": "File Descriptor Usage",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 56 },
+      "id": 20,
+      "title": "State / Inventory",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "description": "Running CoreDNS version across pods.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "blue", "mode": "fixed" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "blue", "value": null }]
+          }
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 57 },
+      "id": 21,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "name"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "coredns_build_info{job=\"coredns-metrics\"}",
+          "legendFormat": "{{version}}",
+          "refId": "A"
+        }
+      ],
+      "title": "CoreDNS Version",
+      "type": "stat"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["coredns", "dns", "infrastructure"],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".+",
+        "current": {},
+        "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Pod",
+        "multi": true,
+        "name": "pod",
+        "query": {
+          "query": "label_values(coredns_dns_requests_total{job=\"coredns-metrics\"}, pod)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": { "from": "now-3h", "to": "now" },
+  "timezone": "browser",
+  "title": "CoreDNS Health",
+  "uid": "coredns-health",
+  "version": 3
+}
