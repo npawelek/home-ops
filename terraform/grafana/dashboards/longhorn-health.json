@@ -1,0 +1,635 @@
+{
+  "id": 4439637704302592,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "panels": [],
+      "title": "Rate",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of Kubernetes API calls made by each Longhorn manager pod, grouped by node and HTTP method. Healthy clusters show steady GET traffic from watch loops and periodic PUT traffic for status updates. Spikes in POST/DELETE indicate volume lifecycle operations (attach, detach, backup).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "reqps"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 1},
+      "id": 2,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (node, method) (rate(longhorn_rest_client_requests_total{job=\"longhorn-backend\",node=~\"$node\"}[$__rate_interval]))",
+          "legendFormat": "{{node}} {{method}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Manager API Request Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Current read and write IOPS for the top 10 most active volumes. Only attached volumes report non-zero values. Detached volumes report 0 IOPS and are excluded from the topk view. Legend: pvc_namespace/pvc. Read and write shown as separate series.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "iops"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1},
+      "id": 3,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (pvc_namespace, pvc) (longhorn_volume_read_iops{job=\"longhorn-backend\",node=~\"$node\"}))",
+          "legendFormat": "read {{pvc_namespace}}/{{pvc}}",
+          "refId": "A"
+        },
+        {
+          "expr": "topk(10, sum by (pvc_namespace, pvc) (longhorn_volume_write_iops{job=\"longhorn-backend\",node=~\"$node\"}))",
+          "legendFormat": "write {{pvc_namespace}}/{{pvc}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Volume IOPS",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Read and write throughput (bytes/s) aggregated by PVC namespace. Shows top 10 namespaces by read throughput. Aggregating by namespace reduces cardinality from ~50 individual PVCs to ~10 namespace groups. Only attached volumes contribute non-zero values.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "Bps"
+        }
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 9},
+      "id": 4,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (pvc_namespace) (longhorn_volume_read_throughput{job=\"longhorn-backend\",node=~\"$node\"}))",
+          "legendFormat": "read {{pvc_namespace}}",
+          "refId": "A"
+        },
+        {
+          "expr": "topk(10, sum by (pvc_namespace) (longhorn_volume_write_throughput{job=\"longhorn-backend\",node=~\"$node\"}))",
+          "legendFormat": "write {{pvc_namespace}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Volume Throughput",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 17},
+      "id": 5,
+      "panels": [],
+      "title": "Errors",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Count of volumes currently in degraded or faulted state. Green at 0 (all healthy). Red at 1+ (immediate attention needed). Degraded: one or more replicas missing, data accessible, auto-rebuild in progress. Faulted: volume inaccessible, data at risk.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 18},
+      "id": 6,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "sum(longhorn_volume_robustness{job=\"longhorn-backend\",node=~\"$node\",state=~\"degraded|faulted\"})",
+          "legendFormat": "Unhealthy",
+          "refId": "A"
+        }
+      ],
+      "title": "Unhealthy Volumes",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Minimum of longhorn_node_status{condition='ready'} across selected nodes. Value 1 = all nodes ready (green). Value 0 = at least one node not ready (red). A not-ready node cannot host new replicas and may trigger volume degradation.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]
+          }
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 22},
+      "id": 7,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "min(longhorn_node_status{job=\"longhorn-backend\",condition=\"ready\",node=~\"$node\"})",
+          "legendFormat": "Ready",
+          "refId": "A"
+        }
+      ],
+      "title": "All Nodes Ready",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Count of volumes in each robustness state over time. Healthy: all replicas present and operational. Degraded: one replica missing, data accessible, rebuild in progress. Faulted: volume inaccessible, all replicas gone or errored. Unknown: state not yet determined by manager. A healthy cluster shows only the healthy line with non-zero value.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "short"
+        },
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "healthy"}, "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "degraded"}, "properties": [{"id": "color", "value": {"fixedColor": "yellow", "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "faulted"}, "properties": [{"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "unknown"}, "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}]}
+        ]
+      },
+      "gridPos": {"h": 8, "w": 10, "x": 4, "y": 18},
+      "id": 8,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (state) (longhorn_volume_robustness{job=\"longhorn-backend\",node=~\"$node\"})",
+          "legendFormat": "{{state}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Volume Robustness Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of non-2xx HTTP responses from kube-apiserver to Longhorn managers. 404s during cleanup are expected and low-level normal. 409 (Conflict) from concurrent updates is normal at low levels. Sustained 5xx or <error> values indicate API server problems or network issues that will impair Longhorn reconciliation.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "reqps"
+        }
+      },
+      "gridPos": {"h": 8, "w": 10, "x": 14, "y": 18},
+      "id": 9,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (node, code) (rate(longhorn_rest_client_requests_total{job=\"longhorn-backend\",node=~\"$node\",code!~\"2..\"}[$__rate_interval]))",
+          "legendFormat": "{{node}} HTTP {{code}}",
+          "refId": "A"
+        }
+      ],
+      "title": "API Error Rate",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 26},
+      "id": 10,
+      "panels": [],
+      "title": "Duration",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Kubernetes API call latency distribution per manager node. P99 shows worst-case tail latency; P50 shows median. Healthy: P99 < 100ms. Values > 500ms indicate API server pressure or network saturation affecting Longhorn's ability to reconcile volume and replica states promptly.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 27},
+      "id": 11,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le, node) (rate(longhorn_rest_client_request_latency_seconds_bucket{job=\"longhorn-backend\",node=~\"$node\"}[$__rate_interval])))",
+          "legendFormat": "P99 {{node}}",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le, node) (rate(longhorn_rest_client_request_latency_seconds_bucket{job=\"longhorn-backend\",node=~\"$node\"}[$__rate_interval])))",
+          "legendFormat": "P50 {{node}}",
+          "refId": "B"
+        }
+      ],
+      "title": "API Request Latency P99 / P50",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Time Longhorn manager waits in the client-side API rate limiter before requests are dispatched. High values mean managers are generating API requests faster than the rate limit allows. Near zero is normal on idle clusters. Elevated values during heavy volume operations (backup, bulk attach/detach) are expected.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 27},
+      "id": 12,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le, node) (rate(longhorn_rest_client_rate_limiter_latency_seconds_bucket{job=\"longhorn-backend\",node=~\"$node\"}[$__rate_interval])))",
+          "legendFormat": "P99 {{node}}",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le, node) (rate(longhorn_rest_client_rate_limiter_latency_seconds_bucket{job=\"longhorn-backend\",node=~\"$node\"}[$__rate_interval])))",
+          "legendFormat": "P50 {{node}}",
+          "refId": "B"
+        }
+      ],
+      "title": "API Rate Limiter Delay P99 / P50",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Instantaneous I/O latency per volume in microseconds (µs), reported as a gauge (current snapshot, not histogram). Shows top 10 active volumes by read latency. Idle or detached volumes report 0 — this is expected. Elevated read latency > 1000µs (1ms) on database PVCs (auth, database namespaces) warrants investigation.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "µs"
+        }
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 35},
+      "id": 13,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (pvc_namespace, pvc) (longhorn_volume_read_latency{job=\"longhorn-backend\",node=~\"$node\"}))",
+          "legendFormat": "read {{pvc_namespace}}/{{pvc}}",
+          "refId": "A"
+        },
+        {
+          "expr": "topk(10, sum by (pvc_namespace, pvc) (longhorn_volume_write_latency{job=\"longhorn-backend\",node=~\"$node\"}))",
+          "legendFormat": "write {{pvc_namespace}}/{{pvc}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Volume Read / Write Latency",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 43},
+      "id": 14,
+      "panels": [],
+      "title": "Saturation",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total pending items across all Longhorn controller workqueues, summed per manager node. Healthy: near zero at steady state. Sustained non-zero depth means the manager is falling behind reconciliation. Dashed red threshold at 10.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false, "thresholdsStyle": {"mode": "dashed"}},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 10}]},
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 44},
+      "id": 15,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (node) (longhorn_workqueue_depth{job=\"longhorn-backend\",node=~\"$node\"})",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Controller Workqueue Depth",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of items added to Longhorn controller workqueues, summed per node. High add rates with near-zero depth = controllers processing work efficiently. High add rates with non-zero depth = processing is lagging. Normal at idle: 1–10 adds/sec from periodic re-queue of attached volumes.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "ops"
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 44},
+      "id": 16,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (node) (rate(longhorn_workqueue_adds_total{job=\"longhorn-backend\",node=~\"$node\"}[$__rate_interval]))",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Controller Workqueue Activity",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "CPU usage of each Longhorn manager pod in millicores. One manager pod per worker node. Elevated CPU correlates with heavy reconciliation, volume lifecycle events, or snapshot/backup operations. Normal idle: < 100m. Sustained > 500m warrants investigation.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 44},
+      "id": 17,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "longhorn_manager_cpu_usage_millicpu{job=\"longhorn-backend\",node=~\"$node\"}",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Manager CPU Usage",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 52},
+      "id": 18,
+      "panels": [],
+      "title": "State / Inventory",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total number of worker nodes registered in Longhorn. Should equal 3 (donnager, hammurabi, pella). If this drops, a node has been removed from Longhorn intentionally or due to failure. Uses max() to deduplicate — each of the 3 managers reports the same total count.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 53},
+      "id": 19,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "max(longhorn_node_count_total{job=\"longhorn-backend\"})",
+          "legendFormat": "Nodes",
+          "refId": "A"
+        }
+      ],
+      "title": "Longhorn Nodes",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "All Longhorn node health conditions per node. Each condition is 1=passing, 0=failing. Key conditions: ready (overall), allowScheduling/schedulable (can host new replicas), kernelmodulesloaded (iSCSI modules), mountpropagation, nfsclientinstalled, requiredpackages. Any 0 value blocks new replica placement on that node.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "max": 1,
+          "min": 0,
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 8, "w": 20, "x": 4, "y": 53},
+      "id": 20,
+      "options": {
+        "legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "longhorn_node_status{job=\"longhorn-backend\",node=~\"$node\"}",
+          "legendFormat": "{{node}} / {{condition}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Node Status Conditions",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Count of Longhorn volumes in each operational state over time. Expected steady states: attached (in active use), detached (not mounted). Transient: attaching, detaching. A volume stuck in attaching > 5 minutes indicates an instance-manager problem.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 61},
+      "id": 21,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (state) (longhorn_volume_state{job=\"longhorn-backend\",node=~\"$node\"})",
+          "legendFormat": "{{state}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Volume State Distribution",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Count of Longhorn volume replicas in each state. This cluster uses replicaCount=3, so a fully healthy cluster shows ~3× volume count in 'running' state (48 attached volumes → ~144 running replicas). Replicas in rebuilding state indicate active data recovery. Replicas in error/stopped state require manual investigation.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 61},
+      "id": 22,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (state) (longhorn_replica_state{job=\"longhorn-backend\",node=~\"$node\"})",
+          "legendFormat": "{{state}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Replica State Distribution",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 69},
+      "id": 23,
+      "panels": [],
+      "title": "Capacity",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Storage capacity, actual disk usage, and scheduled allocation per Longhorn node. Capacity = disk available to Longhorn after the 10% reservation. Usage = space consumed by replica data. Scheduled = total space reserved for all replicas (may exceed actual usage). Alert when usage or scheduled approaches capacity.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "bytes"
+        }
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 70},
+      "id": 24,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "longhorn_node_storage_capacity_bytes{job=\"longhorn-backend\",node=~\"$node\"}",
+          "legendFormat": "capacity {{node}}",
+          "refId": "A"
+        },
+        {
+          "expr": "longhorn_node_storage_usage_bytes{job=\"longhorn-backend\",node=~\"$node\"}",
+          "legendFormat": "used {{node}}",
+          "refId": "B"
+        },
+        {
+          "expr": "longhorn_node_storage_scheduled_bytes{job=\"longhorn-backend\",node=~\"$node\"}",
+          "legendFormat": "scheduled {{node}}",
+          "refId": "C"
+        }
+      ],
+      "title": "Node Storage Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Available storage headroom per node (capacity minus actual usage). Longhorn configures storageMinimalAvailablePercentage=10% and storageReservedPercentageForDefaultDisk=10%, so new replicas are refused before headroom reaches zero.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "bytes"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 78},
+      "id": 25,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "longhorn_node_storage_capacity_bytes{job=\"longhorn-backend\",node=~\"$node\"} - longhorn_node_storage_usage_bytes{job=\"longhorn-backend\",node=~\"$node\"}",
+          "legendFormat": "headroom {{node}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Node Storage Headroom",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total actual disk usage of Longhorn volume data grouped by the namespace of the consuming PVC. Each volume is reported by exactly one manager node, so the sum is correct without deduplication. Useful for capacity planning per application domain.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "bytes"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 78},
+      "id": 26,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (pvc_namespace) (longhorn_volume_actual_size_bytes{job=\"longhorn-backend\",node=~\"$node\"})",
+          "legendFormat": "{{pvc_namespace}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Volume Data Size by Namespace",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["longhorn", "storage"],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".+",
+        "current": {},
+        "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+        "includeAll": true,
+        "label": "Node",
+        "multi": true,
+        "name": "node",
+        "query": "label_values(longhorn_volume_actual_size_bytes{job=\"longhorn-backend\"}, node)",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-3h", "to": "now"},
+  "timezone": "browser",
+  "title": "Longhorn Health",
+  "uid": "longhorn-health"
+}

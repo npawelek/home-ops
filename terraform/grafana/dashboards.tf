@@ -39,3 +39,9 @@ resource "grafana_dashboard" "spegel_health" {
   config_json = file("${path.module}/dashboards/spegel-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "longhorn_health" {
+  folder      = grafana_folder.storage.uid
+  config_json = file("${path.module}/dashboards/longhorn-health.json")
+  overwrite   = true
+}
