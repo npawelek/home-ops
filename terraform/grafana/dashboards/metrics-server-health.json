@@ -1,0 +1,348 @@
+{
+  "id": 4371819419918336,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "title": "Rate",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Successful and failed kubelet scrape requests per second. Failures are expected to be near zero.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "reqps"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 1},
+      "id": 2,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "rate(metrics_server_kubelet_request_total{job=\"metrics-server\", success=\"true\"}[$__rate_interval])",
+          "legendFormat": "success",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(metrics_server_kubelet_request_total{job=\"metrics-server\", success=\"false\"}[$__rate_interval])",
+          "legendFormat": "error",
+          "refId": "B"
+        }
+      ],
+      "title": "Kubelet Scrape Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Requests to the metrics.k8s.io API per second by verb and status code. This is what HPA and kubectl top hit. Health checks and API discovery traffic are excluded.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "reqps"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1},
+      "id": 3,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (verb, code) (rate(apiserver_request_total{job=\"metrics-server\", group=\"metrics.k8s.io\"}[$__rate_interval]))",
+          "legendFormat": "{{verb}} {{code}}",
+          "refId": "A"
+        }
+      ],
+      "title": "API Request Rate (metrics.k8s.io)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+      "id": 4,
+      "title": "Errors",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total failed kubelet scrape requests since pod start. A small number is normal at startup; a rising rate is not.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 10}, {"color": "red", "value": 100}]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 10},
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {"calcs": ["lastNotNull"]}
+      },
+      "targets": [
+        {
+          "expr": "metrics_server_kubelet_request_total{job=\"metrics-server\", success=\"false\"}",
+          "legendFormat": "errors",
+          "refId": "A"
+        }
+      ],
+      "title": "Kubelet Scrape Error Count (total)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "4xx and 5xx responses from the metrics-server API per second by verb and code. The one code=500 on /readyz is a known startup artifact.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "reqps"
+        }
+      },
+      "gridPos": {"h": 8, "w": 16, "x": 8, "y": 10},
+      "id": 6,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "sum by (verb, code, subresource, resource) (rate(apiserver_request_total{job=\"metrics-server\", code=~\"[45]..\"}[$__rate_interval]))",
+          "legendFormat": "{{verb}} {{resource}}{{subresource}} {{code}}",
+          "refId": "A"
+        }
+      ],
+      "title": "API Error Rate",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 18},
+      "id": 7,
+      "title": "Duration",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "P99 and P50 latency for metrics.k8s.io API requests — the latency HPA and kubectl top observe when fetching pod/node metrics.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 19},
+      "id": 8,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(apiserver_request_duration_seconds_bucket{job=\"metrics-server\", group=\"metrics.k8s.io\"}[$__rate_interval])))",
+          "legendFormat": "p99",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(apiserver_request_duration_seconds_bucket{job=\"metrics-server\", group=\"metrics.k8s.io\"}[$__rate_interval])))",
+          "legendFormat": "p50",
+          "refId": "B"
+        }
+      ],
+      "title": "API Request Duration (metrics.k8s.io)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "P99 and P50 latency for scrape requests to kubelets.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 19},
+      "id": 9,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(metrics_server_kubelet_request_duration_seconds_bucket{job=\"metrics-server\"}[$__rate_interval])))",
+          "legendFormat": "p99",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(metrics_server_kubelet_request_duration_seconds_bucket{job=\"metrics-server\"}[$__rate_interval])))",
+          "legendFormat": "p50",
+          "refId": "B"
+        }
+      ],
+      "title": "Kubelet Request Duration",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 27},
+      "id": 10,
+      "title": "Saturation",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Current in-flight API requests by kind. readOnly covers HPA and kubectl top; mutating should always be 0 for metrics-server.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "min": 0,
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 28},
+      "id": 11,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "apiserver_current_inflight_requests{job=\"metrics-server\"}",
+          "legendFormat": "{{request_kind}}",
+          "refId": "A"
+        }
+      ],
+      "title": "API In-flight Requests",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "P99 and P50 time to collect metrics from all kubelets in one cycle. If P99 approaches the kubelet scrape interval (~15s), data will go stale between ticks.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 28},
+      "id": 12,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(metrics_server_manager_tick_duration_seconds_bucket{job=\"metrics-server\"}[$__rate_interval])))",
+          "legendFormat": "p99",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(metrics_server_manager_tick_duration_seconds_bucket{job=\"metrics-server\"}[$__rate_interval])))",
+          "legendFormat": "p50",
+          "refId": "B"
+        }
+      ],
+      "title": "Manager Tick Duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "P99 and P50 age of the most recent metric sample available to the API. Rising values mean HPA and kubectl top are reading stale data.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 28},
+      "id": 13,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(metrics_server_api_metric_freshness_seconds_bucket{job=\"metrics-server\"}[$__rate_interval])))",
+          "legendFormat": "p99",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(metrics_server_api_metric_freshness_seconds_bucket{job=\"metrics-server\"}[$__rate_interval])))",
+          "legendFormat": "p50",
+          "refId": "B"
+        }
+      ],
+      "title": "Metric Freshness",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 36},
+      "id": 14,
+      "title": "State / Inventory",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Seconds since the last successful kubelet scrape (time() minus last_request_time). Values above 60s may indicate a scrape is stalling. Expected to fluctuate between 0 and the scrape interval (~15s).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": false,
+            "thresholdsStyle": {"mode": "dashed"}
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "green", "value": null}, {"color": "red", "value": 60}]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 37},
+      "id": 15,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "time() - metrics_server_kubelet_last_request_time_seconds{job=\"metrics-server\"}",
+          "legendFormat": "staleness",
+          "refId": "A"
+        }
+      ],
+      "title": "Kubelet Data Staleness",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["metrics-server", "infrastructure"],
+  "templating": {"list": []},
+  "time": {"from": "now-3h", "to": "now"},
+  "title": "Metrics Server Health",
+  "uid": "metrics-server-health",
+  "version": 3
+}

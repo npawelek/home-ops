@@ -15,3 +15,9 @@ resource "grafana_dashboard" "coredns_health" {
   config_json = file("${path.module}/dashboards/coredns-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "metrics_server_health" {
+  folder      = grafana_folder.infrastructure.uid
+  config_json = file("${path.module}/dashboards/metrics-server-health.json")
+  overwrite   = true
+}
