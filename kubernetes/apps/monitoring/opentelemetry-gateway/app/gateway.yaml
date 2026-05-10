@@ -24,7 +24,7 @@ spec:
     serviceAccount: opentelemetry-targetallocator
     prometheusCR:
       enabled: true
-      scrapeInterval: 60s
+      scrapeInterval: 30s
       serviceMonitorSelector:
         matchLabels:
           monitoring: otel
