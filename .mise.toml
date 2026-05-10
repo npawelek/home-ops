@@ -13,6 +13,8 @@ GRAFANA_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .GRAFANA_URL
 GRAFANA_SERVICE_ACCOUNT_TOKEN = { value = "{{exec(command='sops -d env.sops.yaml | yq .GRAFANA_SERVICE_ACCOUNT_TOKEN')}}", tools = true, redact = true }
 GRAFANA_ORG_ID = "1"
 OPENBRAIN_MCP_KEY = { value = "{{exec(command='sops -d env.sops.yaml | yq .OPENBRAIN_MCP_KEY')}}", tools = true, redact = true }
+AWS_PROFILE = "default"
+AWS_REGION = "us-east-1"
 
 [settings]
 experimental = true
