@@ -55,6 +55,12 @@ spec:
           - name: log
             configBlock: |-
               class error
+    prometheus:
+      monitor:
+        enabled: true
+        interval: "30s"
+        additionalLabels:
+          monitoring: otel
     affinity:
       nodeAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
