@@ -17,6 +17,9 @@ spec:
       retentionPeriod: 14d
       serviceMonitor:
         enabled: true
+        extraLabels:
+          monitoring: otel
+        interval: 30s
       route:
         enabled: true
         parentRefs:
