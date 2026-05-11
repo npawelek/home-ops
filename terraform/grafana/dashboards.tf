@@ -45,3 +45,9 @@ resource "grafana_dashboard" "longhorn_health" {
   config_json = file("${path.module}/dashboards/longhorn-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "victoriametrics_health" {
+  folder      = grafana_folder.observability.uid
+  config_json = file("${path.module}/dashboards/victoriametrics-health.json")
+  overwrite   = true
+}
