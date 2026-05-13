@@ -266,10 +266,15 @@ spec:
     service:
       telemetry:
         resource:
-          k8s.pod.name: "${env:POD_NAME}"
-          k8s.namespace.name: "${env:POD_NAMESPACE}"
-          k8s.node.name: "${env:NODE_NAME}"
-          k8s.daemonset.name: agent-collector
+          attributes:
+            - name: k8s.pod.name
+              value: "${env:POD_NAME}"
+            - name: k8s.namespace.name
+              value: "${env:POD_NAMESPACE}"
+            - name: k8s.node.name
+              value: "${env:NODE_NAME}"
+            - name: k8s.daemonset.name
+              value: agent-collector
         logs:
           level: warn
         metrics:

@@ -223,9 +223,13 @@ spec:
     service:
       telemetry:
         resource:
-          k8s.pod.name: "${env:POD_NAME}"
-          k8s.namespace.name: monitoring
-          k8s.statefulset.name: gateway-collector
+          attributes:
+            - name: k8s.pod.name
+              value: "${env:POD_NAME}"
+            - name: k8s.namespace.name
+              value: monitoring
+            - name: k8s.statefulset.name
+              value: gateway-collector
         logs:
           level: warn
         metrics:
