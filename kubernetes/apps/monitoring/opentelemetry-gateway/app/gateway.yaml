@@ -36,6 +36,10 @@ spec:
       valueFrom:
         fieldRef:
           fieldPath: metadata.name
+    - name: NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
     - name: OTEL_RESOURCE_ATTRIBUTES
       value: k8s.cluster.name=home-ops
   initContainers:
@@ -228,6 +232,8 @@ spec:
               value: "${env:POD_NAME}"
             - name: k8s.namespace.name
               value: monitoring
+            - name: k8s.node.name
+              value: "${env:NODE_NAME}"
             - name: k8s.statefulset.name
               value: gateway-collector
         logs:
