@@ -137,7 +137,7 @@ spec:
             from: attributes.uid
             to: resource["k8s.pod.uid"]
 
-      kubeletstats:
+      kubelet_stats:
         collection_interval: 60s
         auth_type: serviceAccount
         endpoint: "https://${env:NODE_IP}:10250"
@@ -282,7 +282,7 @@ spec:
       pipelines:
         metrics:
           receivers:
-            - kubeletstats
+            - kubelet_stats
             - host_metrics
           processors:
             - memory_limiter
