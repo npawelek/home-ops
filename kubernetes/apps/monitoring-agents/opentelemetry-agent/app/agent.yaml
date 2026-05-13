@@ -58,12 +58,6 @@ spec:
           fieldPath: status.hostIP
     - name: OTEL_RESOURCE_ATTRIBUTES
       value: k8s.cluster.name=home-ops
-  observability:
-    metrics:
-      enableMetrics: true
-      disablePrometheusAnnotations: true
-      extraLabels:
-        monitoring: otel
   resources:
     requests:
       cpu: 50m
@@ -271,10 +265,23 @@ spec:
 
     service:
       telemetry:
+        resource:
+          k8s.pod.name: "${env:POD_NAME}"
+          k8s.namespace.name: "${env:POD_NAMESPACE}"
+          k8s.node.name: "${env:NODE_NAME}"
+          k8s.daemonset.name: agent-collector
         logs:
           level: warn
         metrics:
           level: detailed
+          readers:
+            - periodic:
+                interval: 30000
+                exporter:
+                  otlp:
+                    protocol: grpc
+                    endpoint: gateway-collector.monitoring.svc.cluster.local:4317
+                    insecure: true
       extensions:
         - health_check
         - file_storage
