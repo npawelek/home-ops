@@ -32,7 +32,7 @@ spec:
           app:
             image:
               repository: ghcr.io/searxng/searxng
-              tag: 2026.5.10-df1f24fb7@sha256:a7f9188cc7fa8b6b037e0d85709c0dced8f05d0eba84145eb7fe7027a4c00850
+              tag: 2026.5.13-8e5aa9d39@sha256:e37c25170d9f5947b16713af33e0ab41f0e6e6e73685e19c30fc6bb63562f801
             env:
               TZ: ${TIMEZONE}
               http_proxy: ${HTTP_PROXY}
