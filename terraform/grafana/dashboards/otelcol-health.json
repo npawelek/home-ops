@@ -14,9 +14,9 @@
         "name": "pod",
         "label": "Pod",
         "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-        "definition": "label_values(otelcol_process_uptime_seconds_total, pod)",
+        "definition": "label_values(otelcol_process_uptime_total, pod)",
         "query": {
-          "query": "label_values(otelcol_process_uptime_seconds_total, pod)",
+          "query": "label_values(otelcol_process_uptime_total, pod)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -202,7 +202,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "otelcol_process_memory_rss_bytes{pod=~\"${pod:regex}\"}",
+          "expr": "otelcol_process_memory_rss{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}})"
         }
       ]
