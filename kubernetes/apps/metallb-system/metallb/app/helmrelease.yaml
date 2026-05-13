@@ -19,6 +19,22 @@ spec:
     crds:
       enabled: true
 
+    prometheus:
+      rbacPrometheus: false
+      # controller is a single-replica Deployment; SM is correct
+      serviceMonitor:
+        enabled: true
+        interval: 30
+        controller:
+          additionalLabels:
+            monitoring: otel
+      # speaker is a DaemonSet; PM gives per-node series
+      podMonitor:
+        enabled: true
+        interval: 30
+        additionalLabels:
+          monitoring: otel
+
     controller:
       resources: &resources
         requests:
