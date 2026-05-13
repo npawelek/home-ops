@@ -209,7 +209,6 @@ spec:
         max_batch_request_parallelism: 10
         remote_write_queue:
           enabled: true
-          num_consumers: 10
           queue_size: 10000
 
       otlp_http/loki:
