@@ -19,6 +19,20 @@ spec:
     crds:
       enabled: true
 
+    prometheus:
+      rbacPrometheus: false
+      # chart forbids enabling both SM and PM simultaneously; SM covers both
+      # controller (Deployment) and speaker (DaemonSet) — TA resolves the
+      # Service to individual pod endpoints so speaker pods are scraped separately
+      serviceMonitor:
+        enabled: true
+        controller:
+          additionalLabels:
+            monitoring: otel
+        speaker:
+          additionalLabels:
+            monitoring: otel
+
     controller:
       resources: &resources
         requests:
