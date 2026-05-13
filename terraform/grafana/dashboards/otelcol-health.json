@@ -159,7 +159,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "sum(increase(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[$__range]))",
+          "expr": "sum(increase(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[$__range])) or vector(0)",
           "instant": true
         }
       ]
@@ -405,13 +405,13 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "expr": "rate(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} metrics"
         },
         {
           "refId": "B",
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_exporter_send_failed_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "expr": "rate(otelcol_exporter_send_failed_log_records_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} logs"
         }
       ]
@@ -429,13 +429,13 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_exporter_enqueue_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "expr": "rate(otelcol_exporter_enqueue_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} metrics"
         },
         {
           "refId": "B",
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_exporter_enqueue_failed_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "expr": "rate(otelcol_exporter_enqueue_failed_log_records_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} logs"
         }
       ]
