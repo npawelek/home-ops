@@ -57,3 +57,9 @@ resource "grafana_dashboard" "metallb_health" {
   config_json = file("${path.module}/dashboards/metallb-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "loki_health" {
+  folder      = grafana_folder.observability.uid
+  config_json = file("${path.module}/dashboards/loki-health.json")
+  overwrite   = true
+}
