@@ -84,6 +84,9 @@ spec:
       - grafana-llm-app@1.0.8
     serviceMonitor:
       enabled: true
+      labels:
+        monitoring: otel
+      interval: "30s"
     persistence:
       enabled: true
       storageClassName: longhorn
