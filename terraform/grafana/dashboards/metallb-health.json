@@ -1,0 +1,319 @@
+{
+  "id": 1443700704260096,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "title": "Rate",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of Kubernetes object updates processed by the controller and each speaker pod. Higher than baseline indicates service or config churn. A drop to zero means a component has lost contact with the API server.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "ops"
+        }
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 1},
+      "id": 2,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "rate(metallb_k8s_client_updates_total{job=\"metallb-controller-monitor-service\"}[$__rate_interval])",
+          "legendFormat": "controller",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (node) (rate(metallb_k8s_client_updates_total{job=\"metallb\", node=~\"$node\"}[$__rate_interval]))",
+          "legendFormat": "speaker / {{node}}",
+          "refId": "B"
+        }
+      ],
+      "title": "K8s Object Updates/sec",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+      "id": 3,
+      "title": "Errors",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Whether the controller is running with stale configuration (1 = stale, 0 = current). A stale controller may assign IPs incorrectly. Green = config is current.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 10},
+      "id": 4,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "metallb_k8s_client_config_stale_bool{job=\"metallb-controller-monitor-service\"}",
+          "legendFormat": "config stale",
+          "refId": "A"
+        }
+      ],
+      "title": "Controller Config Stale",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Max config staleness across all speaker nodes (1 = at least one speaker is stale, 0 = all current). A stale speaker may announce incorrect IPs. Green = all speakers have current config.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 10},
+      "id": 5,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "max(metallb_k8s_client_config_stale_bool{job=\"metallb\", node=~\"$node\"})",
+          "legendFormat": "any stale",
+          "refId": "A"
+        }
+      ],
+      "title": "Speaker Config Stale (any node)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "K8s object update errors on the controller in the current scrape window. Any non-zero value means the controller is failing to reconcile objects from the API server. Green = no errors.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 10},
+      "id": 6,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "increase(metallb_k8s_client_update_errors_total{job=\"metallb-controller-monitor-service\"}[$__rate_interval])",
+          "legendFormat": "errors",
+          "refId": "A"
+        }
+      ],
+      "title": "Controller Update Errors",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total K8s object update errors across all speaker nodes in the current scrape window. Any non-zero value indicates speakers are failing to receive updates from the API server, which may cause stale IP announcements. Green = no errors.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 10},
+      "id": 7,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "sum(increase(metallb_k8s_client_update_errors_total{job=\"metallb\", node=~\"$node\"}[$__rate_interval]))",
+          "legendFormat": "errors",
+          "refId": "A"
+        }
+      ],
+      "title": "Speaker Update Errors (all nodes)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 14},
+      "id": 8,
+      "title": "State / Inventory",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Number of Layer 2 IPs actively announced by each speaker node. A stable count is healthy. A drop to zero on a node indicates a crash or network partition. A sudden redistribution across nodes indicates an IP failover event.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 8, "w": 16, "x": 0, "y": 15},
+      "id": 9,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "count by (node) (metallb_speaker_announced{node=~\"$node\"})",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Announced IPs per Node",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Total number of Layer 2 IP addresses currently announced across all speaker nodes. Should match the number of active LoadBalancer services.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 15},
+      "id": 10,
+      "options": {"colorMode": "background", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "count(metallb_speaker_announced)",
+          "legendFormat": "announced IPs",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Announced IPs",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Whether the controller and each speaker have successfully loaded the MetalLB configuration (1 = loaded, 0 = not loaded). All components should show 1 at all times. A drop to 0 means a component started or reloaded without a valid config.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "max": 1,
+          "min": 0,
+          "unit": "short"
+        }
+      },
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 23},
+      "id": 11,
+      "options": {
+        "legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "metallb_k8s_client_config_loaded_bool{job=\"metallb-controller-monitor-service\"}",
+          "legendFormat": "controller",
+          "refId": "A"
+        },
+        {
+          "expr": "metallb_k8s_client_config_loaded_bool{job=\"metallb\", node=~\"$node\"}",
+          "legendFormat": "speaker / {{node}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Config Loaded",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 29},
+      "id": 12,
+      "title": "Capacity",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Percentage of IP addresses in use per pool. Healthy clusters stay well below 80%. Approaching 100% means no IPs remain for new LoadBalancer services, which will be stuck in Pending state. Dashed line at 80% is an early warning threshold.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": false,
+            "thresholdsStyle": {"mode": "dashed"}
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 80}]},
+          "unit": "percent"
+        }
+      },
+      "gridPos": {"h": 8, "w": 16, "x": 0, "y": 30},
+      "id": 13,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "expr": "metallb_allocator_addresses_in_use_total{job=\"metallb-controller-monitor-service\"} / metallb_allocator_addresses_total{job=\"metallb-controller-monitor-service\"} * 100",
+          "legendFormat": "{{pool}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Address Pool Utilization",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "IP addresses remaining in the pool that can be assigned to new LoadBalancer services. Fewer than 5 is a warning — new services will be stuck in Pending when this reaches zero.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 5}, {"color": "green", "value": 10}]
+          }
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 30},
+      "id": 14,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "expr": "metallb_allocator_addresses_total{job=\"metallb-controller-monitor-service\"} - metallb_allocator_addresses_in_use_total{job=\"metallb-controller-monitor-service\"}",
+          "legendFormat": "{{pool}} available",
+          "refId": "A"
+        }
+      ],
+      "title": "Available Addresses",
+      "type": "stat"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["metallb", "infrastructure", "network"],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".+",
+        "current": {},
+        "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+        "includeAll": true,
+        "label": "Node",
+        "multi": true,
+        "name": "node",
+        "options": [],
+        "query": "label_values(metallb_k8s_client_updates_total{job=\"metallb\"}, node)",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-3h", "to": "now"},
+  "timezone": "browser",
+  "title": "MetalLB Health",
+  "uid": "metallb-health",
+  "version": 1
+}

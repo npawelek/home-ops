@@ -51,3 +51,9 @@ resource "grafana_dashboard" "victoriametrics_health" {
   config_json = file("${path.module}/dashboards/victoriametrics-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "metallb_health" {
+  folder      = grafana_folder.infrastructure.uid
+  config_json = file("${path.module}/dashboards/metallb-health.json")
+  overwrite   = true
+}
