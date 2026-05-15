@@ -50,3 +50,9 @@ spec:
       enabled: false
     resultsCache:
       enabled: false
+    monitoring:
+      serviceMonitor:
+        enabled: true
+        labels:
+          monitoring: otel
+        interval: "30s"
