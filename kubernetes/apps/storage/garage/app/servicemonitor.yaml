@@ -1,0 +1,15 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: garage
+  labels:
+    monitoring: otel
+spec:
+  endpoints:
+    - port: api
+      interval: "30s"
+      path: /metrics
+  selector:
+    matchLabels:
+      app.kubernetes.io/service: garage
