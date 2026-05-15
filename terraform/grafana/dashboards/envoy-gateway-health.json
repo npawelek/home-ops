@@ -1,0 +1,398 @@
+{
+  "editable": true,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "title": "Rate",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Gateway API reconcile operations per second by result and node. A healthy controller shows a steady success rate with zero error and requeue series. The controller label is an opaque hash identifying the leader-elected controller instance per pod.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 1},
+      "id": 2,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum by (node, result) (rate(controller_runtime_reconcile_total{job=\"envoy-gateway\", node=~\"$node\"}[$__rate_interval]))",
+          "legendFormat": "{{node}} / {{result}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Reconcile Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Admission webhook requests per second by HTTP response code and node. Only the leader pod handles webhook traffic; the standby pod will show zero. Code 200 indicates successful admits; code 500 indicates webhook handler errors.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1},
+      "id": 3,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum by (node, code) (rate(controller_runtime_webhook_requests_total{job=\"envoy-gateway\", node=~\"$node\"}[$__rate_interval]))",
+          "legendFormat": "{{node}} / {{code}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook Request Rate",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+      "id": 4,
+      "title": "Errors",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Cumulative reconcile errors since last restart. Any value above 0 indicates the Gateway API controller is failing to reconcile objects. Check controller logs for the failing resource.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 5, "x": 0, "y": 10},
+      "id": 5,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(controller_runtime_reconcile_errors_total{job=\"envoy-gateway\", node=~\"$node\"}) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Reconcile Errors",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Cumulative admission webhook requests returning HTTP 5xx since last restart. Non-zero indicates the webhook handler is failing. Healthy clusters with low Gateway API churn may show zero traffic here.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 5, "x": 5, "y": 10},
+      "id": 6,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(controller_runtime_webhook_requests_total{job=\"envoy-gateway\", code=~\"5..\", node=~\"$node\"}) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook 5xx",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Cumulative reconcile panics since last restart. Any panic indicates a critical bug in the controller and will cause the affected reconcile loop to stall. Investigate controller logs immediately.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 5, "x": 10, "y": 10},
+      "id": 7,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(controller_runtime_reconcile_panics_total{job=\"envoy-gateway\", node=~\"$node\"}) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Reconcile Panics",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Cumulative conversion webhook panics since last restart. Any panic indicates a critical bug in the CRD conversion webhook and should be investigated immediately.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 4, "x": 15, "y": 10},
+      "id": 8,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(controller_runtime_conversion_webhook_panics_total{job=\"envoy-gateway\", node=~\"$node\"}) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook Panics",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Cumulative TLS certificate read errors since last restart. Non-zero indicates the cert-watcher cannot read the TLS secret, which will prevent the admission webhook from serving requests.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 5, "x": 19, "y": 10},
+      "id": 9,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum(certwatcher_read_certificate_errors_total{job=\"envoy-gateway\", node=~\"$node\"}) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Cert Read Errors",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 14},
+      "id": 10,
+      "title": "Duration",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "P99 and P50 reconcile duration per node. Healthy reconciles complete in well under 1s. Sustained P99 above 1s suggests the controller is slow to process Gateway API resource changes, possibly due to API server pressure or complex routing configurations.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 15},
+      "id": 11,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "histogram_quantile(0.99, sum by (le, node) (rate(controller_runtime_reconcile_time_seconds_bucket{job=\"envoy-gateway\", node=~\"$node\"}[$__rate_interval])))",
+          "legendFormat": "{{node}} P99",
+          "refId": "A"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "histogram_quantile(0.50, sum by (le, node) (rate(controller_runtime_reconcile_time_seconds_bucket{job=\"envoy-gateway\", node=~\"$node\"}[$__rate_interval])))",
+          "legendFormat": "{{node}} P50",
+          "refId": "B"
+        }
+      ],
+      "title": "Reconcile Duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "P99 admission webhook handler latency per node. Only the leader pod serves webhook traffic so only one node will show data. Healthy webhook responses complete in under 100ms. Latency above 1s risks API server webhook timeout and rejected Gateway API resource updates. Returns no data when webhook traffic is absent (rate() requires at least two scrape intervals with requests).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": false,
+            "thresholdsStyle": {"mode": "dashed"}
+          },
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]},
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 15},
+      "id": 12,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "histogram_quantile(0.99, sum by (le, node) (rate(controller_runtime_webhook_latency_seconds_bucket{job=\"envoy-gateway\", node=~\"$node\"}[$__rate_interval])))",
+          "legendFormat": "{{node}} P99",
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook Latency P99",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 23},
+      "id": 13,
+      "title": "Saturation",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Active reconcile workers vs maximum concurrent reconcile workers per node. When active workers approach the max, new reconcile events queue behind existing work. Sustained saturation at the limit indicates the controller cannot keep up with the rate of Gateway API resource changes.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+      "id": 14,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum by (node) (controller_runtime_active_workers{job=\"envoy-gateway\", node=~\"$node\"})",
+          "legendFormat": "{{node}} active",
+          "refId": "A"
+        },
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum by (node) (controller_runtime_max_concurrent_reconciles{job=\"envoy-gateway\", node=~\"$node\"})",
+          "legendFormat": "{{node}} max",
+          "refId": "B"
+        }
+      ],
+      "title": "Reconcile Worker Utilization",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Admission webhook requests currently in flight per node. Should remain near zero for healthy, low-churn clusters. A sustained non-zero value indicates webhook processing is backed up.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+      "id": 15,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum by (node) (controller_runtime_webhook_requests_in_flight{job=\"envoy-gateway\", node=~\"$node\"})",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Webhook Requests In-Flight",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 32},
+      "id": 16,
+      "title": "State / Inventory",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of TLS certificate reads from the cert-watcher per node. The cert-watcher polls the TLS secret on disk to detect cert rotations. A steady low rate (a few reads per minute) is normal. A spike indicates active cert rotation. A drop to zero while the pod is running may indicate the watcher has stalled.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"fillOpacity": 10, "lineWidth": 1, "showPoints": "never", "spanNulls": false},
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 33},
+      "id": 17,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "expr": "sum by (node) (rate(certwatcher_read_certificate_total{job=\"envoy-gateway\", node=~\"$node\"}[$__rate_interval]))",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Cert Read Rate",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["envoy-gateway", "gateway", "infrastructure"],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".+",
+        "current": {},
+        "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+        "includeAll": true,
+        "label": "Node",
+        "multi": true,
+        "name": "node",
+        "query": "label_values(controller_runtime_active_workers{job=\"envoy-gateway\"}, node)",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-3h", "to": "now"},
+  "timezone": "browser",
+  "title": "Envoy Gateway Health",
+  "uid": "envoy-gateway-health"
+}

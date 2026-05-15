@@ -75,3 +75,9 @@ resource "grafana_dashboard" "grafana_health" {
   config_json = file("${path.module}/dashboards/grafana-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "envoy_gateway_health" {
+  folder      = grafana_folder.infrastructure.uid
+  config_json = file("${path.module}/dashboards/envoy-gateway-health.json")
+  overwrite   = true
+}
