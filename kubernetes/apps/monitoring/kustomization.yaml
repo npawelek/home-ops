@@ -15,3 +15,4 @@ resources:
   - ./opentelemetry-gateway/ks.yaml
   - ./grafana/ks.yaml
   - ./grafana/terraform-ks.yaml
+  - ./kube-state-metrics/ks.yaml
