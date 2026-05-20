@@ -187,7 +187,8 @@ spec:
         error_mode: ignore
         metrics:
           metric:
-            - 'IsMatch(name, "^go_") and not IsMatch(resource.attributes["service.name"], "otelcol.*")'
+            # yamllint disable-line rule:line-length
+            - 'IsMatch(name, "^go_") and not IsMatch(resource.attributes["service.name"], "otelcol.*") and not IsMatch(resource.attributes["k8s.namespace.name"], "flux-system")'
 
     # filter/logs_drop:
     #   error_mode: ignore
