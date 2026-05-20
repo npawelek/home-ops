@@ -81,3 +81,15 @@ resource "grafana_dashboard" "envoy_gateway_health" {
   config_json = file("${path.module}/dashboards/envoy-gateway-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "flux_control_plane" {
+  folder      = grafana_folder.platform.uid
+  config_json = file("${path.module}/dashboards/flux-control-plane.json")
+  overwrite   = true
+}
+
+resource "grafana_dashboard" "flux_cluster" {
+  folder      = grafana_folder.platform.uid
+  config_json = file("${path.module}/dashboards/flux-cluster.json")
+  overwrite   = true
+}
