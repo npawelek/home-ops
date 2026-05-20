@@ -93,3 +93,9 @@ resource "grafana_dashboard" "flux_cluster" {
   config_json = file("${path.module}/dashboards/flux-cluster.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "cert_manager_health" {
+  folder      = grafana_folder.platform.uid
+  config_json = file("${path.module}/dashboards/cert-manager-health.json")
+  overwrite   = true
+}
