@@ -10,10 +10,9 @@ spec:
   interval: 1h
   values:
     fullnameOverride: kube-state-metrics
-    # Disable all standard collectors — only Flux custom resource state needed
-    collectors: []
-    extraArgs:
-      - --custom-resource-state-only=true
+    collectors:
+      - pods
+    extraArgs: []
     rbac:
       extraRules:
         - apiGroups:
