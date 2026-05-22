@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: postgres
+  name: authentik-postgres
   labels:
     monitoring: otel
 spec:
@@ -12,7 +12,7 @@ spec:
       path: /metrics
   selector:
     matchLabels:
-      cnpg.io/cluster: postgres
+      cnpg.io/cluster: authentik-postgres
   namespaceSelector:
     matchNames:
-      - database
+      - auth

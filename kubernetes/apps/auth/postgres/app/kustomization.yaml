@@ -5,3 +5,4 @@ resources:
   - ./cluster.yaml
   - ./credentials.sops.yaml
   - ./scheduledbackup.yaml
+  - ./podmonitor.yaml
