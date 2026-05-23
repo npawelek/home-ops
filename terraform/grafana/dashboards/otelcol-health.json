@@ -178,7 +178,25 @@
       "description": "CPU cores consumed per collector pod, derived from the rate of process CPU seconds.",
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
-      "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "custom": { "fillOpacity": 10, "lineWidth": 1 } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "agent limit (250m)" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 4] } },
+              { "id": "custom.fillOpacity", "value": 0 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "gateway limit (500m)" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 4] } },
+              { "id": "custom.fillOpacity", "value": 0 }
+            ]
+          }
+        ]
+      },
       "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
       "targets": [
         {
@@ -186,6 +204,18 @@
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
           "expr": "rate(otelcol_process_cpu_seconds_total{pod=~\"${pod:regex}\"}[5m])",
           "legendFormat": "{{pod}} ({{node}})"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "vector(0.250)",
+          "legendFormat": "agent limit (250m)"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "vector(0.500)",
+          "legendFormat": "gateway limit (500m)"
         }
       ]
     },
@@ -196,7 +226,25 @@
       "description": "Resident set size (RSS) of each collector process, reflecting actual physical memory in use.",
       "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
-      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "fieldConfig": {
+        "defaults": { "unit": "bytes", "custom": { "fillOpacity": 10, "lineWidth": 1 } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "agent limit (512Mi)" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 4] } },
+              { "id": "custom.fillOpacity", "value": 0 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "gateway limit (1Gi)" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 4] } },
+              { "id": "custom.fillOpacity", "value": 0 }
+            ]
+          }
+        ]
+      },
       "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
       "targets": [
         {
@@ -204,6 +252,18 @@
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
           "expr": "otelcol_process_memory_rss{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}})"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "vector(536870912)",
+          "legendFormat": "agent limit (512Mi)"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "vector(1073741824)",
+          "legendFormat": "gateway limit (1Gi)"
         }
       ]
     },
