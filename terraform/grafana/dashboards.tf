@@ -111,3 +111,9 @@ resource "grafana_dashboard" "postgres_health" {
   config_json = file("${path.module}/dashboards/postgres-health.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "authentik_health" {
+  folder      = grafana_folder.auth.uid
+  config_json = file("${path.module}/dashboards/authentik-health.json")
+  overwrite   = true
+}
