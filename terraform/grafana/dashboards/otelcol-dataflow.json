@@ -1,0 +1,447 @@
+{
+  "uid": "otelcol-data-flow",
+  "title": "OpenTelemetry Data Flow",
+  "description": "End-to-end pipeline view of traces, metrics, and logs through OTel collector receivers, processors, and exporters",
+  "tags": ["otelcol", "monitoring"],
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "templating": {
+    "list": [
+      {
+        "type": "query",
+        "name": "pod",
+        "label": "Pod",
+        "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+        "definition": "label_values(otelcol_process_uptime_total, pod)",
+        "query": {
+          "query": "label_values(otelcol_process_uptime_total, pod)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "id": 1,
+      "title": "Overview",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "id": 2,
+      "title": "Spans Received / s",
+      "description": "Total spans accepted per second across all collectors.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cps",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum(rate(otelcol_receiver_accepted_spans_total{pod=~\"${pod:regex}\"}[5m]))",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "id": 3,
+      "title": "Metrics Received / s",
+      "description": "Total metric points accepted per second across all collectors.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cps",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{pod=~\"${pod:regex}\"}[5m]))",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "id": 4,
+      "title": "Logs Received / s",
+      "description": "Total log records accepted per second across all collectors.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cps",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "sum(rate(otelcol_receiver_accepted_log_records_total{pod=~\"${pod:regex}\"}[5m]))",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "id": 5,
+      "title": "Export Failures",
+      "description": "Total data items that failed export across all signal types over the selected time range; any non-zero value warrants investigation.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "(\n  sum(increase(otelcol_exporter_send_failed_spans_total{pod=~\"${pod:regex}\"}[$__range])) or vector(0)\n) + (\n  sum(increase(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[$__range])) or vector(0)\n) + (\n  sum(increase(otelcol_exporter_send_failed_log_records_total{pod=~\"${pod:regex}\"}[$__range])) or vector(0)\n)",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 10,
+      "title": "Traces",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+    },
+    {
+      "type": "timeseries",
+      "id": 11,
+      "title": "Spans Received",
+      "description": "Rate of spans accepted at the receiver per pod and receiver type.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_receiver_accepted_spans_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "{{pod}} / {{receiver}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "id": 12,
+      "title": "Spans Exported",
+      "description": "Rate of spans successfully delivered to exporters per pod and exporter type.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 6 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_exporter_sent_spans_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "{{pod}} / {{exporter}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "id": 13,
+      "title": "Span Errors",
+      "description": "Rate of spans dropped at the receiver (refused = backpressure, failed = decode/other error) and failed exports.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_receiver_refused_spans_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "refused / {{pod}} / {{receiver}}"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_receiver_failed_spans_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "failed recv / {{pod}} / {{receiver}}"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_exporter_send_failed_spans_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
+          "legendFormat": "send failed / {{pod}} / {{exporter}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 20,
+      "title": "Metrics",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 }
+    },
+    {
+      "type": "timeseries",
+      "id": 21,
+      "title": "Metric Points Received",
+      "description": "Rate of metric points accepted at the receiver per pod and receiver type.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_receiver_accepted_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "{{pod}} / {{receiver}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "id": 22,
+      "title": "Metric Points Exported",
+      "description": "Rate of metric points successfully delivered to exporters per pod and exporter type.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 15 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_exporter_sent_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "{{pod}} / {{exporter}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "id": 23,
+      "title": "Metric Errors",
+      "description": "Rate of metric points dropped at the receiver (refused = backpressure, failed = error) and failed exports.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_receiver_refused_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "refused / {{pod}} / {{receiver}}"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_receiver_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "failed recv / {{pod}} / {{receiver}}"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
+          "legendFormat": "send failed / {{pod}} / {{exporter}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 30,
+      "title": "Logs",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 }
+    },
+    {
+      "type": "timeseries",
+      "id": 31,
+      "title": "Log Records Received",
+      "description": "Rate of log records accepted at the receiver per pod and receiver type.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_receiver_accepted_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "{{pod}} / {{receiver}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "id": 32,
+      "title": "Log Records Exported",
+      "description": "Rate of log records successfully delivered to exporters per pod and exporter type.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_exporter_sent_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "{{pod}} / {{exporter}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "id": 33,
+      "title": "Log Errors",
+      "description": "Rate of log records dropped at the receiver (refused = backpressure, failed = error) and failed exports.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_receiver_refused_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "refused / {{pod}} / {{receiver}}"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_receiver_failed_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "failed recv / {{pod}} / {{receiver}}"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_exporter_send_failed_log_records_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
+          "legendFormat": "send failed / {{pod}} / {{exporter}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 40,
+      "title": "Processors",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 }
+    },
+    {
+      "type": "timeseries",
+      "id": 41,
+      "title": "Processor Accepted",
+      "description": "Rate of data items accepted by processors for each signal type; gaps between received and accepted indicate items bypassing a processor.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_processor_accepted_spans_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "spans / {{pod}} / {{processor}}"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_processor_accepted_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "metrics / {{pod}} / {{processor}}"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_processor_accepted_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "logs / {{pod}} / {{processor}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "id": 42,
+      "title": "Processor Dropped",
+      "description": "Rate of data dropped by processors, typically memory_limiter shedding load under memory pressure. No data means healthy — metric is only emitted on first drop.",
+      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 },
+      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_processor_dropped_spans_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "spans / {{pod}} / {{processor}}"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_processor_dropped_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "metrics / {{pod}} / {{processor}}"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "expr": "rate(otelcol_processor_dropped_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "logs / {{pod}} / {{processor}}"
+        }
+      ]
+    }
+  ]
+}
