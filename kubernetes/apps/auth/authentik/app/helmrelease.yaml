@@ -104,6 +104,9 @@ spec:
         enabled: true
         serviceMonitor:
           enabled: true
+          labels:
+            monitoring: otel
+          interval: 30s
 
     worker:
       replicas: 2
@@ -124,6 +127,9 @@ spec:
         enabled: true
         serviceMonitor:
           enabled: true
+          labels:
+            monitoring: otel
+          interval: 30s
 
     postgresql:
       enabled: false
