@@ -66,13 +66,11 @@
       ignoreTests: true,
     },
     {
-      description: "Auto-merge Mise Tools",
+      description: "Mise Tools Manual Review",
       matchManagers: ["mise"],
-      automerge: true,
-      automergeType: "branch",
+      automerge: false,
       matchUpdateTypes: ["minor", "patch"],
       minimumReleaseAge: "3 days",
-      ignoreTests: true,
     },
     {
       matchUpdateTypes: ["major"],
