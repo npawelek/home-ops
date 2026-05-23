@@ -2,606 +2,1248 @@
   "uid": "otelcol-pipeline-health",
   "title": "OpenTelemetry Collector Health",
   "description": "Health, resource usage, throughput, backpressure, and error monitoring for agent and gateway OTel collectors",
-  "tags": ["otelcol", "monitoring"],
+  "tags": [
+    "otelcol",
+    "monitoring"
+  ],
   "schemaVersion": 38,
   "refresh": "30s",
-  "time": { "from": "now-6h", "to": "now" },
   "timezone": "browser",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
   "templating": {
     "list": [
       {
-        "type": "query",
-        "name": "pod",
-        "label": "Pod",
-        "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P4169E866C3094E38"
+        },
         "definition": "label_values(otelcol_process_uptime_total, pod)",
+        "includeAll": true,
+        "label": "Pod",
+        "multi": true,
+        "name": "pod",
         "query": {
           "query": "label_values(otelcol_process_uptime_total, pod)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
         "sort": 1,
-        "multi": true,
-        "includeAll": true,
-        "current": {}
+        "type": "query"
       }
     ]
   },
   "panels": [
     {
-      "type": "row",
-      "id": 1,
-      "title": "Overview",
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "title": "Overview",
+      "type": "row"
     },
     {
-      "type": "stat",
-      "id": 2,
-      "title": "Metrics Received / s",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "description": "Total metric points accepted per second across all collectors.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
       "fieldConfig": {
         "defaults": {
-          "unit": "cps",
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "cps"
         }
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "orientation": "auto",
-        "textMode": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
       },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{pod=~\"${pod:regex}\"}[5m]))",
-          "instant": true
+          "legendFormat": "total",
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "Metrics Received / s",
+      "type": "timeseries"
     },
     {
-      "type": "stat",
-      "id": 3,
-      "title": "Logs Received / s",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "description": "Total log records accepted per second across all collectors.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
       "fieldConfig": {
         "defaults": {
-          "unit": "cps",
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "cps"
         }
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "orientation": "auto",
-        "textMode": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
       },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "sum(rate(otelcol_receiver_accepted_log_records_total{pod=~\"${pod:regex}\"}[5m]))",
-          "instant": true
+          "legendFormat": "total",
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "Logs Received / s",
+      "type": "timeseries"
     },
     {
-      "type": "stat",
-      "id": 4,
-      "title": "Max Queue Fill",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "description": "Highest queue fill ratio across all exporter queues; turns yellow at 50% and red at 80%.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.5 },
-              { "color": "red", "value": 0.8 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 0.8
+              }
             ]
-          }
+          },
+          "unit": "percentunit"
         }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 9
       },
       "options": {
         "colorMode": "background",
         "graphMode": "area",
         "orientation": "auto",
-        "textMode": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
       },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "max(otelcol_exporter_queue_size{pod=~\"${pod:regex}\"} / otelcol_exporter_queue_capacity{pod=~\"${pod:regex}\"})",
-          "instant": true
+          "instant": true,
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "Max Queue Fill",
+      "type": "stat"
     },
     {
-      "type": "stat",
-      "id": 5,
-      "title": "Export Send Failures",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "description": "Total metric points that failed to export over the selected time range; any non-zero value warrants investigation.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
             ]
-          }
+          },
+          "unit": "short"
         }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 9
       },
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "orientation": "auto",
-        "textMode": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"] }
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
       },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "sum(increase(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[$__range])) or vector(0)",
-          "instant": true
+          "instant": true,
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "Export Send Failures",
+      "type": "stat"
     },
     {
-      "type": "row",
-      "id": 10,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
       "title": "Process Health",
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+      "type": "row"
     },
     {
-      "type": "timeseries",
-      "id": 11,
-      "title": "CPU Usage",
-      "description": "CPU cores consumed per collector pod, derived from the rate of process CPU seconds.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
-      "fieldConfig": {
-        "defaults": { "unit": "short", "custom": { "fillOpacity": 10, "lineWidth": 1 } },
-        "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "agent limit (250m)" },
-            "properties": [
-              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 4] } },
-              { "id": "custom.fillOpacity", "value": 0 }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "gateway limit (500m)" },
-            "properties": [
-              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 4] } },
-              { "id": "custom.fillOpacity", "value": 0 }
-            ]
-          }
-        ]
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
       },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_process_cpu_seconds_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "{{pod}} ({{node}})"
-        },
-        {
-          "refId": "B",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "vector(0.250)",
-          "legendFormat": "agent limit (250m)"
-        },
-        {
-          "refId": "C",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "vector(0.500)",
-          "legendFormat": "gateway limit (500m)"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "id": 12,
-      "title": "Memory RSS",
-      "description": "Resident set size (RSS) of each collector process, reflecting actual physical memory in use.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
-      "fieldConfig": {
-        "defaults": { "unit": "bytes", "custom": { "fillOpacity": 10, "lineWidth": 1 } },
-        "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "agent limit (512Mi)" },
-            "properties": [
-              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 4] } },
-              { "id": "custom.fillOpacity", "value": 0 }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "gateway limit (1Gi)" },
-            "properties": [
-              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [8, 4] } },
-              { "id": "custom.fillOpacity", "value": 0 }
-            ]
-          }
-        ]
-      },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "otelcol_process_memory_rss{pod=~\"${pod:regex}\"}",
-          "legendFormat": "{{pod}} ({{node}})"
-        },
-        {
-          "refId": "B",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "vector(536870912)",
-          "legendFormat": "agent limit (512Mi)"
-        },
-        {
-          "refId": "C",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "vector(1073741824)",
-          "legendFormat": "gateway limit (1Gi)"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "id": 20,
-      "title": "Go Runtime",
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 }
-    },
-    {
-      "type": "timeseries",
-      "id": 21,
-      "title": "Go Heap Alloc",
-      "description": "Live Go heap in use after garbage collection; a sustained upward trend indicates a memory leak.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
-      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "otelcol_process_runtime_heap_alloc_bytes{pod=~\"${pod:regex}\"}",
-          "legendFormat": "{{pod}} ({{node}})"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "id": 22,
-      "title": "Go Total Sys Memory",
-      "description": "Total memory reserved by the Go runtime from the OS, including heap, stack, and runtime overhead.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
-      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "otelcol_process_runtime_total_sys_memory_bytes{pod=~\"${pod:regex}\"}",
-          "legendFormat": "{{pod}} ({{node}})"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "id": 30,
-      "title": "Receivers",
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 }
-    },
-    {
-      "type": "timeseries",
-      "id": 31,
-      "title": "Accepted Metric Points",
-      "description": "Rate of metric points successfully ingested, broken down by pod and receiver type (kubeletstats, host_metrics, otlp, prometheus).",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
-      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_receiver_accepted_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "{{pod}} ({{node}}) / {{receiver}}"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "id": 32,
-      "title": "Accepted Log Records",
-      "description": "Rate of log records successfully ingested, broken down by pod and receiver type (file_log, otlp).",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
-      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_receiver_accepted_log_records_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "{{pod}} ({{node}}) / {{receiver}}"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "id": 33,
-      "title": "Receiver Errors (Failed + Refused)",
-      "description": "Rate of data dropped at the receiver due to decode errors (failed) or downstream backpressure (refused); either signal is a drop-everything alert.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
-      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_receiver_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "failed metrics / {{pod}} ({{node}})"
-        },
-        {
-          "refId": "B",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_receiver_refused_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "refused metrics / {{pod}} ({{node}})"
-        },
-        {
-          "refId": "C",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_receiver_failed_log_records_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "failed logs / {{pod}} ({{node}})"
-        },
-        {
-          "refId": "D",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "rate(otelcol_receiver_refused_log_records_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "refused logs / {{pod}} ({{node}})"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "id": 40,
-      "title": "Backpressure / Queue",
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 }
-    },
-    {
-      "type": "timeseries",
-      "id": 41,
-      "title": "Queue Fill Ratio",
-      "description": "Fraction of each exporter queue currently occupied; approaching 1.0 means the downstream cannot keep up and data loss is imminent.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
+      "description": "CPU cores consumed by agent collector pods.",
       "fieldConfig": {
         "defaults": {
-          "unit": "percentunit",
-          "min": 0,
-          "max": 1,
-          "custom": { "fillOpacity": 10, "lineWidth": 1 }
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "agent limit (250m)"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    8,
+                    4
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 14
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
         }
       },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "rate(otelcol_process_cpu_seconds_total{pod=~\"${pod:regex}\"}[5m]) and on(pod) otelcol_process_cpu_seconds_total{pod=~\".*agent.*\"}",
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "vector(0.250)",
+          "legendFormat": "agent limit (250m)",
+          "refId": "B"
+        }
+      ],
+      "title": "CPU \u2014 Agent",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "CPU cores consumed by gateway collector pods.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "gateway limit (500m)"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    8,
+                    4
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 14
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "rate(otelcol_process_cpu_seconds_total{pod=~\"${pod:regex}\"}[5m]) and on(pod) otelcol_process_cpu_seconds_total{pod=~\".*gateway.*\"}",
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "vector(0.500)",
+          "legendFormat": "gateway limit (500m)",
+          "refId": "B"
+        }
+      ],
+      "title": "CPU \u2014 Gateway",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "RSS memory used by agent collector pods.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "agent limit (512Mi)"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    8,
+                    4
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 14
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "otelcol_process_memory_rss{pod=~\"${pod:regex}\"} and on(pod) otelcol_process_memory_rss{pod=~\".*agent.*\"}",
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "vector(536870912)",
+          "legendFormat": "agent limit (512Mi)",
+          "refId": "B"
+        }
+      ],
+      "title": "Memory RSS \u2014 Agent",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "RSS memory used by gateway collector pods.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "gateway limit (1Gi)"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    8,
+                    4
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 14
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "otelcol_process_memory_rss{pod=~\"${pod:regex}\"} and on(pod) otelcol_process_memory_rss{pod=~\".*gateway.*\"}",
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "vector(1073741824)",
+          "legendFormat": "gateway limit (1Gi)",
+          "refId": "B"
+        }
+      ],
+      "title": "Memory RSS \u2014 Gateway",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "title": "Go Runtime",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Live Go heap in use after garbage collection; a sustained upward trend indicates a memory leak.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "bytes"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "otelcol_process_runtime_heap_alloc_bytes{pod=~\"${pod:regex}\"}",
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Go Heap Alloc",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Total memory reserved by the Go runtime from the OS, including heap, stack, and runtime overhead.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "bytes"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "otelcol_process_runtime_total_sys_memory_bytes{pod=~\"${pod:regex}\"}",
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Go Total Sys Memory",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
+      "title": "Receivers",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Rate of metric points successfully ingested, broken down by pod and receiver type (kubeletstats, host_metrics, otlp, prometheus).",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "cps"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 32
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "rate(otelcol_receiver_accepted_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "{{pod}} ({{node}}) / {{receiver}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Accepted Metric Points",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Rate of log records successfully ingested, broken down by pod and receiver type (file_log, otlp).",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "cps"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 32
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "rate(otelcol_receiver_accepted_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "{{pod}} ({{node}}) / {{receiver}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Accepted Log Records",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Rate of data dropped at the receiver due to decode errors (failed) or downstream backpressure (refused); either signal is a drop-everything alert.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "cps"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 32
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "rate(otelcol_receiver_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "failed metrics / {{pod}} ({{node}})",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "rate(otelcol_receiver_refused_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "refused metrics / {{pod}} ({{node}})",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "rate(otelcol_receiver_failed_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "failed logs / {{pod}} ({{node}})",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "expr": "rate(otelcol_receiver_refused_log_records_total{pod=~\"${pod:regex}\"}[5m])",
+          "legendFormat": "refused logs / {{pod}} ({{node}})",
+          "refId": "D"
+        }
+      ],
+      "title": "Receiver Errors (Failed + Refused)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "title": "Backpressure / Queue",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Fraction of each exporter queue currently occupied; approaching 1.0 means the downstream cannot keep up and data loss is imminent.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "max": 1,
+          "min": 0,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 41
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_exporter_queue_size{pod=~\"${pod:regex}\"} / otelcol_exporter_queue_capacity{pod=~\"${pod:regex}\"}",
-          "legendFormat": "{{pod}} ({{node}}) / {{exporter}}"
+          "legendFormat": "{{pod}} ({{node}}) / {{exporter}}",
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "Queue Fill Ratio",
+      "type": "timeseries"
     },
     {
-      "type": "timeseries",
-      "id": 42,
-      "title": "Queue Size vs Capacity",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "description": "Absolute queue depth vs configured capacity per exporter, showing how much buffer headroom remains before backpressure propagates upstream.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 },
-      "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 0, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 0,
+            "lineWidth": 1
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 41
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_exporter_queue_size{pod=~\"${pod:regex}\"}",
-          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} size"
+          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} size",
+          "refId": "A"
         },
         {
-          "refId": "B",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_exporter_queue_capacity{pod=~\"${pod:regex}\"}",
-          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} capacity"
+          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} capacity",
+          "refId": "B"
         }
-      ]
+      ],
+      "title": "Queue Size vs Capacity",
+      "type": "timeseries"
     },
     {
-      "type": "row",
-      "id": 50,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
       "title": "Exporters",
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 }
+      "type": "row"
     },
     {
-      "type": "timeseries",
-      "id": 51,
-      "title": "Send Failed",
-      "description": "Rate of data permanently dropped after all retries were exhausted. No data means healthy — metric is only emitted on first failure.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 42 },
-      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Rate of data permanently dropped after all retries were exhausted. No data means healthy \u2014 metric is only emitted on first failure.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "cps"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 50
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
-          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} metrics"
+          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} metrics",
+          "refId": "A"
         },
         {
-          "refId": "B",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_send_failed_log_records_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
-          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} logs"
+          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} logs",
+          "refId": "B"
         }
-      ]
+      ],
+      "title": "Send Failed",
+      "type": "timeseries"
     },
     {
-      "type": "timeseries",
-      "id": 64,
-      "title": "Enqueue Failed",
-      "description": "Rate of data that could not be added to the sending queue, typically because the queue is full. No data means healthy — metric is only emitted on first failure.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 42 },
-      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Rate of data that could not be added to the sending queue, typically because the queue is full. No data means healthy \u2014 metric is only emitted on first failure.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "cps"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 50
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_enqueue_failed_metric_points_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
-          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} metrics"
+          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} metrics",
+          "refId": "A"
         },
         {
-          "refId": "B",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_enqueue_failed_log_records_total{pod=~\"${pod:regex}\"}[5m]) or vector(0)",
-          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} logs"
+          "legendFormat": "{{pod}} ({{node}}) / {{exporter}} logs",
+          "refId": "B"
         }
-      ]
+      ],
+      "title": "Enqueue Failed",
+      "type": "timeseries"
     },
     {
-      "type": "timeseries",
-      "id": 52,
-      "title": "PRW Sent Batches",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "description": "Rate of batches successfully written to VictoriaMetrics via Prometheus remote write, one series per gateway pod.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 42 },
-      "fieldConfig": { "defaults": { "unit": "ops", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "ops"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 50
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_prometheusremotewrite_sent_batches_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "{{pod}} ({{node}})"
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "PRW Sent Batches",
+      "type": "timeseries"
     },
     {
-      "type": "row",
-      "id": 60,
-      "title": "Batch Processor",
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 50 }
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      },
+      "title": "Batch Processor",
+      "type": "row"
     },
     {
-      "type": "timeseries",
-      "id": 61,
-      "title": "Batch Send Size — p50",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "description": "Median batch size sent by the batch processor; reflects typical grouping efficiency under normal load.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 51 },
-      "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 59
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "histogram_quantile(0.50, sum by (le, pod, node) (rate(otelcol_processor_batch_batch_send_size_bucket{pod=~\"${pod:regex}\"}[5m])))",
-          "legendFormat": "{{pod}} ({{node}})"
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "Batch Send Size \u2014 p50",
+      "type": "timeseries"
     },
     {
-      "type": "timeseries",
-      "id": 63,
-      "title": "Batch Send Size — p99",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "description": "Tail batch size sent by the batch processor; large values relative to p50 mean most flushes are timeout-triggered rather than size-triggered.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 51 },
-      "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 59
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "histogram_quantile(0.99, sum by (le, pod, node) (rate(otelcol_processor_batch_batch_send_size_bucket{pod=~\"${pod:regex}\"}[5m])))",
-          "legendFormat": "{{pod}} ({{node}})"
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "Batch Send Size \u2014 p99",
+      "type": "timeseries"
     },
     {
-      "type": "timeseries",
-      "id": 62,
-      "title": "Batch Metadata Cardinality",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "description": "Number of distinct metadata keys tracked by the batch processor; high or growing values mean attribute cardinality is increasing memory usage.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 51 },
-      "fieldConfig": { "defaults": { "unit": "short", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 59
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_processor_batch_metadata_cardinality{pod=~\"${pod:regex}\"}",
-          "legendFormat": "{{pod}} ({{node}})"
+          "legendFormat": "{{pod}} ({{node}})",
+          "refId": "A"
         }
-      ]
+      ],
+      "title": "Batch Metadata Cardinality",
+      "type": "timeseries"
     },
     {
-      "type": "timeseries",
-      "id": 65,
-      "title": "Processor Dropped",
-      "description": "Rate of data dropped by processors, typically the memory_limiter shedding load under memory pressure. No data means healthy — metric is only emitted on first drop.",
-      "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 59 },
-      "fieldConfig": { "defaults": { "unit": "cps", "custom": { "fillOpacity": 10, "lineWidth": 1 } } },
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "description": "Rate of data dropped by processors, typically the memory_limiter shedding load under memory pressure. No data means healthy \u2014 metric is only emitted on first drop.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "cps"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 67
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
       "targets": [
         {
-          "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_processor_dropped_metric_points_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "{{pod}} ({{node}}) / {{processor}} metrics"
+          "legendFormat": "{{pod}} ({{node}}) / {{processor}} metrics",
+          "refId": "A"
         },
         {
-          "refId": "B",
-          "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_processor_dropped_log_records_total{pod=~\"${pod:regex}\"}[5m])",
-          "legendFormat": "{{pod}} ({{node}}) / {{processor}} logs"
+          "legendFormat": "{{pod}} ({{node}}) / {{processor}} logs",
+          "refId": "B"
         }
-      ]
+      ],
+      "title": "Processor Dropped",
+      "type": "timeseries"
     }
   ]
 }
