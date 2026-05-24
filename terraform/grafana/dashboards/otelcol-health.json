@@ -774,30 +774,25 @@
         "defaults": {
           "custom": {
             "fillOpacity": 10,
-            "lineWidth": 1
-          },
-          "unit": "short",
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "agent limit (250m)"
-              },
-              "properties": [
-                {
-                  "id": "custom.lineStyle",
-                  "value": {
-                    "dash": [8, 4],
-                    "fill": "dash"
-                  }
-                },
-                {
-                  "id": "custom.fillOpacity",
-                  "value": 0
-                }
-              ]
+            "lineWidth": 1,
+            "thresholdsStyle": {
+              "mode": "dashed"
             }
-          ]
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.250
+              }
+            ]
+          },
+          "unit": "short"
         }
       },
       "gridPos": {
@@ -821,15 +816,6 @@
           "expr": "rate(otelcol_process_cpu_seconds_total{pod=~\"${pod:regex}\"}[5m]) and on(pod) otelcol_process_cpu_seconds_total{pod=~\".*agent.*\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "expr": "vector(0.250)",
-          "legendFormat": "agent limit (250m)",
-          "refId": "B"
         }
       ],
       "title": "CPU — Agent",
@@ -845,30 +831,25 @@
         "defaults": {
           "custom": {
             "fillOpacity": 10,
-            "lineWidth": 1
-          },
-          "unit": "bytes",
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "agent limit (512Mi)"
-              },
-              "properties": [
-                {
-                  "id": "custom.lineStyle",
-                  "value": {
-                    "dash": [8, 4],
-                    "fill": "dash"
-                  }
-                },
-                {
-                  "id": "custom.fillOpacity",
-                  "value": 0
-                }
-              ]
+            "lineWidth": 1,
+            "thresholdsStyle": {
+              "mode": "dashed"
             }
-          ]
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 536870912
+              }
+            ]
+          },
+          "unit": "bytes"
         }
       },
       "gridPos": {
@@ -892,15 +873,6 @@
           "expr": "otelcol_process_memory_rss{pod=~\"${pod:regex}\"} and on(pod) otelcol_process_memory_rss{pod=~\".*agent.*\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "expr": "vector(536870912)",
-          "legendFormat": "agent limit (512Mi)",
-          "refId": "B"
         }
       ],
       "title": "Memory RSS — Agent",
@@ -916,30 +888,25 @@
         "defaults": {
           "custom": {
             "fillOpacity": 10,
-            "lineWidth": 1
-          },
-          "unit": "short",
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "gateway limit (500m)"
-              },
-              "properties": [
-                {
-                  "id": "custom.lineStyle",
-                  "value": {
-                    "dash": [8, 4],
-                    "fill": "dash"
-                  }
-                },
-                {
-                  "id": "custom.fillOpacity",
-                  "value": 0
-                }
-              ]
+            "lineWidth": 1,
+            "thresholdsStyle": {
+              "mode": "dashed"
             }
-          ]
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.500
+              }
+            ]
+          },
+          "unit": "short"
         }
       },
       "gridPos": {
@@ -963,15 +930,6 @@
           "expr": "rate(otelcol_process_cpu_seconds_total{pod=~\"${pod:regex}\"}[5m]) and on(pod) otelcol_process_cpu_seconds_total{pod=~\".*gateway.*\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "expr": "vector(0.500)",
-          "legendFormat": "gateway limit (500m)",
-          "refId": "B"
         }
       ],
       "title": "CPU — Gateway",
@@ -987,30 +945,25 @@
         "defaults": {
           "custom": {
             "fillOpacity": 10,
-            "lineWidth": 1
-          },
-          "unit": "bytes",
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "gateway limit (1Gi)"
-              },
-              "properties": [
-                {
-                  "id": "custom.lineStyle",
-                  "value": {
-                    "dash": [8, 4],
-                    "fill": "dash"
-                  }
-                },
-                {
-                  "id": "custom.fillOpacity",
-                  "value": 0
-                }
-              ]
+            "lineWidth": 1,
+            "thresholdsStyle": {
+              "mode": "dashed"
             }
-          ]
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1073741824
+              }
+            ]
+          },
+          "unit": "bytes"
         }
       },
       "gridPos": {
@@ -1034,15 +987,6 @@
           "expr": "otelcol_process_memory_rss{pod=~\"${pod:regex}\"} and on(pod) otelcol_process_memory_rss{pod=~\".*gateway.*\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "expr": "vector(1073741824)",
-          "legendFormat": "gateway limit (1Gi)",
-          "refId": "B"
         }
       ],
       "title": "Memory RSS — Gateway",
