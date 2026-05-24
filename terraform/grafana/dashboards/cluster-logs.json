@@ -1,0 +1,248 @@
+{
+  "__inputs": [],
+  "__elements": {},
+  "__requires": [
+    {"type": "datasource", "id": "loki", "name": "Loki", "version": "1.0.0"},
+    {"type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0"},
+    {"type": "panel", "id": "logs", "name": "Logs", "version": ""},
+    {"type": "panel", "id": "timeseries", "name": "Time series", "version": ""}
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {"type": "grafana", "uid": "-- Grafana --"},
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Cluster-wide log browser — volume, error rate, and interactive filtering by namespace, service, and pod.",
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Overview",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "panels": []
+    },
+    {
+      "id": 2,
+      "title": "Log Volume",
+      "description": "Log lines per second stacked by namespace. A namespace disappearing from the chart means its workloads stopped emitting logs or the OTel agent lost access to that node. Filtered by the Namespace variable above.",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 1},
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "targets": [
+        {
+          "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+          "expr": "sum by (k8s_namespace_name) (count_over_time({k8s_namespace_name=~\"$namespace\"}[$__auto]))",
+          "legendFormat": "{{k8s_namespace_name}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {"mode": "normal"}
+          },
+          "color": {"mode": "palette-classic"},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": ["lastNotNull", "max"],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    },
+    {
+      "id": 3,
+      "title": "Error & Warn Rate",
+      "description": "Rate of log lines with detected_level matching error or warn, broken down by namespace. A spike in a namespace warrants drilling down in the panels below. Healthy: near zero during steady-state operation.",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1},
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "targets": [
+        {
+          "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+          "expr": "sum by (k8s_namespace_name) (count_over_time({k8s_namespace_name=~\"$namespace\"} | detected_level=~\"error|warn\" [$__auto]))",
+          "legendFormat": "{{k8s_namespace_name}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {"mode": "none"}
+          },
+          "color": {"mode": "palette-classic"},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": ["lastNotNull", "max"],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    },
+    {
+      "id": 4,
+      "title": "Browse",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+      "panels": []
+    },
+    {
+      "id": 5,
+      "title": "Logs",
+      "description": "Interactive log browser. Use the Namespace, Service, and Pod variables to narrow scope. Leave all at All to stream the entire cluster.",
+      "type": "logs",
+      "gridPos": {"h": 16, "w": 24, "x": 0, "y": 10},
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "targets": [
+        {
+          "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+          "expr": "{k8s_namespace_name=~\"$namespace\", service_name=~\"$service\", k8s_pod_name=~\"$pod\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      }
+    },
+    {
+      "id": 6,
+      "title": "Errors & Warnings",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 26},
+      "panels": []
+    },
+    {
+      "id": 7,
+      "title": "Error & Warn Logs",
+      "description": "Logs pre-filtered to detected_level error or warn within the selected namespace and service. Use this panel to triage failures without manually adding filter expressions in the browse panel above.",
+      "type": "logs",
+      "gridPos": {"h": 14, "w": 24, "x": 0, "y": 27},
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "targets": [
+        {
+          "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+          "expr": "{k8s_namespace_name=~\"$namespace\", service_name=~\"$service\"} | detected_level=~\"error|warn\"",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["loki", "logs", "observability"],
+  "templating": {
+    "list": [
+      {
+        "current": {"selected": true, "text": ["All"], "value": ["$__all"]},
+        "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+        "definition": "label_values(k8s_namespace_name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Namespace",
+        "multi": true,
+        "name": "namespace",
+        "options": [],
+        "query": {"label": "k8s_namespace_name", "stream": "{}", "type": 1},
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {"selected": true, "text": ["All"], "value": ["$__all"]},
+        "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+        "definition": "label_values({k8s_namespace_name=~\"$namespace\"}, service_name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Service",
+        "multi": true,
+        "name": "service",
+        "options": [],
+        "query": {"label": "service_name", "stream": "{k8s_namespace_name=~\"$namespace\"}", "type": 1},
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {"selected": true, "text": ["All"], "value": ["$__all"]},
+        "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+        "definition": "label_values({k8s_namespace_name=~\"$namespace\", service_name=~\"$service\"}, k8s_pod_name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Pod",
+        "multi": true,
+        "name": "pod",
+        "options": [],
+        "query": {"label": "k8s_pod_name", "stream": "{k8s_namespace_name=~\"$namespace\", service_name=~\"$service\"}", "type": 1},
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-1h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Cluster Logs",
+  "uid": "cluster-logs",
+  "version": 0,
+  "weekStart": ""
+}

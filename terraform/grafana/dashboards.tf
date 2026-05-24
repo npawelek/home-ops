@@ -1,3 +1,9 @@
+resource "grafana_dashboard" "cluster_logs" {
+  folder      = grafana_folder.observability.uid
+  config_json = file("${path.module}/dashboards/cluster-logs.json")
+  overwrite   = true
+}
+
 resource "grafana_dashboard" "otelcol_health" {
   folder      = grafana_folder.observability.uid
   config_json = file("${path.module}/dashboards/otelcol-health.json")
