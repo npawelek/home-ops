@@ -25,6 +25,7 @@ spec:
               TZ: ${TIMEZONE}
               LC_ALL: en_US.UTF-8
               LANG: en_US.UTF-8
+              Logging__LogLevel__CarCareTracker.Middleware.Authen: Warning
               OpenIDConfig__AuthURL: "https://auth.${SECRET_DOMAIN}/application/o/authorize/"
               OpenIDConfig__TokenURL: "https://auth.${SECRET_DOMAIN}/application/o/token/"
               OpenIDConfig__UserInfoURL: "https://auth.${SECRET_DOMAIN}/application/o/userinfo/"
@@ -39,7 +40,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /
+                    path: /favicon.ico
                     port: &port 8080
                   initialDelaySeconds: 20
                   periodSeconds: 10
