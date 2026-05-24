@@ -124,12 +124,9 @@ spec:
           memory: 2Gi
 
       metrics:
-        enabled: true
+        enabled: false
         serviceMonitor:
-          enabled: true
-          labels:
-            monitoring: otel
-          interval: 30s
+          enabled: false
 
     postgresql:
       enabled: false
