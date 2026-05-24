@@ -60,7 +60,7 @@
       description: "cloudnative-vectorchord PG-pinned versioning",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/tensorchord/cloudnative-vectorchord"],
-      versioning: "regex:^(?<compatibility>\\d+\\.\\d+)-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      versioning: "regex:^(?<major>\\d+)\\.(?<minor>\\d+)-(?<patch>\\d+)\\.(?<build>\\d+)\\.\\d+$",
     },
     {
       description: "Auto-merge GitHub Actions",
