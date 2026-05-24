@@ -81,6 +81,9 @@ spec:
         directory: /var/lib/otelcol_gateway
       zpages:
         endpoint: 0.0.0.0:55679
+      k8s_leader_elector:
+        lease_name: opentelemetry-gateway-leader
+        lease_namespace: monitoring
 
     receivers:
       otlp:
@@ -94,6 +97,33 @@ spec:
       prometheus:
         config:
           scrape_configs: []
+
+      k8s_objects:
+        auth_type: serviceAccount
+        storage: file_storage
+        k8s_leader_elector: k8s_leader_elector
+        error_mode: ignore
+        objects:
+          - name: events
+            mode: watch
+            exclude_watch_type: [DELETED, BOOKMARK]
+
+      k8s_cluster:
+        auth_type: serviceAccount
+        k8s_leader_elector: k8s_leader_elector
+        collection_interval: 10s
+        node_conditions_to_report:
+          - Ready
+          - MemoryPressure
+          - DiskPressure
+          - NetworkUnavailable
+        allocatable_types_to_report:
+          - cpu
+          - memory
+          - ephemeral-storage
+        metrics:
+          k8s.container.status.reason:
+            enabled: true
 
       syslog:
         tcp:
@@ -183,6 +213,22 @@ spec:
               - set(attributes["app"], resource.attributes["app.kubernetes.io/name"])
               - set(attributes["component"], resource.attributes["app.kubernetes.io/component"])
 
+      transform/k8s_events_label:
+        log_statements:
+          - context: resource
+            statements:
+              - set(attributes["service.name"], "k8s-events")
+          - context: log
+            statements:
+              - set(severity_text, "WARN")
+              - set(severity_number, SEVERITY_NUMBER_WARN)
+
+      filter/events_drop:
+        error_mode: ignore
+        logs:
+          log_record:
+            - 'body["object"]["type"] == "Normal"'
+
       filter/metrics_drop:
         error_mode: ignore
         metrics:
@@ -240,6 +286,7 @@ spec:
         - health_check
         - file_storage
         - zpages
+        - k8s_leader_elector
       pipelines:
         metrics/scraped:
           receivers:
@@ -284,3 +331,24 @@ spec:
             - batch
           exporters:
             - otlp_http/loki
+        logs/k8s_events:
+          receivers:
+            - k8s_objects
+          processors:
+            - memory_limiter
+            - filter/events_drop
+            - transform/k8s_events_label
+            - resourcedetection
+            - batch
+          exporters:
+            - otlp_http/loki
+        metrics/k8s_cluster:
+          receivers:
+            - k8s_cluster
+          processors:
+            - memory_limiter
+            - resourcedetection
+            - transform/promote_labels
+            - batch
+          exporters:
+            - prometheusremotewrite

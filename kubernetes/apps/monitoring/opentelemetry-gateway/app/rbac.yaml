@@ -6,7 +6,7 @@ metadata:
   name: opentelemetry-collector-gateway
   namespace: monitoring
 ---
-# ClusterRole for gateway: k8sattributes enrichment
+# ClusterRole for gateway: k8sattributes enrichment + k8scluster + k8sobjects
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -14,23 +14,33 @@ metadata:
 rules:
   - apiGroups: [""]
     resources:
-      - pods
-      - nodes
-      - namespaces
-      - services
+      - events
       - endpoints
+      - namespaces
+      - namespaces/status
+      - nodes
+      - nodes/spec
+      - pods
+      - pods/status
+      - replicationcontrollers
+      - resourcequotas
+      - services
     verbs: ["get", "list", "watch"]
   - apiGroups: ["apps"]
     resources:
-      - replicasets
-      - deployments
-      - statefulsets
       - daemonsets
+      - deployments
+      - replicasets
+      - statefulsets
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["autoscaling"]
+    resources:
+      - horizontalpodautoscalers
     verbs: ["get", "list", "watch"]
   - apiGroups: ["batch"]
     resources:
-      - jobs
       - cronjobs
+      - jobs
     verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -40,6 +50,29 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
+  name: opentelemetry-collector-gateway
+subjects:
+  - kind: ServiceAccount
+    name: opentelemetry-collector-gateway
+    namespace: monitoring
+---
+# Role for leader election lease management (monitoring namespace only)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: opentelemetry-collector-gateway
+rules:
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "create", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: opentelemetry-collector-gateway
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
   name: opentelemetry-collector-gateway
 subjects:
   - kind: ServiceAccount
