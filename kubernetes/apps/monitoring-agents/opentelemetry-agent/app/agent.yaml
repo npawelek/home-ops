@@ -273,6 +273,7 @@ spec:
       telemetry:
         logs:
           level: info
+          encoding: json
         metrics:
           level: detailed
       extensions:
