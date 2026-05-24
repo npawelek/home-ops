@@ -234,6 +234,8 @@ spec:
           encoding: json
         metrics:
           level: detailed
+        resource:
+          service.name: otel-gateway
       extensions:
         - health_check
         - file_storage
