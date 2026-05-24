@@ -182,5 +182,17 @@
       ],
       datasourceTemplate: "docker",
     },
+    {
+      customType: "regex",
+      description: "Update app-template schema version in yaml-language-server comments",
+      managerFilePatterns: [
+        "/(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$/",
+      ],
+      matchStrings: [
+        "\\$schema=https://raw\\.githubusercontent\\.com/bjw-s/helm-charts/app-template-(?<currentValue>[^/]+)/charts/other/app-template/schemas/helmrelease-helm-v2\\.schema\\.json",
+      ],
+      datasourceTemplate: "docker",
+      depNameTemplate: "ghcr.io/bjw-s-labs/helm/app-template",
+    },
   ],
 }
