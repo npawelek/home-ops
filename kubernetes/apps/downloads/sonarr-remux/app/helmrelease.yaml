@@ -11,6 +11,8 @@ spec:
     name: sonarr-remux
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       sonarr-remux:
         type: statefulset

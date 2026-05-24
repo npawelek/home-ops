@@ -11,6 +11,8 @@ spec:
     name: radarr
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       radarr:
         type: statefulset

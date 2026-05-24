@@ -11,6 +11,8 @@ spec:
     name: garage-webui
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       garage-webui:
         annotations:

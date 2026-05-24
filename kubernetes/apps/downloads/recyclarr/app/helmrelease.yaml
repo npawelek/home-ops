@@ -11,6 +11,8 @@ spec:
     name: recyclarr
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       recyclarr:
         type: statefulset

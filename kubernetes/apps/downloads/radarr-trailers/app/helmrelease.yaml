@@ -11,6 +11,8 @@ spec:
     name: radarr-trailers
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       radarr-trailers:
         type: cronjob

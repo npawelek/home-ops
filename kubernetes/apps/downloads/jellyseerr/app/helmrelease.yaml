@@ -11,6 +11,8 @@ spec:
     name: jellyseerr
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     defaultPodOptions:
       securityContext:
         fsGroup: 1000

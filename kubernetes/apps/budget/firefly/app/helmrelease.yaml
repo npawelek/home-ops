@@ -11,6 +11,8 @@ spec:
     name: firefly
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       firefly:
         type: statefulset

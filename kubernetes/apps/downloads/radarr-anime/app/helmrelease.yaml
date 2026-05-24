@@ -11,6 +11,8 @@ spec:
     name: radarr-anime
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       radarr-anime:
         type: statefulset

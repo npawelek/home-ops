@@ -11,6 +11,8 @@ spec:
     name: radarr-remux
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       radarr-remux:
         type: statefulset

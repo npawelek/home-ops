@@ -11,6 +11,8 @@ spec:
     name: piper
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       piper:
         type: statefulset

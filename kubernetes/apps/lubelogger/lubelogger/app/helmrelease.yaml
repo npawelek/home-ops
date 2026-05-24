@@ -11,6 +11,8 @@ spec:
     name: lubelogger
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       lubelogger:
         type: statefulset

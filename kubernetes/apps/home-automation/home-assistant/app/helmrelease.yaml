@@ -11,6 +11,8 @@ spec:
     name: home-assistant
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       hass:
         type: statefulset

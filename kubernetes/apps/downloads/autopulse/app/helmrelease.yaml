@@ -11,6 +11,8 @@ spec:
     name: autopulse
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       autopulse:
         type: statefulset

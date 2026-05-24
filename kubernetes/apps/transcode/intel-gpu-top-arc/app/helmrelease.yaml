@@ -11,6 +11,8 @@ spec:
     name: intel-gpu-top-arc
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       intel-gpu-top-arc:
         type: daemonset

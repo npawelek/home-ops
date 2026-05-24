@@ -11,6 +11,8 @@ spec:
     name: prowlarr
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       prowlarr:
         type: statefulset

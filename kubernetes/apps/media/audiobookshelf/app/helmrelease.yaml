@@ -11,6 +11,8 @@ spec:
     name: audiobookshelf
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       audiobookshelf:
         type: statefulset

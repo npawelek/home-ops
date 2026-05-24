@@ -11,6 +11,8 @@ spec:
     name: fireboard2mqtt
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       fireboard2mqtt:
         type: deployment

@@ -11,6 +11,8 @@ spec:
     name: immich-redis
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       immich-redis:
         type: deployment

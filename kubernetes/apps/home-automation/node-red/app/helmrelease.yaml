@@ -11,6 +11,8 @@ spec:
     name: node-red
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       nodered:
         type: statefulset

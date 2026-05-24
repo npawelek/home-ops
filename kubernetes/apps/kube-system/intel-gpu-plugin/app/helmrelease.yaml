@@ -11,6 +11,8 @@ spec:
     name: intel-gpu-plugin
   interval: 1h
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       intel-gpu-plugin:
         type: daemonset
