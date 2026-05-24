@@ -27,7 +27,7 @@ spec:
               tag: v3.2.0@sha256:c4cbd5121236ac2f70a843a0b920b68a27976be57917555f1c45b08a1e6b2aad
             env:
               TZ: ${TIMEZONE}
-              LOG_LEVEL: debug
+              LOG_LEVEL: info
             probes:
               liveness: &probes
                 enabled: true
