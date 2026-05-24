@@ -230,7 +230,7 @@ spec:
     service:
       telemetry:
         logs:
-          level: warn
+          level: info
         metrics:
           level: detailed
       extensions:
