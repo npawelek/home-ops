@@ -7,8 +7,8 @@ metadata:
   name: authentik-postgres
 spec:
   instances: 3
-  imageName: >-
-    ghcr.io/cloudnative-pg/postgresql:18.1@sha256:cc78f0c280978dd93fa6f49ce6cef60015cf4b56fd0e6a47c8ca49020b875f74
+  # yamllint disable-line rule:line-length
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.1@sha256:cc78f0c280978dd93fa6f49ce6cef60015cf4b56fd0e6a47c8ca49020b875f74
   primaryUpdateStrategy: unsupervised
 
   postgresql:

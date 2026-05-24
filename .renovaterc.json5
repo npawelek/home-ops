@@ -57,6 +57,12 @@
       versioning: "regex:^(?<major>\\d{4})\\.(?<minor>\\d{1,2})\\.(?<patch>\\d{1,2})-.*$",
     },
     {
+      description: "cloudnative-vectorchord PG-pinned versioning",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/tensorchord/cloudnative-vectorchord"],
+      versioning: "regex:^(?<compatibility>\\d+\\.\\d+)-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+    },
+    {
       description: "Auto-merge GitHub Actions",
       matchManagers: ["github-actions"],
       automerge: true,
@@ -179,6 +185,17 @@
       ],
       matchStrings: [
         "oci://(?<depName>[^:]+):(?<currentValue>\\S+)",
+      ],
+      datasourceTemplate: "docker",
+    },
+    {
+      customType: "regex",
+      description: "Process CNPG Cluster imageName fields",
+      managerFilePatterns: [
+        "/(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$/",
+      ],
+      matchStrings: [
+        "imageName:\\s+(?<depName>[^:@\\s]+):(?<currentValue>[^@\\s]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?",
       ],
       datasourceTemplate: "docker",
     },
