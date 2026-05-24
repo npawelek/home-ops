@@ -4,12 +4,6 @@ resource "grafana_dashboard" "otelcol_health" {
   overwrite   = true
 }
 
-resource "grafana_dashboard" "otelcol_dataflow" {
-  folder      = grafana_folder.observability.uid
-  config_json = file("${path.module}/dashboards/otelcol-dataflow.json")
-  overwrite   = true
-}
-
 resource "grafana_dashboard" "cilium_health" {
   folder      = grafana_folder.infrastructure.uid
   config_json = file("${path.module}/dashboards/cilium-health.json")
