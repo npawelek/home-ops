@@ -15,7 +15,7 @@ spec:
   values:
     persistence:
       defaultClass: true
-      defaultClassReplicaCount: 3
+      defaultClassReplicaCount: 2
       reclaimPolicy: Retain
       replicaSoftAntiAffinity: true
       replicaAutoBalance: best-effort
@@ -32,7 +32,7 @@ spec:
       nodeDrainPolicy: block-if-contains-last-replica
       concurrentAutomaticEngineUpgradePerNodeLimit: 1
       defaultDataPath: /var/mnt/longhorn
-      defaultReplicaCount: 3
+      defaultReplicaCount: 2
       replicaSoftAntiAffinity: false
       replicaAutoBalance: best-effort
       restoreVolumeRecurringJobs: true
