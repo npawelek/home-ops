@@ -20,10 +20,6 @@ spec:
     - name: varlogcontainers
       mountPath: /var/log/containers
       readOnly: true
-    - name: hostroot
-      mountPath: /hostfs
-      readOnly: true
-      mountPropagation: HostToContainer
     - name: storage
       mountPath: /var/lib/otelcol_agent
   volumes:
@@ -33,9 +29,6 @@ spec:
     - name: varlogcontainers
       hostPath:
         path: /var/log/containers
-    - name: hostroot
-      hostPath:
-        path: /
     - name: storage
       hostPath:
         path: /var/lib/otelcol_agent
@@ -148,56 +141,6 @@ spec:
           - container
           - volume
 
-      host_metrics:
-        collection_interval: 60s
-        root_path: /hostfs
-        scrapers:
-          cpu: {}
-          disk: {}
-          filesystem:
-            exclude_mount_points:
-              mount_points:
-                - /dev
-                - /proc
-                - /sys
-                - /run/containerd/.*
-                - /var/lib/docker/.*
-                - /var/lib/kubelet/.*
-                - /snap/.*
-              match_type: regexp
-            exclude_fs_types:
-              fs_types:
-                - autofs
-                - binfmt_misc
-                - bpf
-                - cgroup2
-                - configfs
-                - debugfs
-                - devpts
-                - devtmpfs
-                - fusectl
-                - hugetlbfs
-                - iso9660
-                - mqueue
-                - nsfs
-                - overlay
-                - proc
-                - procfs
-                - pstore
-                - rpc_pipefs
-                - securityfs
-                - selinuxfs
-                - squashfs
-                - sysfs
-                - tracefs
-              match_type: strict
-          load: {}
-          memory: {}
-          network: {}
-          # TODO: eval whether swap is enabled on any nodes before enabling
-          # paging: {}
-          # TODO: eval process count metrics for anomaly detection value
-          # processes: {}
 
     processors:
       memory_limiter:
@@ -286,7 +229,6 @@ spec:
         metrics:
           receivers:
             - kubelet_stats
-            - host_metrics
           processors:
             - memory_limiter
             - resourcedetection
