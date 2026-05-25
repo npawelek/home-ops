@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./ipaddresspool.yaml
   - ./l2advertisement.yaml
+  - ./metrics-rbac.yaml

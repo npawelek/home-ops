@@ -1,0 +1,15 @@
+---
+# MetalLB 0.16.0 moved metrics to HTTPS (kube-rbac-proxy). The OTel collector SA
+# needs nonResourceURL /metrics permission for kube-rbac-proxy to allow scraping.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: metallb-metrics:opentelemetry-collector-gateway
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:monitoring
+subjects:
+  - kind: ServiceAccount
+    name: opentelemetry-collector-gateway
+    namespace: monitoring
