@@ -26,6 +26,11 @@ import {
   id = "auth"
 }
 
+resource "grafana_folder" "kubernetes" {
+  uid   = "kubernetes"
+  title = "Kubernetes"
+}
+
 resource "grafana_folder" "observability" {
   uid   = "observability"
   title = "Observability"

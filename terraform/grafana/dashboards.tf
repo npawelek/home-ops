@@ -123,3 +123,39 @@ resource "grafana_dashboard" "node_metrics" {
   config_json = file("${path.module}/dashboards/node-metrics.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "kubernetes_api_server" {
+  folder      = grafana_folder.kubernetes.uid
+  config_json = file("${path.module}/dashboards/kubernetes-api-server.json")
+  overwrite   = true
+}
+
+resource "grafana_dashboard" "kubernetes_coredns" {
+  folder      = grafana_folder.kubernetes.uid
+  config_json = file("${path.module}/dashboards/kubernetes-coredns.json")
+  overwrite   = true
+}
+
+resource "grafana_dashboard" "kubernetes_cluster" {
+  folder      = grafana_folder.kubernetes.uid
+  config_json = file("${path.module}/dashboards/kubernetes-cluster.json")
+  overwrite   = true
+}
+
+resource "grafana_dashboard" "kubernetes_namespaces" {
+  folder      = grafana_folder.kubernetes.uid
+  config_json = file("${path.module}/dashboards/kubernetes-namespaces.json")
+  overwrite   = true
+}
+
+resource "grafana_dashboard" "kubernetes_nodes" {
+  folder      = grafana_folder.kubernetes.uid
+  config_json = file("${path.module}/dashboards/kubernetes-nodes.json")
+  overwrite   = true
+}
+
+resource "grafana_dashboard" "kubernetes_pods" {
+  folder      = grafana_folder.kubernetes.uid
+  config_json = file("${path.module}/dashboards/kubernetes-pods.json")
+  overwrite   = true
+}
