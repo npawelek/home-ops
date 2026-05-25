@@ -203,10 +203,12 @@ spec:
           - context: datapoint
             statements:
               - set(attributes["cluster"], resource.attributes["k8s.cluster.name"])
-              - set(attributes["namespace"], resource.attributes["k8s.namespace.name"])
+              # yamllint disable rule:line-length
+              - set(attributes["namespace"], resource.attributes["k8s.namespace.name"]) where attributes["namespace"] == nil
               - set(attributes["node"], resource.attributes["k8s.node.name"]) where attributes["node"] == nil
-              - set(attributes["pod"], resource.attributes["k8s.pod.name"])
-              - set(attributes["container"], resource.attributes["k8s.container.name"])
+              - set(attributes["pod"], resource.attributes["k8s.pod.name"]) where attributes["pod"] == nil
+              - set(attributes["container"], resource.attributes["k8s.container.name"]) where attributes["container"] == nil
+              # yamllint enable rule:line-length
               - set(attributes["deployment"], resource.attributes["k8s.deployment.name"])
               - set(attributes["daemonset"], resource.attributes["k8s.daemonset.name"])
               - set(attributes["statefulset"], resource.attributes["k8s.statefulset.name"])
