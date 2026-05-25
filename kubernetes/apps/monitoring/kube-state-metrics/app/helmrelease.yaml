@@ -11,7 +11,18 @@ spec:
   values:
     fullnameOverride: kube-state-metrics
     collectors:
+      - configmaps
+      - daemonsets
+      - deployments
+      - endpoints
+      - namespaces
+      - networkpolicies
+      - nodes
+      - persistentvolumeclaims
       - pods
+      - secrets
+      - services
+      - statefulsets
     extraArgs: []
     rbac:
       extraRules:
