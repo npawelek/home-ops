@@ -54,17 +54,59 @@ tasks:
       - test -f {{.TALOSCONFIG}}
       - which kubectl talhelper talosctl yq
 
-  upgrade-k8s:
-    desc: Upgrade Kubernetes
+  upgrade-k8s-safe:
+    desc: Upgrade Kubernetes with per-node drain so PDBs (e.g. Longhorn) gate each kubelet upgrade
     dir: '{{.TALOS_DIR}}'
-    cmd: talhelper gencommand upgrade-k8s --extra-flags "--to '{{.KUBERNETES_VERSION}}'" | bash
     vars:
       KUBERNETES_VERSION:
         sh: yq '.kubernetesVersion' {{.TALOS_DIR}}/talenv.yaml
+    cmds:
+      - |
+        echo "==> Upgrading control plane components to {{.KUBERNETES_VERSION}} (no drain)..."
+        talhelper gencommand upgrade-k8s --extra-flags "--to '{{.KUBERNETES_VERSION}}' --upgrade-kubelet=false" | bash
+      - |
+        nodes=$(
+          yq '.nodes[] | select(.controlPlane == true) | .ipAddress + " " + .hostname' {{.TALOS_DIR}}/talconfig.yaml
+          yq '.nodes[] | select(.controlPlane != true) | .ipAddress + " " + .hostname' {{.TALOS_DIR}}/talconfig.yaml
+        )
+        total=$(echo "$nodes" | wc -l | tr -d ' ')
+        count=0
+        while IFS=' ' read -r ip hostname; do
+          count=$((count + 1))
+          echo ""
+          echo "==> [${count}/${total}] Upgrading kubelet on ${hostname} (${ip})..."
+          echo "    Draining ${hostname} (blocks until PDBs allow)..."
+          kubectl drain "${hostname}" --ignore-daemonsets --delete-emptydir-data --timeout=0
+          echo "    Patching kubelet image to {{.KUBERNETES_VERSION}}..."
+          patch=$(printf '[{"op":"replace","path":"/machine/kubelet/image","value":"ghcr.io/siderolabs/kubelet:%s"}]' \
+            '{{.KUBERNETES_VERSION}}')
+          talosctl patch mc --nodes "${ip}" --mode=no-reboot --patch "${patch}"
+          echo "    Waiting for ${hostname} to be Ready..."
+          kubectl wait node "${hostname}" --for=condition=Ready --timeout=5m
+          echo "    Uncordoning ${hostname}..."
+          kubectl uncordon "${hostname}"
+          echo "==> [${count}/${total}] ${hostname} complete."
+        done <<< "$nodes"
+        echo ""
+        echo "==> All nodes upgraded to Kubernetes {{.KUBERNETES_VERSION}}."
     preconditions:
       - talosctl config info
       - test -f {{.TALOSCONFIG}}
-      - which talhelper talosctl yq
+      - which kubectl talhelper talosctl yq
+
+  # upgrade-k8s is superseded by upgrade-k8s-safe which owns the drain per-node so PDBs
+  # (e.g. Longhorn) can gate each kubelet upgrade. talosctl upgrade-k8s ignores PDB violations.
+  # upgrade-k8s:
+  #   desc: Upgrade Kubernetes
+  #   dir: '{{.TALOS_DIR}}'
+  #   cmd: talhelper gencommand upgrade-k8s --extra-flags "--to '{{.KUBERNETES_VERSION}}'" | bash
+  #   vars:
+  #     KUBERNETES_VERSION:
+  #       sh: yq '.kubernetesVersion' {{.TALOS_DIR}}/talenv.yaml
+  #   preconditions:
+  #     - talosctl config info
+  #     - test -f {{.TALOSCONFIG}}
+  #     - which talhelper talosctl yq
 
   reset:
     desc: Resets nodes back to maintenance mode
