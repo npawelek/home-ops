@@ -21,6 +21,10 @@ spec:
       # With health monitoring enabled, unhealthy GPUs get a NoSchedule DRADeviceTaint (k8s 1.33+).
       healthMonitoring:
         enabled: false
+      tolerations:
+        - key: "node.kubernetes.io/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
