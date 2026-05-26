@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: gateway-talos-logs
+  name: gateway-external-logs
   annotations:
-    metallb.io/loadBalancerIPs: ${OTEL_GATEWAY_TALOS_LB}
+    metallb.io/loadBalancerIPs: ${OTEL_GATEWAY_LB}
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
@@ -15,3 +15,11 @@ spec:
       port: 5044
       protocol: UDP
       targetPort: 5044
+    - name: syslog-tcp
+      port: 1514
+      protocol: TCP
+      targetPort: 1514
+    - name: syslog-udp
+      port: 1514
+      protocol: UDP
+      targetPort: 1514
