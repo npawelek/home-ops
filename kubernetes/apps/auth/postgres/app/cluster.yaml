@@ -69,7 +69,7 @@ spec:
 
   storage:
     size: 10Gi
-    storageClass: longhorn
+    storageClass: longhorn-no-backup
 
   backup:
     retentionPolicy: 14d

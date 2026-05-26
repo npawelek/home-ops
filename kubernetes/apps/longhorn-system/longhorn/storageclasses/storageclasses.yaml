@@ -2,6 +2,23 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
+  name: longhorn-no-backup
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+parameters:
+  numberOfReplicas: "2"
+  staleReplicaTimeout: "2880"
+  fsType: ext4
+  dataLocality: best-effort
+  migratable: "true"
+  replicaAutoBalance: best-effort
+  recurringJobSelector: '[{"name":"default","isGroup":true}]'
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
   name: longhorn-12h
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
