@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./rbac.yaml
   - ./gateway.yaml
+  - ./service.yaml

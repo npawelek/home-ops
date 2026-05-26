@@ -125,6 +125,36 @@ spec:
           k8s.container.status.reason:
             enabled: true
 
+      udplog/json:
+        listen_address: 0.0.0.0:5044
+        operators:
+          - type: json_parser
+            timestamp:
+              parse_from: attributes["talos-time"]
+              layout_type: gotime
+              layout: "2006-01-02T15:04:05.999999999Z07:00"
+          - type: severity_parser
+            parse_from: attributes["talos-level"]
+            mapping:
+              fatal: fatal
+              error: error
+              warn: warn
+              info: info
+              debug: debug
+          - type: move
+            from: attributes["talos-service"]
+            to: resource["service.name"]
+          - type: move
+            from: attributes.msg
+            to: body
+          - type: remove
+            field: attributes["talos-level"]
+          - type: remove
+            field: attributes["talos-time"]
+          - type: move
+            from: attributes["hostname"]
+            to: resource["host.name"]
+
       syslog:
         tcp:
           listen_address: 0.0.0.0:1514
@@ -214,6 +244,12 @@ spec:
               - set(attributes["statefulset"], resource.attributes["k8s.statefulset.name"])
               - set(attributes["app"], resource.attributes["app.kubernetes.io/name"])
               - set(attributes["component"], resource.attributes["app.kubernetes.io/component"])
+
+      transform/talos_labels:
+        log_statements:
+          - context: resource
+            statements:
+              - set(attributes["log.source"], "talos")
 
       transform/k8s_events_label:
         log_statements:
@@ -320,6 +356,16 @@ spec:
           processors:
             - memory_limiter
             - k8s_attributes/passthrough
+            - resourcedetection
+            - batch
+          exporters:
+            - otlp_http/loki
+        logs/udp:
+          receivers:
+            - udplog/json
+          processors:
+            - memory_limiter
+            - transform/talos_labels
             - resourcedetection
             - batch
           exporters:

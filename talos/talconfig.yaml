@@ -25,6 +25,8 @@ nodes:
       secureboot: false
     talosImageURL: factory.talos.dev/installer/0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da
     controlPlane: true
+    patches:
+      - "@./patches/nodes/m1-logging.yaml"
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "e0:51:d8:1f:8a:f9"
@@ -44,6 +46,8 @@ nodes:
       secureboot: false
     talosImageURL: factory.talos.dev/installer/0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da
     controlPlane: true
+    patches:
+      - "@./patches/nodes/m2-logging.yaml"
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "e0:51:d8:1f:9a:a9"
@@ -63,6 +67,8 @@ nodes:
       secureboot: false
     talosImageURL: factory.talos.dev/installer/0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da
     controlPlane: true
+    patches:
+      - "@./patches/nodes/m3-logging.yaml"
     networkInterfaces:
       - deviceSelector:
           hardwareAddr: "e0:51:d8:1f:36:3f"
@@ -94,6 +100,7 @@ nodes:
         mtu: 9000
     patches:
       - "@./patches/nodes/pella-longhorn-volume.yaml"
+      - "@./patches/nodes/pella-logging.yaml"
   - hostname: "donnager"
     ipAddress: "192.168.0.33"
     installDisk: "/dev/sda"
@@ -113,6 +120,7 @@ nodes:
         mtu: 9000
     patches:
       - "@./patches/nodes/donnager-longhorn-volume.yaml"
+      - "@./patches/nodes/donnager-logging.yaml"
   - hostname: "hammurabi"
     ipAddress: "192.168.0.34"
     installDisk: "/dev/sda"
@@ -132,6 +140,7 @@ nodes:
         mtu: 9000
     patches:
       - "@./patches/nodes/hammurabi-longhorn-volume.yaml"
+      - "@./patches/nodes/hammurabi-logging.yaml"
 
 # Global patches
 patches:
