@@ -2,7 +2,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: OCIRepository
 metadata:
-  name: intel-gpu-top-arc
+  name: intel-gpu-top
 spec:
   interval: 15m
   provider: generic

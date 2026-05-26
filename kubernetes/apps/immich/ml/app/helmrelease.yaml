@@ -85,7 +85,7 @@ spec:
                   - key: intel.feature.node.kubernetes.io/gpu
                     operator: In
                     values:
-                      - i915-igpu
+                      - xe-igpu
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
@@ -93,7 +93,7 @@ spec:
                     operator: In
                     values:
                       - arc
-                      - i915-igpu
+                      - xe-igpu
     service:
       app:
         controller: immich-ml

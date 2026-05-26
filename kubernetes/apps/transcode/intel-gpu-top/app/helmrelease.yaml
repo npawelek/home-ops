@@ -4,17 +4,17 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: intel-gpu-top-legacy
+  name: intel-gpu-top
 spec:
   chartRef:
     kind: OCIRepository
-    name: intel-gpu-top-legacy
+    name: intel-gpu-top
   interval: 1h
   values:
     global:
       createDefaultServiceAccount: false
     controllers:
-      intel-gpu-top-legacy:
+      intel-gpu-top:
         type: daemonset
         strategy: RollingUpdate
 
@@ -32,7 +32,7 @@ spec:
               - -c
               - |
                 apt-get update && apt-get install -y intel-gpu-tools
-                echo "intel_gpu_top (Legacy) installed on $(hostname). Exec into pod to run it."
+                echo "intel_gpu_top installed on $(hostname). Exec into pod to run it."
                 sleep infinity
 
             probes:
@@ -44,6 +44,8 @@ spec:
                 enabled: false
 
             resources:
+              claims:
+                - name: gpu
               requests:
                 cpu: 10m
                 memory: 128Mi
@@ -60,22 +62,15 @@ spec:
             nodeSelectorTerms:
               - matchExpressions:
                   - key: intel.feature.node.kubernetes.io/gpu
-                    operator: Exists
-                  - key: intel.feature.node.kubernetes.io/gpu
-                    operator: NotIn
+                    operator: In
                     values:
                       - arc
+                      - xe-igpu
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: ${APP}-gpu
 
     service:
       app:
-        controller: intel-gpu-top-legacy
+        controller: intel-gpu-top
         enabled: false
-
-    persistence:
-      dev-dri:
-        type: hostPath
-        hostPath: /dev/dri
-        advancedMounts:
-          intel-gpu-top-legacy:
-            app:
-              - path: /dev/dri
