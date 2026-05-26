@@ -274,11 +274,12 @@ spec:
             # yamllint disable-line rule:line-length
             - 'IsMatch(name, "^go_") and not IsMatch(resource.attributes["service.name"], "otelcol.*") and not IsMatch(resource.attributes["k8s.namespace.name"], "flux-system")'
 
-    # filter/logs_drop:
-    #   error_mode: ignore
-    #   logs:
-    #     log_record:
-    #       - 'severity_number < SEVERITY_NUMBER_INFO'
+      filter/logs_drop_info:
+        error_mode: ignore
+        logs:
+          log_record:
+            - 'severity_number < SEVERITY_NUMBER_WARN'
+
     exporters:
       prometheusremotewrite:
         endpoint: http://victoriametrics-server.monitoring.svc.cluster.local:8428/api/v1/write
@@ -365,6 +366,7 @@ spec:
             - udplog/json
           processors:
             - memory_limiter
+            - filter/logs_drop_info
             - transform/talos_labels
             - resourcedetection
             - batch
