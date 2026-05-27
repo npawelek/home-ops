@@ -17,7 +17,7 @@ spec:
       defaultClass: true
       defaultClassReplicaCount: 2
       reclaimPolicy: Retain
-      replicaSoftAntiAffinity: true
+      replicaSoftAntiAffinity: false
       replicaAutoBalance: best-effort
       dataLocality: best-effort
       migratable: true
@@ -44,6 +44,13 @@ spec:
       removeSnapshotsDuringFilesystemTrim: true
       fastReplicaRebuildEnabled: true
       allowCollectingLonghornUsageMetrics: false
+      # Repair performance
+      replicaReplenishmentWaitInterval: 30
+      concurrentReplicaRebuildPerNodeLimit: 10
+      # Backup/restore performance
+      backupConcurrentLimit: 5
+      restoreConcurrentLimit: 5
+      backupCompressionMethod: lz4
 
     # Backup target configuration
     defaultBackupStore:
