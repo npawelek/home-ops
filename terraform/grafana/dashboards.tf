@@ -124,6 +124,12 @@ resource "grafana_dashboard" "node_metrics" {
   overwrite   = true
 }
 
+resource "grafana_dashboard" "xpumd_gpu" {
+  folder      = grafana_folder.infrastructure.uid
+  config_json = file("${path.module}/dashboards/xpumd-gpu.json")
+  overwrite   = true
+}
+
 resource "grafana_dashboard" "kubernetes_api_server" {
   folder      = grafana_folder.kubernetes.uid
   config_json = file("${path.module}/dashboards/kubernetes-api-server.json")
