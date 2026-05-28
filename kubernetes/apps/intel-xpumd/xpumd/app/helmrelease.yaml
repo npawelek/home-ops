@@ -22,3 +22,10 @@ spec:
                   values:
                     - arc
                     - xe-igpu
+    config:
+      service:
+        pipelines:
+          metrics:
+            exporters:
+              - intelxpuinfo
+              - prometheus
