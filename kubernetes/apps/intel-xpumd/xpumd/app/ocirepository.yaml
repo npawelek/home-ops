@@ -1,0 +1,11 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: xpumd
+spec:
+  interval: 15m
+  provider: generic
+  ref:
+    tag: 0.0.0-v2.x
+  url: oci://ghcr.io/intel/xpumanager/charts/xpumd
