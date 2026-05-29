@@ -8,4 +8,5 @@ components:
 
 resources:
   - ./namespace.yaml
+  - ./nfs-pvc/ks.yaml
   - ./unmanic/ks.yaml

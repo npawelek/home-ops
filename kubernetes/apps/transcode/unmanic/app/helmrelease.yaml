@@ -99,9 +99,7 @@ spec:
         globalMounts:
           - path: /config
       library:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media
+        existingClaim: racknas-transcode
         globalMounts:
           - path: /library
       cache:

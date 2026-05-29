@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: racknas-transcode
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  volumeName: racknas-transcode
+  resources:
+    requests:
+      storage: 50Ti

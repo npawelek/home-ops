@@ -12,6 +12,7 @@ spec:
     - ../../../../components/gpu
     - ../../../../components/authentik-proxy
   dependsOn:
+    - name: nfs-pvc-transcode
     - name: longhorn
       namespace: longhorn-system
     - name: envoy-gateway
