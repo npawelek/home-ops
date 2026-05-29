@@ -128,8 +128,7 @@ spec:
         globalMounts:
           - path: /downloads
       library:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media/Temp
+        existingClaim: racknas-downloads
         globalMounts:
           - path: /library/Temp
+            subPath: Temp

@@ -53,24 +53,15 @@ spec:
         sizeLimit: 4Gi
         globalMounts:
           - path: /cache
-      movies:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media/Movies
+      library:
+        existingClaim: racknas-downloads
         globalMounts:
           - path: /library/Movies
-      movies-anime:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media/Movies-Anime
-        globalMounts:
+            subPath: Movies
           - path: /library/Movies-Anime
-      movies-remux:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media/Movies-Remux
-        globalMounts:
+            subPath: Movies-Anime
           - path: /library/Movies-Remux
+            subPath: Movies-Remux
       scripts:
         type: configMap
         name: radarr-trailers-configmap

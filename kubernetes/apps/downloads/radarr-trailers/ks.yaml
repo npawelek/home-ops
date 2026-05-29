@@ -9,6 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: nfs-pvc-downloads
     - name: radarr
     - name: radarr-anime
     - name: radarr-remux

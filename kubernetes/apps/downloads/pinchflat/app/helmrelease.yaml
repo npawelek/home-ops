@@ -87,11 +87,10 @@ spec:
         globalMounts:
           - path: /config
       downloads:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media/Youtube
+        existingClaim: racknas-downloads
         globalMounts:
           - path: /downloads
+            subPath: Youtube
       lifecycle-script:
         type: configMap
         name: pinchflat-lifecycle-script

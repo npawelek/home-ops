@@ -9,6 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: nfs-pvc-downloads
     - name: longhorn
       namespace: longhorn-system
     - name: envoy-gateway
