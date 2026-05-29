@@ -26,14 +26,25 @@ spec:
             env:
               TZ: ${TIMEZONE}
             probes:
-              liveness: &probes
+              startup:
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
                     path: /
                     port: &port 8888
-                  initialDelaySeconds: 90
+                  initialDelaySeconds: 0
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 18
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 5
                   failureThreshold: 3
