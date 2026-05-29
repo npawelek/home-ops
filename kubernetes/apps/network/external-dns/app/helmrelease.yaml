@@ -1,5 +1,3 @@
-# yamllint disable-line rule:line-length
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-5.0.1/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -40,5 +38,8 @@ spec:
     domainFilters: ["${SECRET_DOMAIN}"]
     serviceMonitor:
       enabled: true
+      additionalLabels:
+        monitoring: otel
+      interval: 30s
     podAnnotations:
       secret.reloader.stakater.com/reload: *secret
