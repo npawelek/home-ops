@@ -11,6 +11,7 @@ spec:
   components:
     - ../../../../components/gpu
   dependsOn:
+    - name: nfs-pvc-media
     - name: longhorn
       namespace: longhorn-system
     - name: envoy-gateway

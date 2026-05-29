@@ -77,8 +77,7 @@ spec:
           - path: /config
           - path: /metadata
       books:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media/Books
+        existingClaim: racknas-media
         globalMounts:
           - path: /library
+            subPath: Books

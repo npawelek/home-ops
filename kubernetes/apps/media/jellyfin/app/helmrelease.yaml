@@ -39,8 +39,8 @@ spec:
                     port: &port 8096
                   initialDelaySeconds: 0
                   periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 6
+                  timeoutSeconds: 10
+                  failureThreshold: 12
               readiness: *probes
             resources:
               claims:
@@ -106,9 +106,7 @@ spec:
         globalMounts:
           - path: /config
       library:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media
+        existingClaim: racknas-media
         globalMounts:
           - path: /library
       cache:
