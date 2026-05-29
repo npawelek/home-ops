@@ -8,6 +8,7 @@ components:
 
 resources:
   - ./namespace.yaml
+  - ./nfs-pvc/ks.yaml
   - ./redis/ks.yaml
   - ./ml/ks.yaml
   - ./server/ks.yaml

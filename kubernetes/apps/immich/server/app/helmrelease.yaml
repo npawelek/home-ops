@@ -109,8 +109,6 @@ spec:
                 port: *port
     persistence:
       library:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/media/Photos
+        existingClaim: racknas-photos
         globalMounts:
           - path: /data
