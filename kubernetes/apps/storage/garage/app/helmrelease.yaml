@@ -72,9 +72,7 @@ spec:
           - path: /etc/garage.toml
             subPath: garage.toml
       garage:
-        type: nfs
-        server: ${RACKNAS_ADDR}
-        path: /volume1/garage
+        existingClaim: racknas-garage
         globalMounts:
           - path: /data
             subPath: data

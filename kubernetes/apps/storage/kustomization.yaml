@@ -9,4 +9,5 @@ components:
 resources:
   - ./namespace.yaml
   - ./nfs-volumes/ks.yaml
+  - ./nfs-pvc/ks.yaml
   - ./garage/ks.yaml
