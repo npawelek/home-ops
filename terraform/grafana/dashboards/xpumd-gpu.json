@@ -2306,6 +2306,10 @@
           "type": "prometheus",
           "uid": "${Metrics}"
         },
+        "current": {
+          "text": "pella",
+          "value": "pella"
+        },
         "definition": "label_values(hw_gpu_info,node)",
         "includeAll": false,
         "label": "Node",
