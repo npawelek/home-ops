@@ -4,13 +4,9 @@ kind: HelmRelease
 metadata:
   name: cloudnative-pg
 spec:
-  chart:
-    spec:
-      chart: cloudnative-pg
-      version: 0.28.2
-      sourceRef:
-        kind: HelmRepository
-        name: cloudnative-pg
+  chartRef:
+    kind: OCIRepository
+    name: cloudnative-pg
   interval: 1h
   values:
     image:
