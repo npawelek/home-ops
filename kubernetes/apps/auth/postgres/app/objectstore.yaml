@@ -1,0 +1,24 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: authentik-postgres-backup
+spec:
+  configuration:
+    destinationPath: ${BACKUP_DESTINATION_PATH_AUTHENTIK}
+    endpointURL: http://garage.storage.svc.cluster.local:3900
+    s3Credentials:
+      accessKeyId:
+        name: credentials-backup-s3
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: credentials-backup-s3
+        key: ACCESS_SECRET_KEY
+      region:
+        name: credentials-backup-s3
+        key: REGION
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: "21d"
