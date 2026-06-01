@@ -71,11 +71,11 @@ spec:
     size: 10Gi
     storageClass: longhorn-no-backup
 
-  backup:
-    plugins:
-      - name: barman-cloud.cloudnative-pg.io
-        parameters:
-          barmanObjectName: authentik-postgres-backup
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: authentik-postgres-backup
 
   resources:
     requests:
