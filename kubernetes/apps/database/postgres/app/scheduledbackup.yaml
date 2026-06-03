@@ -4,7 +4,8 @@ kind: ScheduledBackup
 metadata:
   name: postgres
 spec:
-  schedule: "0 30 4/12 * * *"
+  schedule: "0 0 5/12 * * *"
   backupOwnerReference: self
+  method: plugin
   cluster:
     name: postgres
