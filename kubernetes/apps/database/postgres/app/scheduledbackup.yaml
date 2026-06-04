@@ -7,5 +7,9 @@ spec:
   schedule: "0 0 5/12 * * *"
   backupOwnerReference: self
   method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+    parameters:
+      barmanObjectName: postgres-backup
   cluster:
     name: postgres
