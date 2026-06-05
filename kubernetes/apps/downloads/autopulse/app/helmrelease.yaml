@@ -22,7 +22,7 @@ spec:
           app:
             image:
               repository: ghcr.io/dan-online/autopulse
-              tag: v1.7.0-sqlite@sha256:4768491290da3d23b973ab5cbff43fe2a463a0a2fdf1ff45b1596bddd4aa2eea
+              tag: v2.0.0-sqlite@sha256:c9f117a931ab30e8f311c76fa9e0f5340fc1ef8fc1d34593e74efe0c00ec7b84
             env:
               TZ: ${TIMEZONE}
               PUID: "568"
