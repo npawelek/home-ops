@@ -10,7 +10,7 @@ iseq ${os_arch} x86_64 && set os_arch amd64 ||
 iseq ${os_arch} aarch64 && set os_arch arm64 ||
 
 isset ${talos_platform} || set talos_platform metal
-isset ${talos_version} || set talos_version v1.13.2
+isset ${talos_version} || set talos_version v1.13.3
 
 # Force local boot domain for Talos assets
 set talos_base http://192.168.0.9/
