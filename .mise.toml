@@ -9,6 +9,8 @@ LOCAL_LLM_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .LOCAL_LLM
 LMSTUDIO_API_KEY = { value = "{{exec(command='sops -d env.sops.yaml | yq .LMSTUDIO_API_KEY')}}", tools = true, redact = true }
 LMSTUDIO_MODEL = { value = "{{exec(command='sops -d env.sops.yaml | yq .LMSTUDIO_MODEL')}}", tools = true, redact = true }
 SECRET_DOMAIN = { value = "{{exec(command='sops -d env.sops.yaml | yq .SECRET_DOMAIN')}}", tools = true, redact = true }
+HOMEASSISTANT_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .HOMEASSISTANT_URL')}}", tools = true, redact = true }
+HOMEASSISTANT_TOKEN = { value = "{{exec(command='sops -d env.sops.yaml | yq .HOMEASSISTANT_TOKEN')}}", tools = true, redact = true }
 GRAFANA_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .GRAFANA_URL')}}", tools = true, redact = true }
 GRAFANA_SERVICE_ACCOUNT_TOKEN = { value = "{{exec(command='sops -d env.sops.yaml | yq .GRAFANA_SERVICE_ACCOUNT_TOKEN')}}", tools = true, redact = true }
 GRAFANA_ORG_ID = "1"

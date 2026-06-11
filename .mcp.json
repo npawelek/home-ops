@@ -7,8 +7,19 @@
         "--",
         "mcp-compressor",
         "{\"mcpServers\":{\"grafana\":{\"command\":\"mcp-grafana\",\"args\":[\"--disable-incident\",\"--disable-alerting\",\"--disable-sift\",\"--disable-oncall\"]}}}"
-      ],
-      "directTools": true
+      ]
+    },
+    "home-assistant": {
+      "type": "stdio",
+      "command": "mise",
+      "args": [
+        "x",
+        "--",
+        "uvx",
+        "--python",
+        "3.14",
+        "ha-mcp@7.7.0"
+      ]
     }
   }
 }
