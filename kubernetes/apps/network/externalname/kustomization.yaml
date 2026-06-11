@@ -5,6 +5,7 @@ namespace: network
 
 resources:
   - ./pool.yaml
+  - ./pool-api.yaml
   - ./floofeater.yaml
   - ./rosie.yaml
   - ./hdhomerun.yaml

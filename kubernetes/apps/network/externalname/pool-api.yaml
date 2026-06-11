@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pool-api
+spec:
+  ports:
+    - name: http
+      port: 4200
+      targetPort: 4200
+      protocol: TCP
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: pool-api
+  labels:
+    kubernetes.io/service-name: pool-api
+addressType: IPv4
+endpoints:
+  - addresses:
+      - ${POOL_ADDR}
+ports:
+  - name: http
+    port: 4200
+    protocol: TCP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: pool-api
+spec:
+  hostnames:
+    - pool-api.${SECRET_DOMAIN}
+  parentRefs:
+    - name: envoy-internal
+      namespace: gateway
+      sectionName: https
+  rules:
+    - backendRefs:
+        - name: pool-api
+          port: 4200
