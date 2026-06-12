@@ -59,6 +59,7 @@ enter = "mise run check-deps"
 yamllint = "1.38.0"
 "aqua:grafana/mcp-grafana" = "0.15.2"
 "aqua:gh" = "2.93.0"
+"pipx:ha-mcp" = "7.7.0"
 
 [shell_alias]
 k = "kubectl"
