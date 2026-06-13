@@ -27,7 +27,7 @@ spec:
             image:
               # TODO: switch to home-operations container
               repository: ghcr.io/home-assistant/home-assistant
-              tag: 2026.6.2@sha256:7f88f214e8651a40557eca8cbfffb55929d7aee520ecf565040193099d22c93f
+              tag: 2026.6.3@sha256:97d936bb43c61ca1c0ab330481efd609334b2be84458218345ed3415b1ec39c6
             env:
               TZ: ${TIMEZONE}
             envFrom:
