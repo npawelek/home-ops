@@ -27,6 +27,14 @@ spec:
               OLLAMA_BASE_URL: http://ollama.network.svc.cluster.local:11434
               WEBUI_URL: https://{{.Release.Name}}.${SECRET_DOMAIN}
               ENABLE_UPDATE_CHECKER: "false"
+              OAUTH_PROVIDER_NAME: authentik
+              OAUTH_CLIENT_ID: open-webui
+              # yamllint disable-line rule:line-length
+              OPENID_PROVIDER_URL: https://auth.${SECRET_DOMAIN}/application/o/open-webui/.well-known/openid-configuration
+              OPENID_REDIRECT_URI: https://{{.Release.Name}}.${SECRET_DOMAIN}/oauth/oidc/callback
+              ENABLE_OAUTH_SIGNUP: "true"
+              ENABLE_LOGIN_FORM: "false"
+              OAUTH_MERGE_ACCOUNTS_BY_EMAIL: "true"
             envFrom:
               - secretRef:
                   name: open-webui-secret

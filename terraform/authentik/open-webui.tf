@@ -30,8 +30,19 @@ resource "authentik_application" "open_webui" {
   policy_engine_mode = "any"
 }
 
+resource "authentik_group" "open_webui_users" {
+  name         = "open-webui-users"
+  is_superuser = false
+}
+
 resource "authentik_policy_binding" "open_webui_admins_access" {
   target = authentik_application.open_webui.uuid
   group  = data.authentik_group.authentik_admins.id
   order  = 0
+}
+
+resource "authentik_policy_binding" "open_webui_users_access" {
+  target = authentik_application.open_webui.uuid
+  group  = authentik_group.open_webui_users.id
+  order  = 1
 }
