@@ -24,8 +24,8 @@ spec:
               tag: v0.9.6@sha256:90eae5b419e40b4c3dd684582b2c83440b36f9ae2f6532c09639b2ba4ee65158
             env:
               TZ: ${TIMEZONE}
-              OLLAMA_BASE_URL: "http://ollama.network.svc.cluster.local:11434"
-              WEBUI_URL: "https://{{.Release.Name}}.${SECRET_DOMAIN}"
+              OLLAMA_BASE_URL: http://ollama.network.svc.cluster.local:11434
+              WEBUI_URL: https://{{.Release.Name}}.${SECRET_DOMAIN}
               ENABLE_UPDATE_CHECKER: "false"
             envFrom:
               - secretRef:
@@ -46,9 +46,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 200Mi
-              limits:
                 memory: 1Gi
+              limits:
+                memory: 2Gi
     service:
       app:
         ports:
