@@ -2,7 +2,7 @@
   "imports": {
     "@hono/mcp": "npm:@hono/mcp@0.3.0",
     "@modelcontextprotocol/sdk": "npm:@modelcontextprotocol/sdk@1.29.0",
-    "hono": "npm:hono@4.12.26",
+    "hono": "npm:hono@4.12.27",
     "zod": "npm:zod@4.4.3",
     "postgres": "https://deno.land/x/postgres@v0.19.3/mod.ts"
   }
