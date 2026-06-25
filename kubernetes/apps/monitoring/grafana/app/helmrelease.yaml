@@ -22,6 +22,7 @@ spec:
       GF_EXPLORE_ENABLED: "true"
       GF_LOG_MODE: console
       GF_NEWS_NEWS_FEED_ENABLED: "false"
+      GF_PLUGINS_PREINSTALL: "grafana-llm-app@1.0.8"
     envValueFrom:
       GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
         secretKeyRef:
@@ -80,8 +81,7 @@ spec:
       type: ClusterIP
       port: 80
       targetPort: 3000
-    plugins:
-      - grafana-llm-app@1.0.8
+    plugins: []
     serviceMonitor:
       enabled: true
       labels:
