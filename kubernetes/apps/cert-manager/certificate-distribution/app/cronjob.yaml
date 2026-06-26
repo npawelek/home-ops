@@ -23,7 +23,7 @@ spec:
           initContainers:
             - name: fix-ssh-permissions
               # yamllint disable-line rule:line-length
-              image: docker.io/alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
+              image: docker.io/alpine/ansible:2.20.0@sha256:0a4a5b8808ed81a386d0acb04743de9c377a01cfb27580c54b1c8ee79da57e96
               command:
                 - sh
                 - -c
