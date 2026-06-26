@@ -1,0 +1,16 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ./secret.sops.yaml
+  - ./rbac.yaml
+  - ./cronjob.yaml
+
+configMapGenerator:
+  - name: pr-review-script
+    files:
+      - ./scripts/review.py
+
+generatorOptions:
+  disableNameSuffixHash: true

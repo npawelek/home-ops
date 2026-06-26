@@ -1,0 +1,46 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pr-review
+spec:
+  schedule: "0 */2 * * *"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 1800
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: pr-review
+        spec:
+          serviceAccountName: pr-review
+          restartPolicy: Never
+          containers:
+            - name: pr-review
+              # yamllint disable-line rule:line-length
+              image: docker.io/python:3.14-alpine@sha256:26730869004e2b9c4b9ad09cab8625e81d256d1ce97e72df5520e806b1709f92
+              command:
+                - python
+                - /scripts/review.py
+              envFrom:
+                - secretRef:
+                    name: pr-review-secret
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+          volumes:
+            - name: script
+              configMap:
+                name: pr-review-script
+                defaultMode: 0755
