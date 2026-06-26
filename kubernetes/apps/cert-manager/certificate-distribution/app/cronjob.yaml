@@ -22,8 +22,8 @@ spec:
 
           initContainers:
             - name: fix-ssh-permissions
-              image: >-
-                docker.io/alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
+              # yamllint disable-line rule:line-length
+              image: docker.io/alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
               command:
                 - sh
                 - -c
@@ -45,8 +45,8 @@ spec:
                   mountPath: /root/.ssh
 
             - name: install-deps
-              image: >-
-                alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
+              # yamllint disable-line rule:line-length
+              image: alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
               command:
                 - sh
                 - -c
@@ -69,8 +69,8 @@ spec:
 
           containers:
             - name: ansible-runner
-              image: >-
-                alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
+              # yamllint disable-line rule:line-length
+              image: alpine/ansible:2.20.0@sha256:732413fee278b684fcb669a0a6d8b0f64e8f2f78767015d2996f282818c86d4f
               workingDir: /runner
               env:
                 - name: PATH
