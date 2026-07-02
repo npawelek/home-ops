@@ -22,7 +22,7 @@ spec:
           app:
             image:
               repository: ghcr.io/immich-app/immich-machine-learning
-              tag: v2.7.5-openvino@sha256:71cd5a681823c4b818f4b24b3f05816eccc3d085559e7615f695bde77e64f1f2
+              tag: v3.0.0-openvino@sha256:9abb73aff96dc3a9aa28cfa090d1556708890811d3b8b9b6bacfb14436037a21
             env:
               TZ: ${TIMEZONE}
               IMMICH_ENV: production
