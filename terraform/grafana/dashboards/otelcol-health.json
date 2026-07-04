@@ -62,7 +62,12 @@
   "panels": [
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "title": "Overview",
       "type": "row"
@@ -70,25 +75,53 @@
     {
       "id": 2,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 1},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
       "title": "Metrics Received / s",
       "description": "Total metric points accepted per second across all collectors.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total{pod=~\"${pod:regex}\"}[$__rate_interval]))",
           "legendFormat": "total",
           "refId": "A"
@@ -98,25 +131,53 @@
     {
       "id": 3,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
       "title": "Logs Received / s",
       "description": "Total log records accepted per second across all collectors.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "sum(rate(otelcol_receiver_accepted_log_records_total{pod=~\"${pod:regex}\"}[$__rate_interval]))",
           "legendFormat": "total",
           "refId": "A"
@@ -126,31 +187,75 @@
     {
       "id": 4,
       "type": "timeseries",
-      "gridPos": {"h": 4, "w": 12, "x": 0, "y": 9},
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
       "title": "Max Queue Fill",
-      "description": "Highest queue fill ratio across all exporter queues over time; threshold lines at 50% (yellow) and 80% (red) — approaching 1.0 means data loss is imminent.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Highest queue fill ratio across all exporter queues over time; threshold lines at 50% (yellow) and 80% (red) \u2014 approaching 1.0 means data loss is imminent.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never", "thresholdsStyle": {"mode": "dashed"}},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
           "unit": "percentunit",
           "min": 0,
           "max": 1,
           "thresholds": {
             "mode": "absolute",
-            "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 0.5}, {"color": "red", "value": 0.8}]
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 0.8
+              }
+            ]
           }
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "max(otelcol_exporter_queue_size{pod=~\"${pod:regex}\"} / otelcol_exporter_queue_capacity{pod=~\"${pod:regex}\"})",
           "legendFormat": "max fill ratio",
           "refId": "A"
@@ -160,31 +265,62 @@
     {
       "id": 5,
       "type": "timeseries",
-      "gridPos": {"h": 4, "w": 12, "x": 12, "y": 9},
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
       "title": "Export Send Failures",
       "description": "Rate of data permanently dropped by exporters, broken down by signal type (metrics vs logs); any non-zero value warrants investigation.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "sum(rate(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[$__rate_interval])) or vector(0)",
           "legendFormat": "metrics",
           "refId": "A"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "sum(rate(otelcol_exporter_send_failed_log_records_total{pod=~\"${pod:regex}\"}[$__rate_interval])) or vector(0)",
           "legendFormat": "logs",
           "refId": "B"
@@ -193,7 +329,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 13},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
       "id": 6,
       "title": "Receivers",
       "type": "row"
@@ -201,25 +342,53 @@
     {
       "id": 7,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 14},
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      },
       "title": "Accepted Metric Points",
       "description": "Rate of metric points successfully ingested, broken down by pod and receiver type (kubeletstats, host_metrics, otlp, prometheus).",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_receiver_accepted_metric_points_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "{{pod}} ({{node}}) / {{receiver}}",
           "refId": "A"
@@ -229,25 +398,53 @@
     {
       "id": 8,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 14},
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 14
+      },
       "title": "Accepted Log Records",
       "description": "Rate of log records successfully ingested, broken down by pod and receiver type (file_log, otlp).",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_receiver_accepted_log_records_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "{{pod}} ({{node}}) / {{receiver}}",
           "refId": "A"
@@ -257,43 +454,80 @@
     {
       "id": 9,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 14},
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      },
       "title": "Receiver Errors (Failed + Refused)",
       "description": "Rate of data dropped at the receiver due to decode errors (failed) or downstream backpressure (refused); either signal is a drop-everything alert.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_receiver_failed_metric_points_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "failed metrics / {{pod}} ({{node}})",
           "refId": "A"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_receiver_refused_metric_points_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "refused metrics / {{pod}} ({{node}})",
           "refId": "B"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_receiver_failed_log_records_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "failed logs / {{pod}} ({{node}})",
           "refId": "C"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_receiver_refused_log_records_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "refused logs / {{pod}} ({{node}})",
           "refId": "D"
@@ -302,7 +536,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 22},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
       "id": 10,
       "title": "Backpressure / Queue",
       "type": "row"
@@ -310,14 +549,29 @@
     {
       "id": 11,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 23},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      },
       "title": "Queue Fill Ratio",
       "description": "Fraction of each exporter queue currently occupied; approaching 1.0 means the downstream cannot keep up and data loss is imminent.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "percentunit",
           "min": 0,
           "max": 1
@@ -325,12 +579,25 @@
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_exporter_queue_size{pod=~\"${pod:regex}\"} / otelcol_exporter_queue_capacity{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}}",
           "refId": "A"
@@ -340,31 +607,62 @@
     {
       "id": 12,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 23},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
       "title": "Queue Size vs Capacity",
       "description": "Absolute queue depth vs configured capacity per exporter, showing how much buffer headroom remains before backpressure propagates upstream.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 0, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "short"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_exporter_queue_size{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} size",
           "refId": "A"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_exporter_queue_capacity{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} capacity",
           "refId": "B"
@@ -373,7 +671,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 31},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
       "id": 13,
       "title": "Exporters",
       "type": "row"
@@ -381,31 +684,62 @@
     {
       "id": 14,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 32},
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 32
+      },
       "title": "Send Failed",
-      "description": "Rate of data permanently dropped after all retries were exhausted. No data means healthy — metric is only emitted on first failure.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of data permanently dropped after all retries were exhausted. No data means healthy \u2014 metric is only emitted on first failure.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_send_failed_metric_points_total{pod=~\"${pod:regex}\"}[$__rate_interval]) or vector(0)",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} metrics",
           "refId": "A"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_send_failed_log_records_total{pod=~\"${pod:regex}\"}[$__rate_interval]) or vector(0)",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} logs",
           "refId": "B"
@@ -415,31 +749,62 @@
     {
       "id": 15,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 32},
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 32
+      },
       "title": "Enqueue Failed",
-      "description": "Rate of data that could not be added to the sending queue, typically because the queue is full. No data means healthy — metric is only emitted on first failure.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of data that could not be added to the sending queue, typically because the queue is full. No data means healthy \u2014 metric is only emitted on first failure.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_enqueue_failed_metric_points_total{pod=~\"${pod:regex}\"}[$__rate_interval]) or vector(0)",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} metrics",
           "refId": "A"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_enqueue_failed_log_records_total{pod=~\"${pod:regex}\"}[$__rate_interval]) or vector(0)",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} logs",
           "refId": "B"
@@ -449,25 +814,53 @@
     {
       "id": 16,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 32},
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 32
+      },
       "title": "PRW Sent Batches",
       "description": "Rate of batches successfully written to VictoriaMetrics via Prometheus remote write, one series per gateway pod.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "ops"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_exporter_prometheusremotewrite_sent_batches_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -476,7 +869,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 40},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
       "id": 17,
       "title": "Go Runtime",
       "type": "row"
@@ -484,25 +882,53 @@
     {
       "id": 18,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 41},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 41
+      },
       "title": "Go Heap Alloc",
       "description": "Live Go heap in use after garbage collection; a sustained upward trend indicates a memory leak.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "bytes"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_process_runtime_heap_alloc_bytes{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -512,25 +938,53 @@
     {
       "id": 19,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 41},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 41
+      },
       "title": "Go Total Sys Memory",
       "description": "Total memory reserved by the Go runtime from the OS, including heap, stack, and runtime overhead.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "bytes"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_process_runtime_total_sys_memory_bytes{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -539,7 +993,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 49},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
       "id": 20,
       "title": "Process Health",
       "type": "row"
@@ -547,31 +1006,71 @@
     {
       "id": 21,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 50},
-      "title": "CPU — Agent",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 50
+      },
+      "title": "CPU \u2014 Agent",
       "description": "CPU cores consumed by agent collector pods.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never", "thresholdsStyle": {"mode": "dashed"}},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
           "unit": "short",
           "min": 0,
           "max": 0.25,
           "thresholds": {
             "mode": "absolute",
-            "steps": [{"color": "green", "value": null}, {"color": "red", "value": 0.25}]
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.25
+              }
+            ]
           }
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_process_cpu_seconds_total{pod=~\"${pod:regex}\"}[$__rate_interval]) and on(pod) otelcol_process_cpu_seconds_total{pod=~\".*agent.*\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -581,31 +1080,71 @@
     {
       "id": 22,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 6, "x": 6, "y": 50},
-      "title": "Memory RSS — Agent",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 50
+      },
+      "title": "Memory RSS \u2014 Agent",
       "description": "RSS memory used by agent collector pods.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never", "thresholdsStyle": {"mode": "dashed"}},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
           "unit": "bytes",
           "min": 0,
           "max": 536870912,
           "thresholds": {
             "mode": "absolute",
-            "steps": [{"color": "green", "value": null}, {"color": "red", "value": 536870912}]
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 536870912
+              }
+            ]
           }
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_process_memory_rss{pod=~\"${pod:regex}\"} and on(pod) otelcol_process_memory_rss{pod=~\".*agent.*\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -615,31 +1154,71 @@
     {
       "id": 23,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 50},
-      "title": "CPU — Gateway",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 50
+      },
+      "title": "CPU \u2014 Gateway",
       "description": "CPU cores consumed by gateway collector pods.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never", "thresholdsStyle": {"mode": "dashed"}},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
           "unit": "short",
           "min": 0,
           "max": 0.5,
           "thresholds": {
             "mode": "absolute",
-            "steps": [{"color": "green", "value": null}, {"color": "red", "value": 0.5}]
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.5
+              }
+            ]
           }
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_process_cpu_seconds_total{pod=~\"${pod:regex}\"}[$__rate_interval]) and on(pod) otelcol_process_cpu_seconds_total{pod=~\".*gateway.*\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -649,31 +1228,71 @@
     {
       "id": 24,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 50},
-      "title": "Memory RSS — Gateway",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 50
+      },
+      "title": "Memory RSS \u2014 Gateway",
       "description": "RSS memory used by gateway collector pods.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never", "thresholdsStyle": {"mode": "dashed"}},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never",
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
           "unit": "bytes",
           "min": 0,
           "max": 1073741824,
           "thresholds": {
             "mode": "absolute",
-            "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1073741824}]
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1073741824
+              }
+            ]
           }
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_process_memory_rss{pod=~\"${pod:regex}\"} and on(pod) otelcol_process_memory_rss{pod=~\".*gateway.*\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -682,7 +1301,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 58},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      },
       "id": 25,
       "title": "Batch Processor",
       "type": "row"
@@ -690,25 +1314,53 @@
     {
       "id": 26,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 59},
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 59
+      },
       "title": "Batch Timeout Trigger Rate",
       "description": "Rate of batch flushes caused by the 10s timeout expiring before the batch reached send_batch_size.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "ops"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_processor_batch_timeout_trigger_send_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -718,25 +1370,53 @@
     {
       "id": 27,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 59},
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 59
+      },
       "title": "Batch Size Trigger Rate",
       "description": "Rate of batch flushes caused by hitting send_batch_size before the timeout.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "ops"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_processor_batch_batch_size_trigger_send_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -746,14 +1426,29 @@
     {
       "id": 28,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 59},
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 59
+      },
       "title": "Timeout Trigger Ratio",
       "description": "Fraction of flushes caused by timeout vs total flushes. Near 1.0 means batches rarely fill before the clock; near 0.0 means throughput is high enough to be size-driven.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "percentunit",
           "min": 0,
           "max": 1
@@ -761,12 +1456,25 @@
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_processor_batch_timeout_trigger_send_total{pod=~\"${pod:regex}\"}[$__rate_interval])\n/\n(\n  rate(otelcol_processor_batch_timeout_trigger_send_total{pod=~\"${pod:regex}\"}[$__rate_interval])\n  +\n  rate(otelcol_processor_batch_batch_size_trigger_send_total{pod=~\"${pod:regex}\"}[$__rate_interval])\n)",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -776,31 +1484,62 @@
     {
       "id": 29,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 67},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 67
+      },
       "title": "Filter Processor Filtered",
-      "description": "Rate of data intentionally filtered by filter processors (filter/metrics_drop, filter/logs_drop_info, filter/events_drop). These are deliberate policy-based drops, not errors. otelcol_processor_dropped_metric_points_total is not used here — it is only emitted by memory_limiter under OOM pressure and is absent when the system is healthy.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of data intentionally filtered by filter processors (filter/metrics_drop, filter/logs_drop_info, filter/events_drop). These are deliberate policy-based drops, not errors. otelcol_processor_dropped_metric_points_total is not used here \u2014 it is only emitted by memory_limiter under OOM pressure and is absent when the system is healthy.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_processor_filter_datapoints_filtered_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "{{pod}} ({{node}}) / {{processor}} metrics",
           "refId": "A"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_processor_filter_logs_filtered_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "{{pod}} ({{node}}) / {{processor}} logs",
           "refId": "B"
@@ -810,25 +1549,53 @@
     {
       "id": 30,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 67},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 67
+      },
       "title": "Batch Metadata Cardinality",
       "description": "Number of distinct metadata keys tracked by the batch processor; high or growing values mean attribute cardinality is increasing memory usage.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "short"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_processor_batch_metadata_cardinality{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -838,31 +1605,62 @@
     {
       "id": 31,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 75},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 75
+      },
       "title": "Agent Batch Send Size",
       "description": "Batch sizes sent by agent collectors (p50 and p99). Values near 1000 mean size-triggered flushes; low values mean timeout-triggered flushes.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "short"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "histogram_quantile(0.50, sum by (le, pod, node) (rate(otelcol_processor_batch_batch_send_size_bucket{pod=~\".*agent.*\"}[$__rate_interval])))",
           "legendFormat": "p50 / {{pod}} ({{node}})",
           "refId": "A"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "histogram_quantile(0.99, sum by (le, pod, node) (rate(otelcol_processor_batch_batch_send_size_bucket{pod=~\".*agent.*\"}[$__rate_interval])))",
           "legendFormat": "p99 / {{pod}} ({{node}})",
           "refId": "B"
@@ -872,31 +1670,62 @@
     {
       "id": 32,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 75},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 75
+      },
       "title": "Gateway Batch Send Size",
       "description": "Batch sizes sent by the gateway collector (p50 and p99). Values near 2000 mean size-triggered flushes; low values mean timeout-triggered flushes.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "short"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "histogram_quantile(0.50, sum by (le, pod, node) (rate(otelcol_processor_batch_batch_send_size_bucket{pod=~\".*gateway.*\"}[$__rate_interval])))",
           "legendFormat": "p50 / {{pod}} ({{node}})",
           "refId": "A"
         },
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "histogram_quantile(0.99, sum by (le, pod, node) (rate(otelcol_processor_batch_batch_send_size_bucket{pod=~\".*gateway.*\"}[$__rate_interval])))",
           "legendFormat": "p99 / {{pod}} ({{node}})",
           "refId": "B"
@@ -905,82 +1734,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 83},
-      "id": 33,
-      "title": "Duration",
-      "type": "row"
-    },
-    {
-      "id": 34,
-      "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 84},
-      "title": "Agent Processor Duration",
-      "description": "Internal processing latency per processor type for agent collectors (p50 and p99). A sustained upward trend on any processor indicates a pipeline bottleneck. memory_limiter, k8s_attributes, and batch are the most common contributors.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
-          "unit": "s"
-        },
-        "overrides": []
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 83
       },
-      "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
-      },
-      "targets": [
-        {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
-          "expr": "histogram_quantile(0.50, sum by (le, pod, node, processor) (rate(otelcol_processor_internal_duration_bucket{pod=~\".*agent.*\"}[$__rate_interval])))",
-          "legendFormat": "p50 / {{pod}} ({{node}}) / {{processor}}",
-          "refId": "A"
-        },
-        {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
-          "expr": "histogram_quantile(0.99, sum by (le, pod, node, processor) (rate(otelcol_processor_internal_duration_bucket{pod=~\".*agent.*\"}[$__rate_interval])))",
-          "legendFormat": "p99 / {{pod}} ({{node}}) / {{processor}}",
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "id": 35,
-      "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 84},
-      "title": "Gateway Processor Duration",
-      "description": "Internal processing latency per processor type for gateway collectors (p50 and p99). A sustained upward trend on any processor indicates a pipeline bottleneck. k8s_attributes/enrich and transform processors are the most likely contributors at gateway scale.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
-      },
-      "targets": [
-        {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
-          "expr": "histogram_quantile(0.50, sum by (le, pod, node, processor) (rate(otelcol_processor_internal_duration_bucket{pod=~\".*gateway.*\"}[$__rate_interval])))",
-          "legendFormat": "p50 / {{pod}} ({{node}}) / {{processor}}",
-          "refId": "A"
-        },
-        {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
-          "expr": "histogram_quantile(0.99, sum by (le, pod, node, processor) (rate(otelcol_processor_internal_duration_bucket{pod=~\".*gateway.*\"}[$__rate_interval])))",
-          "legendFormat": "p99 / {{pod}} ({{node}}) / {{processor}}",
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 92},
       "id": 36,
       "title": "Scrapers",
       "type": "row"
@@ -988,25 +1747,53 @@
     {
       "id": 37,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 93},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 84
+      },
       "title": "Scraper Scraped Rate",
       "description": "Rate of metric points successfully scraped by the prometheus receiver via TargetAllocator-assigned targets, broken down by scraper type and pod. The scraper label matches the configured receiver name (e.g. kubelet_stats). Emitted by agent pods only.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_scraper_scraped_metric_points_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "{{pod}} ({{node}}) / {{scraper}}",
           "refId": "A"
@@ -1016,25 +1803,53 @@
     {
       "id": 38,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 93},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 84
+      },
       "title": "Scraper Errors",
       "description": "Rate of metric points that failed to be scraped due to errors (connection refused, parse errors, auth failures). Any non-zero value indicates a scrape target is unreachable or broken. Metric emits at 0 when healthy (all scrapers succeed).",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_scraper_errored_metric_points_total{pod=~\"${pod:regex}\"}[$__rate_interval]) or vector(0)",
           "legendFormat": "{{pod}} ({{node}}) / {{scraper}}",
           "refId": "A"
@@ -1043,7 +1858,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 101},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 92
+      },
       "id": 39,
       "title": "Exporter Saturation",
       "type": "row"
@@ -1051,25 +1871,53 @@
     {
       "id": 40,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 102},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 93
+      },
       "title": "Exporter In-Flight Requests",
       "description": "Number of export requests currently in-flight per exporter and data type. Sustained high values mean the downstream (VictoriaMetrics or Loki) is slow to respond. Combined with queue fill ratio this indicates whether backpressure is building. Normally 0 at homelab scale.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "short"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_exporter_in_flight_requests{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}}) / {{exporter}} ({{data_type}})",
           "refId": "A"
@@ -1078,7 +1926,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 110},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 101
+      },
       "id": 41,
       "title": "K8s Enrichment",
       "type": "row"
@@ -1086,25 +1939,53 @@
     {
       "id": 42,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 111},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 102
+      },
       "title": "K8s Pod Table Size",
-      "description": "Number of pod entries in the k8s_attributes processor's internal cache. Agent pods cache only node-local pods (23–257 depending on node workload); gateway pods cache cluster-wide (509 currently). A value near 0 on the gateway indicates the k8s API watch is broken and enrichment will fail.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Number of pod entries in the k8s_attributes processor's internal cache. Agent pods cache only node-local pods (23\u2013257 depending on node workload); gateway pods cache cluster-wide (509 currently). A value near 0 on the gateway indicates the k8s API watch is broken and enrichment will fail.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "short"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_otelsvc_k8s_pod_table_size{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -1114,25 +1995,53 @@
     {
       "id": 43,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 111},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 102
+      },
       "title": "K8s IP Lookup Miss Rate",
-      "description": "Rate of IP-to-pod lookups that failed to find a match in the k8s_attributes cache. High miss rates mean telemetry is arriving before the pod's metadata is cached — check passthrough processor ordering or pod startup race conditions. Healthy when near 0.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "description": "Rate of IP-to-pod lookups that failed to find a match in the k8s_attributes cache. High miss rates mean telemetry is arriving before the pod's metadata is cached \u2014 check passthrough processor ordering or pod startup race conditions. Healthy when near 0.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "cps"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "rate(otelcol_otelsvc_k8s_ip_lookup_miss_total{pod=~\"${pod:regex}\"}[$__rate_interval])",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -1141,7 +2050,12 @@
     },
     {
       "collapsed": false,
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 119},
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 110
+      },
       "id": 44,
       "title": "File Consumer",
       "type": "row"
@@ -1149,25 +2063,53 @@
     {
       "id": 45,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 120},
-      "title": "File Consumer — Open Files",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 111
+      },
+      "title": "File Consumer \u2014 Open Files",
       "description": "Number of log files currently open by the filelog receiver on each agent pod. Reflects the number of active container log files under /var/log/pods. Growth after a node scale-up is expected; a large unexpected jump may indicate log file accumulation from container restarts.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "short"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_fileconsumer_open_files{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
@@ -1177,25 +2119,53 @@
     {
       "id": 46,
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 120},
-      "title": "File Consumer — Reading Files",
-      "description": "Number of log files actively receiving new writes on each agent pod. A value much lower than open_files is normal — most container logs are idle at any given moment. A sudden drop to 0 may indicate the filelog pipeline has stalled.",
-      "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 111
+      },
+      "title": "File Consumer \u2014 Reading Files",
+      "description": "Number of log files actively receiving new writes on each agent pod. A value much lower than open_files is normal \u2014 most container logs are idle at any given moment. A sudden drop to 0 may indicate the filelog pipeline has stalled.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 1, "fillOpacity": 10, "spanNulls": false, "showPoints": "never"},
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "spanNulls": false,
+            "showPoints": "never"
+          },
           "unit": "short"
         },
         "overrides": []
       },
       "options": {
-        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]},
-        "tooltip": {"mode": "multi", "sort": "desc"}
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
           "expr": "otelcol_fileconsumer_reading_files{pod=~\"${pod:regex}\"}",
           "legendFormat": "{{pod}} ({{node}})",
           "refId": "A"
