@@ -10,6 +10,8 @@ spec:
   interval: 1h
   path: ./kubernetes/apps/monitoring/victoriametrics/app
   postBuild:
+    substitute:
+      APP: *app
     substituteFrom:
       - name: cluster-secrets
         kind: Secret
