@@ -5,6 +5,7 @@ metadata:
   name: pr-review
 spec:
   schedule: "0 */2 * * *"
+  suspend: true
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 3
   successfulJobsHistoryLimit: 3
