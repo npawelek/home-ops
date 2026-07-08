@@ -21,7 +21,7 @@ spec:
           app:
             image:
               repository: denoland/deno
-              tag: 2.9.1@sha256:c40ad61ed0b40cca8fda05a2bbf44f8e02485bebec8ee4820bdb4b6fff42599d
+              tag: 2.9.2@sha256:69a9f3033e3f381770452648b1cbf4ae96ea409f7ef24f30afeff3d380705f62
             command: ["deno", "run", "--allow-net", "--allow-env", "--allow-read", "--no-lock", "index.ts"]
             workingDir: /app
             securityContext:
