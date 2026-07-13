@@ -79,6 +79,7 @@ spec:
         endpoint: 0.0.0.0:13133
       file_storage:
         directory: /var/lib/otelcol_gateway
+        recreate: true
       zpages:
         endpoint: 0.0.0.0:55679
       k8s_leader_elector:
