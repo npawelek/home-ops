@@ -67,6 +67,9 @@ spec:
               - /config
             env:
               TZ: ${TIMEZONE}
+            envFrom:
+              - secretRef:
+                  name: esphome-coder-env-secrets
             resources:
               requests:
                 cpu: 10m
