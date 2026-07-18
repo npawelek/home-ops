@@ -97,6 +97,7 @@ spec:
               # HASS_SERVER: http://hass-app.home-automation.svc.cluster.local:8123
             envFrom:
               - secretRef:
+                  # generated token 071726
                   name: home-assistant-coder-env-secrets
             resources:
               requests:

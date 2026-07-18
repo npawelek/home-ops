@@ -69,6 +69,7 @@ spec:
               TZ: ${TIMEZONE}
             envFrom:
               - secretRef:
+                  # generated token 071726
                   name: esphome-coder-env-secrets
             resources:
               requests:
