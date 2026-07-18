@@ -29,7 +29,7 @@
   kustomize: {
     managerFilePatterns: ["/^kustomization\\.ya?ml(?:\\.j2)?$/"],
   },
-  "pip-requirements": {
+  pip_requirements: {
     managerFilePatterns: ["/(^|/)requirements\\.txt$/"],
   },
   "pre-commit": {
