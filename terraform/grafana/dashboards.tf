@@ -118,6 +118,12 @@ resource "grafana_dashboard" "authentik_health" {
   overwrite   = true
 }
 
+resource "grafana_dashboard" "node_logs" {
+  folder      = grafana_folder.infrastructure.uid
+  config_json = file("${path.module}/dashboards/node-logs.json")
+  overwrite   = true
+}
+
 resource "grafana_dashboard" "node_metrics" {
   folder      = grafana_folder.infrastructure.uid
   config_json = file("${path.module}/dashboards/node-metrics.json")
