@@ -1,0 +1,272 @@
+{
+  "__inputs": [],
+  "__elements": {},
+  "__requires": [
+    {"type": "datasource", "id": "loki", "name": "Loki", "version": "1.0.0"},
+    {"type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0"},
+    {"type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0"},
+    {"type": "panel", "id": "logs", "name": "Logs", "version": ""},
+    {"type": "panel", "id": "timeseries", "name": "Time series", "version": ""}
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {"type": "grafana", "uid": "-- Grafana --"},
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Node-level log browser for Talos system services — volume, error rate, and interactive filtering by node and service.",
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 1,
+      "panels": [],
+      "title": "Rate",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "description": "Log lines per second from Talos system services, stacked by service. A service disappearing from the chart means it stopped emitting logs or dropped below the WARN threshold. Filtered by Node and Service variables. Only WARN and above reach Loki — INFO is filtered at the OTel gateway.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {"mode": "normal"}
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 1},
+      "id": 2,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+          "expr": "sum by (service_name) (count_over_time({k8s_cluster_name=\"home-ops\", service_name=~\"${service:regex}\"} | log_source = \"talos\" | host_name =~ \"${node:regex}\" [$__auto]))",
+          "legendFormat": "{{service_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Volume",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "description": "Log lines per second from Talos system services, stacked by node. Useful for spotting a single node generating disproportionate log volume.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {"mode": "normal"}
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1},
+      "id": 3,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+          "expr": "sum by (host_name) (count_over_time({k8s_cluster_name=\"home-ops\", service_name=~\"${service:regex}\"} | log_source = \"talos\" | host_name =~ \"${node:regex}\" [$__auto]))",
+          "legendFormat": "{{host_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Volume by Node",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+      "id": 4,
+      "panels": [],
+      "title": "Errors",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "description": "Rate of log lines at warn, error, or fatal severity from Talos services, broken down by service. Healthy: near zero during steady-state. A spike warrants drilling into the Browse panels below.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {"mode": "none"}
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 10},
+      "id": 5,
+      "options": {
+        "legend": {"calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "right"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      },
+      "targets": [
+        {
+          "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+          "expr": "sum by (service_name) (count_over_time({k8s_cluster_name=\"home-ops\", service_name=~\"${service:regex}\"} | log_source = \"talos\" | host_name =~ \"${node:regex}\" | severity_text =~ \"warn|error|fatal\" [$__auto]))",
+          "legendFormat": "{{service_name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Error & Warn Rate",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 18},
+      "id": 6,
+      "panels": [],
+      "title": "Browse",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "description": "Interactive log browser for Talos node services. Use the Node and Service variables to narrow scope. Only WARN and above are stored — INFO-level logs (e.g. kernel audit rate limit messages) are filtered at the OTel gateway logs/udp pipeline.",
+      "gridPos": {"h": 16, "w": 24, "x": 0, "y": 19},
+      "id": 7,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+          "expr": "{k8s_cluster_name=\"home-ops\", service_name=~\"${service:regex}\"} | log_source = \"talos\" | host_name =~ \"${node:regex}\"",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 35},
+      "id": 8,
+      "panels": [],
+      "title": "Errors & Warnings",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+      "description": "Logs pre-filtered to severity warn, error, or fatal within the selected nodes and services. Use this panel to triage node-level failures without manually adding filter expressions in the browse panel above.",
+      "gridPos": {"h": 14, "w": 24, "x": 0, "y": 36},
+      "id": 9,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+          "expr": "{k8s_cluster_name=\"home-ops\", service_name=~\"${service:regex}\"} | log_source = \"talos\" | host_name =~ \"${node:regex}\" | severity_text =~ \"warn|error|fatal\"",
+          "refId": "A"
+        }
+      ],
+      "title": "Error & Warn Logs",
+      "type": "logs"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 42,
+  "tags": ["logs", "loki", "infrastructure", "talos"],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".*",
+        "current": {"selected": true, "text": ["All"], "value": ["$__all"]},
+        "datasource": {"type": "prometheus", "uid": "P4169E866C3094E38"},
+        "definition": "label_values(node_load1, node)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Node",
+        "multi": true,
+        "name": "node",
+        "options": [],
+        "query": {"query": "label_values(node_load1, node)", "refId": "StandardVariableQuery"},
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".+",
+        "current": {"selected": true, "text": ["All"], "value": ["$__all"]},
+        "datasource": {"type": "loki", "uid": "P8E80F9AEF21F6940"},
+        "definition": "label_values({k8s_cluster_name=\"home-ops\"}, service_name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Service",
+        "multi": true,
+        "name": "service",
+        "options": [],
+        "query": {"label": "service_name", "stream": "{k8s_cluster_name=\"home-ops\"}", "type": 1},
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-3h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Node Logs",
+  "uid": "node-logs",
+  "version": 0,
+  "weekStart": ""
+}
