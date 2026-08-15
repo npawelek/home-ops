@@ -51,12 +51,14 @@ spec:
                 - sh
                 - -c
                 - |
+                  set -e
                   apk add --no-cache py3-pip openssl
-                  pip3 install --break-system-packages ansible-runner==2.4.2 kubernetes==35.0.0
-                  ansible-galaxy collection install kubernetes.core
-                  ansible-galaxy collection install community.general
-                  # Copy installed binaries to shared volume
-                  cp -r /usr/lib/python3.12/site-packages/* /opt/python-packages/
+                  # renovate: datasource=pypi depName=ansible-runner
+                  pip3 install --break-system-packages ansible-runner==2.4.3
+                  # renovate: datasource=pypi depName=kubernetes
+                  pip3 install --break-system-packages kubernetes==35.0.0
+                  PYTHON_SITE=$(python3 -c "import site; print(site.getsitepackages()[0])")
+                  cp -r ${PYTHON_SITE}/* /opt/python-packages/
                   cp /usr/bin/ansible-runner /opt/bin/
                   cp /usr/bin/openssl /opt/bin/
               volumeMounts:
