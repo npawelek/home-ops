@@ -18,12 +18,12 @@
     - name: Group online hosts
       ansible.builtin.group_by:
         key: online
-      when: tcp_check.elapsed is defined
+      when: tcp_check.state | default('') == 'started'
 
     - name: Report offline hosts
       ansible.builtin.debug:
         msg: "OFFLINE: {{ inventory_hostname }} ({{ ansible_host }}) — skipping all tasks"
-      when: tcp_check.elapsed is not defined
+      when: tcp_check.state | default('') != 'started'
 
 
 - name: Distribute certificates
