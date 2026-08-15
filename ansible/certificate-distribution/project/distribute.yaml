@@ -135,13 +135,6 @@
     - name: Deploy to UniFi
       when: "'unifi' in group_names"
       block:
-        - name: Find Java binary
-          ansible.builtin.shell: |
-            find /usr/lib/jvm /usr/bin /usr/local/bin -name java -type f 2>/dev/null | head -1
-          register: java_path
-          changed_when: false
-          failed_when: java_path.stdout | length == 0
-
         - name: Backup existing certs
           ansible.builtin.copy:
             src: "{{ item }}"
@@ -162,23 +155,10 @@
             - {content: "{{ cert_fullchain }}", dest: "/data/unifi-core/config/unifi-core.crt"}
             - {content: "{{ cert_key }}", dest: "/data/unifi-core/config/unifi-core.key"}
 
-        - name: Import certificate to Java keystore
-          ansible.builtin.shell: |
-            {{ java_path.stdout }} -jar /usr/lib/unifi/lib/ace.jar import_key_cert \
-              /data/unifi-core/config/unifi-core.key \
-              /data/unifi-core/config/unifi-core.crt
-          changed_when: true
-          when: >
-            (unifi_cert_result.results | selectattr('changed', 'equalto', true) | list | length > 0)
-            or not cert_before.matches
-
-        - name: Restart UniFi services
+        - name: Restart unifi-core
           ansible.builtin.systemd:
-            name: "{{ item }}"
+            name: unifi-core
             state: restarted
-          loop:
-            - unifi-core
-            - unifi
           when: >
             (unifi_cert_result.results | selectattr('changed', 'equalto', true) | list | length > 0)
             or not cert_before.matches
