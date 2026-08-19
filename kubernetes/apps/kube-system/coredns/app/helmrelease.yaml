@@ -14,7 +14,7 @@ spec:
     fullnameOverride: coredns
     image:
       repository: registry.k8s.io/coredns/coredns
-      tag: v1.14.6@sha256:1ba6f47265602e2e50a9c4669e3a955e4298a0d30dc82f39293d4bf1a851e0ff
+      tag: v1.14.7@sha256:2329f5f0e7e79fbe56dcdf11ecc4337ee2476bb251095bc275fe9461cb88a55b
     k8sAppLabelOverride: kube-dns
     serviceAccount:
       create: true
