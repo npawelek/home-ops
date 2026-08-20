@@ -65,7 +65,10 @@ k = "kubectl"
 [tasks.install]
 description = "Install Python dependencies"
 alias = "i"
-run = "uv pip install -r requirements.txt"
+run = """
+  [ -e .venv/bin/python ] || uv venv --clear
+  uv pip install -r requirements.txt
+"""
 
 [tasks.check-deps]
 description = "Check if Python dependencies need updating"
