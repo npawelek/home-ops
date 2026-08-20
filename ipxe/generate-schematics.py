@@ -342,9 +342,9 @@ def main():
                 initramfs_url = f"https://factory.talos.dev/image/{schematic_id}/{talos_version}/initramfs-{arch}.xz"
 
                 download_cmds.append(f"echo 'Downloading {name} kernel...'")
-                download_cmds.append(f"curl -sL -o {file_prefix}-kernel-{arch} {kernel_url}")
+                download_cmds.append(f"curl -fSL --progress-bar --max-time 20 --retry 5 --retry-delay 2 -o {file_prefix}-kernel-{arch} {kernel_url}")
                 download_cmds.append(f"echo 'Downloading {name} initramfs...'")
-                download_cmds.append(f"curl -sL -o {file_prefix}-initramfs-{arch}.xz {initramfs_url}")
+                download_cmds.append(f"curl -fSL --progress-bar --max-time 20 --retry 5 --retry-delay 2 -o {file_prefix}-initramfs-{arch}.xz {initramfs_url}")
 
         full_cmd = "mkdir -p talos/" + talos_version + " && cd talos/" + talos_version + " && " + " && ".join(download_cmds)
         print(full_cmd)
