@@ -65,6 +65,9 @@ spec:
     longhornRecoveryBackend:
       replicas: 0
 
+    networkPolicies:
+      enabled: false
+
     # Disable built-in ingress - using Envoy Gateway HTTPRoute instead
     ingress:
       enabled: false
