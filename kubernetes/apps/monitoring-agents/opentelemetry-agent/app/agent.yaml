@@ -6,6 +6,8 @@ metadata:
 spec:
   mode: daemonset
   serviceAccount: opentelemetry-collector-agent
+  networkPolicy:
+    enabled: false
   securityContext:
     runAsUser: 0
     runAsGroup: 0

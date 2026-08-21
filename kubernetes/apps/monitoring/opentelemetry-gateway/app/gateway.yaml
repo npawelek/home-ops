@@ -17,11 +17,15 @@ spec:
                 app.kubernetes.io/name: opentelemetry-collector
                 app.kubernetes.io/instance: gateway
             topologyKey: kubernetes.io/hostname
+  networkPolicy:
+    enabled: false
   targetAllocator:
     enabled: true
     replicas: 1
     allocationStrategy: consistent-hashing
     serviceAccount: opentelemetry-targetallocator
+    networkPolicy:
+      enabled: false
     prometheusCR:
       enabled: true
       scrapeInterval: 30s
