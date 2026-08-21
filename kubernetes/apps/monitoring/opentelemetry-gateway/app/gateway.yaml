@@ -24,8 +24,6 @@ spec:
     replicas: 1
     allocationStrategy: consistent-hashing
     serviceAccount: opentelemetry-targetallocator
-    networkPolicy:
-      enabled: false
     prometheusCR:
       enabled: true
       scrapeInterval: 30s
