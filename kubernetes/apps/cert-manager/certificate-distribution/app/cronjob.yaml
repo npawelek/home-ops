@@ -56,7 +56,7 @@ spec:
                   # renovate: datasource=pypi depName=ansible-runner
                   pip3 install --break-system-packages ansible-runner==2.4.3
                   # renovate: datasource=pypi depName=kubernetes
-                  pip3 install --break-system-packages kubernetes==35.0.0
+                  pip3 install --break-system-packages kubernetes==36.0.3
                   PYTHON_SITE=$$(python3 -c "import site; print(site.getsitepackages()[0])")
                   cp -r $${PYTHON_SITE}/* /opt/python-packages/
                   cp /usr/bin/ansible-runner /opt/bin/
