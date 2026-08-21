@@ -67,3 +67,4 @@ spec:
   labels: {}
   name: snapshot-cleanup
   retain: 0
+  concurrency: 2
