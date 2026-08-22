@@ -54,8 +54,8 @@ spec:
                   # renovate: datasource=pypi depName=ansible-runner
                   pip3 install --break-system-packages ansible-runner==2.4.3
                   ansible-galaxy collection install ansible.posix
-                  PYTHON_SITE=$$(python3 -c "import site; print(site.getsitepackages()[0])")
-                  cp -r $${PYTHON_SITE}/* /opt/python-packages/
+                  PYTHON_SITE=$(python3 -c "import site; print(site.getsitepackages()[0])")
+                  cp -r ${PYTHON_SITE}/* /opt/python-packages/
                   cp /usr/bin/ansible-runner /opt/bin/
               volumeMounts:
                 - name: python-packages

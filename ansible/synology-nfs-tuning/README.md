@@ -8,20 +8,10 @@ Ensures the Synology NAS NFS server advertises a 1MB max block size (`rsize=1048
 2. If wrong: stops `nfs-server`, mounts the nfsd procfs, writes the new value, restarts `nfs-server`
 3. Installs a systemd unit (`nfsd-block-size.service`) that re-applies the setting before `nfs-server` starts on each boot
 
-## Secrets required
-
-| Secret | Description |
-|--------|-------------|
-| `synology-nfs-tuning-ssh` | SSH private key (`id_rsa`) for the NAS |
-| `synology-nfs-tuning-inventory` | Ansible inventory (`hosts.yaml`) with NAS host and credentials |
-
-Both secrets live in `kubernetes/apps/automation/synology-nfs-tuning/app/` and are SOPS-encrypted.
-
 ## Running manually
 
 ```bash
-cd ansible/synology-nfs-tuning/project
-ansible-playbook -i hosts.yaml site.yaml
+kubectl create job --from=cronjob/synology-nfs-tuning manualrun-$(date +%s) -n automation
 ```
 
 ## Scheduled runner
