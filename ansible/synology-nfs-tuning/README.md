@@ -12,6 +12,8 @@ Ensures the Synology NAS NFS server advertises a 1MB max block size (`rsize=1048
 
 ```bash
 kubectl create job --from=cronjob/synology-nfs-tuning manualrun-$(date +%s) -n automation
+kubectl logs -n automation <job> -f
+kubectl delete job -n automation <job>
 ```
 
 ## Scheduled runner
