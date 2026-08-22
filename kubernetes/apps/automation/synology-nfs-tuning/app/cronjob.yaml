@@ -51,6 +51,7 @@ spec:
                 - -c
                 - |
                   set -e
+                  apk add --no-cache py3-pip
                   # renovate: datasource=pypi depName=ansible-runner
                   pip3 install --break-system-packages ansible-runner==2.4.3
                   ansible-galaxy collection install ansible.posix
