@@ -63,8 +63,8 @@
 
           [Service]
           Type=oneshot
-          ExecStart=-mount -t nfsd nfsd /proc/fs/nfsd
-          ExecStart=sh -c 'echo {{ nfs_max_block_size }} > /proc/fs/nfsd/max_block_size'
+          ExecStart=-/bin/mount -t nfsd nfsd /proc/fs/nfsd
+          ExecStart=/bin/sh -c 'echo {{ nfs_max_block_size }} > /proc/fs/nfsd/max_block_size'
           RemainAfterExit=yes
 
           [Install]
