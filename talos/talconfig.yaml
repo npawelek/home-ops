@@ -101,6 +101,7 @@ nodes:
     patches:
       - "@./patches/nodes/pella-longhorn-volume.yaml"
       - "@./patches/nodes/pella-logging.yaml"
+      - "@./patches/nodes/pella-ethernetconfig.yaml"
   - hostname: "donnager"
     ipAddress: "192.168.0.33"
     installDisk: "/dev/sda"
