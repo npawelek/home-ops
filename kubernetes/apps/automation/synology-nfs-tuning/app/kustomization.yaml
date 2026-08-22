@@ -1,0 +1,29 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ./secret-ssh.sops.yaml
+  - ./secret-inventory.sops.yaml
+  - ./cronjob.yaml
+
+configMapGenerator:
+  - name: synology-nfs-tuning-project
+    files:
+      - site.yaml=../../../../../ansible/synology-nfs-tuning/project/site.yaml
+      - ansible.cfg=../../../../../ansible/synology-nfs-tuning/project/ansible.cfg
+
+  - name: synology-nfs-tuning-env
+    literals:
+      - cmdline=-v
+      - |
+        settings=---
+        idle_timeout: 300
+        job_timeout: 600
+
+  - name: ssh-config
+    literals:
+      - |
+        config=Host *
+          StrictHostKeyChecking no
+          UserKnownHostsFile /dev/null

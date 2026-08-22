@@ -1,0 +1,78 @@
+---
+- name: Synology NFS tuning
+  hosts: all
+  gather_facts: false
+
+  vars:
+    nfs_max_block_size: 1048576
+    nfsd_service_name: nfsd-block-size.service
+    nfsd_service_path: /etc/systemd/system/nfsd-block-size.service
+
+  tasks:
+    - name: Read current max_block_size
+      ansible.builtin.slurp:
+        src: /proc/fs/nfsd/max_block_size
+      register: current_block_size
+      failed_when: false
+
+    - name: Set max_block_size to {{ nfs_max_block_size }}
+      when: (current_block_size.content | b64decode | trim) != (nfs_max_block_size | string)
+      block:
+        - name: Stop nfs-server
+          ansible.builtin.systemd:
+            name: nfs-server
+            state: stopped
+
+        - name: Mount nfsd filesystem
+          ansible.posix.mount:
+            src: nfsd
+            path: /proc/fs/nfsd
+            fstype: nfsd
+            state: mounted
+
+        - name: Write max_block_size
+          ansible.builtin.shell:
+            cmd: echo {{ nfs_max_block_size }} > /proc/fs/nfsd/max_block_size
+          changed_when: true
+
+        - name: Start nfs-server
+          ansible.builtin.systemd:
+            name: nfs-server
+            state: started
+
+    - name: Verify max_block_size
+      ansible.builtin.slurp:
+        src: /proc/fs/nfsd/max_block_size
+      register: verified_block_size
+
+    - name: Assert max_block_size is correct
+      ansible.builtin.assert:
+        that: (verified_block_size.content | b64decode | trim) == (nfs_max_block_size | string)
+        fail_msg: >-
+          max_block_size is {{ verified_block_size.content | b64decode | trim }},
+          expected {{ nfs_max_block_size }}
+
+    - name: Install persistence systemd service
+      ansible.builtin.copy:
+        dest: "{{ nfsd_service_path }}"
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Set nfsd max block size to {{ nfs_max_block_size }}
+          Before=nfs-server.service
+
+          [Service]
+          Type=oneshot
+          ExecStart=-mount -t nfsd nfsd /proc/fs/nfsd
+          ExecStart=sh -c 'echo {{ nfs_max_block_size }} > /proc/fs/nfsd/max_block_size'
+          RemainAfterExit=yes
+
+          [Install]
+          WantedBy=multi-user.target
+      register: service_file
+
+    - name: Enable persistence service
+      ansible.builtin.systemd:
+        name: "{{ nfsd_service_name }}"
+        enabled: true
+        daemon_reload: "{{ service_file.changed }}"

@@ -1,0 +1,130 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: synology-nfs-tuning
+spec:
+  schedule: "0 1 * * 1"  # Weekly Monday 1am UTC (Sunday evening)
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 300
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: synology-nfs-tuning
+        spec:
+          restartPolicy: OnFailure
+
+          initContainers:
+            - name: fix-ssh-permissions
+              # yamllint disable-line rule:line-length
+              image: alpine/ansible:2.21.0@sha256:ea79848adaa8e05e90b10f7f867d200c14063bfb9930f75f3d511f5c61f5ca53
+              command:
+                - sh
+                - -c
+                - |
+                  mkdir -p /root/.ssh
+                  chmod 700 /root/.ssh
+                  cp /tmp/ssh-key/id_rsa /root/.ssh/id_rsa
+                  chmod 600 /root/.ssh/id_rsa
+                  cp /tmp/ssh-config/config /root/.ssh/config
+                  chmod 600 /root/.ssh/config
+              volumeMounts:
+                - name: ssh-key
+                  mountPath: /tmp/ssh-key
+                  readOnly: true
+                - name: ssh-config
+                  mountPath: /tmp/ssh-config
+                  readOnly: true
+                - name: ssh-home
+                  mountPath: /root/.ssh
+
+            - name: install-deps
+              # yamllint disable-line rule:line-length
+              image: alpine/ansible:2.21.0@sha256:ea79848adaa8e05e90b10f7f867d200c14063bfb9930f75f3d511f5c61f5ca53
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  # renovate: datasource=pypi depName=ansible-runner
+                  pip3 install --break-system-packages ansible-runner==2.4.3
+                  ansible-galaxy collection install ansible.posix
+                  PYTHON_SITE=$$(python3 -c "import site; print(site.getsitepackages()[0])")
+                  cp -r $${PYTHON_SITE}/* /opt/python-packages/
+                  cp /usr/bin/ansible-runner /opt/bin/
+              volumeMounts:
+                - name: python-packages
+                  mountPath: /opt/python-packages
+                - name: bin-cache
+                  mountPath: /opt/bin
+                - name: runner-cache
+                  mountPath: /root/.local
+
+          containers:
+            - name: ansible-runner
+              # yamllint disable-line rule:line-length
+              image: alpine/ansible:2.21.0@sha256:ea79848adaa8e05e90b10f7f867d200c14063bfb9930f75f3d511f5c61f5ca53
+              workingDir: /runner
+              env:
+                - name: PATH
+                  value: /opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+                - name: PYTHONPATH
+                  value: /opt/python-packages
+              command:
+                - sh
+                - -c
+                - |
+                  ansible-runner run /runner -p site.yaml
+              volumeMounts:
+                - name: runner-project
+                  mountPath: /runner/project
+                - name: runner-inventory
+                  mountPath: /runner/inventory
+                - name: runner-env
+                  mountPath: /runner/env
+                - name: runner-cache
+                  mountPath: /root/.local
+                - name: ssh-home
+                  mountPath: /root/.ssh
+                - name: python-packages
+                  mountPath: /opt/python-packages
+                - name: bin-cache
+                  mountPath: /opt/bin
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+
+          volumes:
+            - name: runner-project
+              configMap:
+                name: synology-nfs-tuning-project
+            - name: runner-inventory
+              secret:
+                secretName: synology-nfs-tuning-inventory
+            - name: runner-env
+              configMap:
+                name: synology-nfs-tuning-env
+            - name: runner-cache
+              emptyDir: {}
+            - name: python-packages
+              emptyDir: {}
+            - name: bin-cache
+              emptyDir: {}
+            - name: ssh-home
+              emptyDir: {}
+            - name: ssh-key
+              secret:
+                secretName: synology-nfs-tuning-ssh
+                defaultMode: 0600
+            - name: ssh-config
+              configMap:
+                name: ssh-config
