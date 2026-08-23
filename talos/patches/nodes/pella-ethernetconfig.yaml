@@ -1,0 +1,16 @@
+---
+# X540 port 0 (active, enp6s0f0 / 6c:92:bf:65:0b:66)
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: enp6s0f0
+rings:
+  rx: 8192
+  tx: 8192
+---
+# X540 port 1 (inactive, enp6s0f1 / 6c:92:bf:65:0b:67)
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: enp6s0f1
+rings:
+  rx: 8192
+  tx: 8192
