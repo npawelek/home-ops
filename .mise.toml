@@ -51,7 +51,7 @@ enter = "mise run check-deps"
 "pipx:mcp-compressor" = "0.13.0"
 "pipx:yamllint" = "1.38.0"
 "python" = "3.14.7"
-claude = "2.1.238"
+claude = "2.1.239"
 
 [shell_alias]
 k = "kubectl"
