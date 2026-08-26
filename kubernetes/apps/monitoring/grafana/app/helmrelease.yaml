@@ -87,6 +87,8 @@ spec:
       labels:
         monitoring: otel
       interval: "30s"
+    deploymentStrategy:
+      type: Recreate
     persistence:
       enabled: true
       storageClassName: longhorn
