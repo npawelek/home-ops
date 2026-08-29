@@ -171,3 +171,9 @@ resource "grafana_dashboard" "kubernetes_pods" {
   config_json = file("${path.module}/dashboards/kubernetes-pods.json")
   overwrite   = true
 }
+
+resource "grafana_dashboard" "valkey_health" {
+  folder      = grafana_folder.platform.uid
+  config_json = file("${path.module}/dashboards/valkey-health.json")
+  overwrite   = true
+}
