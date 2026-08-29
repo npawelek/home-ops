@@ -1,0 +1,16 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: BackendTLSPolicy
+metadata:
+  name: ${APP}
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: ${BACKEND_TLS_SERVICE:-${APP}}
+  validation:
+    caCertificateRefs:
+      - group: ""
+        kind: ConfigMap
+        name: ${BACKEND_TLS_CA_CONFIGMAP:-internal-ca-bundle}
+    hostname: ${BACKEND_TLS_HOSTNAME}

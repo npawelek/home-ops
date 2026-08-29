@@ -1,0 +1,24 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: minio-terraform
+spec:
+  targetNamespace: storage
+  dependsOn:
+    - name: tofu-controller
+      namespace: flux-system
+    - name: minio
+      namespace: storage
+  interval: 1h
+  path: ./kubernetes/apps/storage/minio/terraform
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: cluster-secrets
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: false

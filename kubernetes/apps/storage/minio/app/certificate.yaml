@@ -1,0 +1,20 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: minio-tls
+spec:
+  secretName: minio-tls
+  commonName: minio.storage.svc.cluster.local
+  dnsNames:
+    - minio
+    - minio.storage.svc
+    - minio.storage.svc.cluster.local
+  privateKey:
+    algorithm: ECDSA
+    size: 384
+  duration: 2160h
+  renewBefore: 360h
+  issuerRef:
+    name: internal-ca
+    kind: ClusterIssuer

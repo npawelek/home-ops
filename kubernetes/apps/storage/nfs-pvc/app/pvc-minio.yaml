@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: racknas-minio
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  volumeName: racknas-minio
+  resources:
+    requests:
+      storage: 50Ti

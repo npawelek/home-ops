@@ -1,0 +1,150 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-5.1.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: minio
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: minio
+  interval: 1h
+  values:
+    global:
+      createDefaultServiceAccount: false
+    controllers:
+      minio:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          app:
+            image:
+              repository: quay.io/minio/aistor/minio
+              # yamllint disable-line rule:line-length
+              # renovate: datasource=docker depName=quay.io/minio/aistor/minio versioning=regex:^RELEASE\\.(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)T\\d+-\\d+-\\d+Z$
+              tag: RELEASE.2026-08-07T18-34-35Z@sha256:d1eb0f79ced75d6c024fc6a2ab6a7b3629ff54c798d967d9c6f89951237480a7
+            command:
+              - /usr/bin/minio
+            args:
+              - server
+              - /data
+              - --console-address
+              - :9001
+              - --certs-dir
+              - /etc/minio/certs
+              - --license
+              - /minio.license
+            env:
+              TZ: ${TIMEZONE}
+            envFrom:
+              - secretRef:
+                  name: minio-secrets
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /minio/health/live
+                    scheme: HTTPS
+                    port: 9000
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /minio/health/ready
+                    scheme: HTTPS
+                    port: 9000
+                  initialDelaySeconds: 30
+                  periodSeconds: 15
+                  failureThreshold: 3
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 4Gi
+
+    service:
+      app:
+        controller: minio
+        ports:
+          s3api:
+            port: 9000
+          console:
+            port: 9001
+
+    route:
+      minio:
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        hostnames:
+          - minio.${SECRET_DOMAIN}
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 9001
+
+    persistence:
+      data:
+        existingClaim: racknas-minio
+        globalMounts:
+          - path: /data
+      tls:
+        type: secret
+        name: minio-tls
+        advancedMounts:
+          minio:
+            app:
+              - path: /etc/minio/certs/public.crt
+                subPath: tls.crt
+                readOnly: true
+              - path: /etc/minio/certs/private.key
+                subPath: tls.key
+                readOnly: true
+      ca-bundle:
+        type: configMap
+        name: internal-ca-bundle
+        globalMounts:
+          - path: /etc/ssl/certs/ca.crt
+            subPath: ca.crt
+            readOnly: true
+      license:
+        type: secret
+        name: minio-secrets
+        advancedMounts:
+          minio:
+            app:
+              - path: /minio.license
+                subPath: MINIO_LICENSE
+                readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      minio-home:
+        type: emptyDir
+        globalMounts:
+          - path: /home/minio/.minio
