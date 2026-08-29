@@ -1,0 +1,113 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-5.1.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: valkey
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: valkey
+  interval: 1h
+  values:
+    global:
+      createDefaultServiceAccount: false
+    controllers:
+      valkey:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          app:
+            image:
+              repository: valkey/valkey
+              tag: 9.1.1-alpine@sha256:de31910896150d5e754a07d57d227cfdde4e258ddd0d1aa4607f2d2f95843715
+            command:
+              - valkey-server
+              - --bind
+              - "0.0.0.0"
+              - --port
+              - "0"
+              - --tls-port
+              - "6380"
+              - --tls-cert-file
+              - /etc/ssl/certs/tls.crt
+              - --tls-key-file
+              - /etc/ssl/private/tls.key
+              - --tls-auth-clients
+              - "no"
+              - --aclfile
+              - /etc/valkey/users.acl
+              - --save
+              - "60"
+              - "1"
+              - --loglevel
+              - warning
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - valkey-cli
+                      - -p
+                      - "6380"
+                      - --tls
+                      - --cacert
+                      - /etc/ssl/certs/ca.crt
+                      - ping
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 250m
+                memory: 512Mi
+    service:
+      app:
+        controller: valkey
+        ports:
+          valkey:
+            port: 6380
+    persistence:
+      data:
+        existingClaim: valkey-data
+        globalMounts:
+          - path: /data
+      acl-config:
+        type: secret
+        name: valkey-acl
+        globalMounts:
+          - path: /etc/valkey/users.acl
+            subPath: users.acl
+            readOnly: true
+      tls:
+        type: secret
+        name: valkey-tls
+        globalMounts:
+          - path: /etc/ssl/certs/tls.crt
+            subPath: tls.crt
+            readOnly: true
+          - path: /etc/ssl/private/tls.key
+            subPath: tls.key
+            readOnly: true
+      ca-bundle:
+        type: configMap
+        name: internal-ca-bundle
+        globalMounts:
+          - path: /etc/ssl/certs/ca.crt
+            subPath: ca.crt
+            readOnly: true
