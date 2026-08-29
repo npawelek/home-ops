@@ -132,6 +132,16 @@ spec:
         createrole: false
         replication: false
         bypassrls: false
+      - name: buzz
+        ensure: present
+        passwordSecret:
+          name: credentials-buzz
+        login: true
+        createdb: true
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
 
     services:
       disabledDefaultServices: ["ro", "r"]

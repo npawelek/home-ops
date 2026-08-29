@@ -7,3 +7,5 @@ resources:
   - ./firefly.yaml
   - ./immich.yaml
   - ./lubelogger.yaml
+  - ./buzz.yaml
+  - ./credentials-buzz.sops.yaml
