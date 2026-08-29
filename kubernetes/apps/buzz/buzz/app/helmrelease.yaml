@@ -32,7 +32,7 @@ spec:
     s3:
       endpoint: http://garage.storage.svc.cluster.local:3900
       bucket: buzz
-      region: us-east-1
+      region: racknas
       addressingStyle: path
 
     persistence:
