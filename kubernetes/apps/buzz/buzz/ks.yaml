@@ -1,0 +1,35 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app buzz
+spec:
+  targetNamespace: buzz
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: valkey
+      namespace: valkey
+    - name: database-postgres
+      namespace: database
+    - name: envoy-gateway
+      namespace: gateway
+    - name: trust-manager-bundle
+      namespace: cert-manager
+    - name: longhorn
+      namespace: longhorn-system
+  path: ./kubernetes/apps/buzz/buzz/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: false
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: cluster-secrets

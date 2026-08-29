@@ -1,0 +1,79 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: buzz
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: buzz
+  interval: 1h
+  values:
+    relayUrl: wss://buzz.${SECRET_DOMAIN}
+    ownerPubkey: 272692ebe590803f63402c7f1eaf404429cdc004f45cfa71493c6955ff79d695
+
+    secrets:
+      existingSecret: buzz-secrets
+
+    postgresql:
+      enabled: false
+    redis:
+      enabled: false
+    minio:
+      enabled: false
+
+    s3:
+      endpoint: http://garage.storage.svc.cluster.local:3900
+      bucket: buzz
+      region: us-east-1
+      addressingStyle: path
+
+    persistence:
+      git:
+        enabled: true
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+        size: 10Gi
+
+    httproute:
+      enabled: true
+      parentRefs:
+        - name: envoy-internal
+          namespace: gateway
+          sectionName: https
+      hostnames:
+        - buzz.${SECRET_DOMAIN}
+        - buzz-admin.${SECRET_DOMAIN}
+
+    serviceMonitor:
+      enabled: true
+      labels:
+        monitoring: otel
+      interval: 30s
+
+    # internal-ca-bundle ConfigMap is distributed to this namespace by
+    # trust-manager because the buzz namespace carries the ca-bundle: internal label.
+    # SSL_CERT_FILE lets the relay's TLS stack trust the cluster-internal CA
+    # for both Valkey (rediss://) and Postgres connections.
+    extraVolumes:
+      - name: internal-ca
+        configMap:
+          name: internal-ca-bundle
+
+    relay:
+      extraVolumeMounts:
+        - name: internal-ca
+          mountPath: /etc/ssl/certs/internal-ca.crt
+          subPath: ca.crt
+          readOnly: true
+      extraEnv:
+        - name: SSL_CERT_FILE
+          value: /etc/ssl/certs/internal-ca.crt
+        - name: BUZZ_ADMIN_HOST
+          value: buzz-admin.${SECRET_DOMAIN}
+        - name: RELAY_OPERATOR_PUBKEYS
+          value: 272692ebe590803f63402c7f1eaf404429cdc004f45cfa71493c6955ff79d695
+        - name: RELAY_OPERATOR_API_ORIGIN
+          value: https://buzz.${SECRET_DOMAIN}
