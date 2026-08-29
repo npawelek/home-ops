@@ -11,3 +11,5 @@ resources:
   - ./cert-manager/ks.yaml
   - ./certificate-distribution/ks.yaml
   - ./certificate-distribution/gateway-rbac-ks.yaml
+  - ./internal-ca/ks.yaml
+  - ./trust-manager/ks.yaml
