@@ -20,15 +20,3 @@ variable "minio_insecure" {
   type        = bool
   default     = true
 }
-
-variable "buzz_access_key" {
-  description = "Buzz S3 access key (must match BUZZ_S3_ACCESS_KEY in buzz-secrets)"
-  type        = string
-  sensitive   = true
-}
-
-variable "buzz_secret_key" {
-  description = "Buzz S3 secret key (must match BUZZ_S3_SECRET_KEY in buzz-secrets)"
-  type        = string
-  sensitive   = true
-}
