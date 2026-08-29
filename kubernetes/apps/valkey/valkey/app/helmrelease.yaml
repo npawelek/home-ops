@@ -76,12 +76,47 @@ spec:
               limits:
                 cpu: 250m
                 memory: 512Mi
+          metrics:
+            image:
+              repository: oliver006/redis_exporter
+              tag: v1.90.0-alpine@sha256:136a6aac1258bcb41449272fe0de1d71e65f8cd69514efb2a410b2fd2239a3ba
+            env:
+              REDIS_ADDR: rediss://valkey.valkey.svc.cluster.local:6380
+              REDIS_EXPORTER_TLS_CLIENT_CERT_FILE: /etc/ssl/certs/tls.crt
+              REDIS_EXPORTER_TLS_CLIENT_KEY_FILE: /etc/ssl/private/tls.key
+              REDIS_EXPORTER_TLS_CA_CERT_FILE: /etc/ssl/certs/ca.crt
+              REDIS_USER: metrics
+              REDIS_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: valkey-acl
+                    key: metricsPassword
+            resources:
+              requests:
+                cpu: 5m
+                memory: 32Mi
+              limits:
+                cpu: 50m
+                memory: 64Mi
     service:
       app:
         controller: valkey
         ports:
           valkey:
             port: 6380
+          metrics:
+            port: 9121
+    serviceMonitor:
+      app:
+        enabled: true
+        labels:
+          monitoring: otel
+        service:
+          identifier: app
+        endpoints:
+          - port: metrics
+            interval: 30s
+            path: /metrics
     persistence:
       data:
         existingClaim: valkey-data
