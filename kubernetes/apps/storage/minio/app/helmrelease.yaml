@@ -20,6 +20,13 @@ spec:
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
+        defaultContainerOptions:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+        applyDefaultContainerOptionsToInitContainers: true
         pod:
           securityContext:
             runAsNonRoot: true
@@ -27,6 +34,25 @@ spec:
             runAsGroup: 1000
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+        initContainers:
+          license:
+            image:
+              repository: public.ecr.aws/docker/library/alpine
+              tag: 3.21.3
+            command:
+              - /bin/sh
+              - -c
+              - |
+                if [ -f /data/.minio.license ] && [ "$(cat /data/.minio.license)" != "$MINIO_LICENSE" ]; then
+                  exit 0
+                fi
+                printf '%s' "$MINIO_LICENSE" > /data/.minio.license
+            env:
+              MINIO_LICENSE:
+                valueFrom:
+                  secretKeyRef:
+                    name: minio-secrets
+                    key: MINIO_LICENSE
         containers:
           app:
             image:
@@ -44,17 +70,13 @@ spec:
               - --certs-dir
               - /etc/minio/certs
               - --license
-              - /minio.license
+              - /data/.minio.license
             env:
               TZ: ${TIMEZONE}
+              MINIO_PROMETHEUS_AUTH_TYPE: public
             envFrom:
               - secretRef:
                   name: minio-secrets
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop: [ALL]
             probes:
               liveness:
                 enabled: true
@@ -94,6 +116,25 @@ spec:
           console:
             port: 9001
 
+    serviceMonitor:
+      app:
+        enabled: true
+        labels:
+          monitoring: otel
+        service:
+          identifier: app
+        endpoints:
+          - port: s3api
+            interval: 30s
+            path: /minio/v2/metrics/cluster
+            scheme: https
+            tlsConfig:
+              ca:
+                configMap:
+                  name: internal-ca-bundle
+                  key: ca.crt
+              serverName: minio.storage.svc.cluster.local
+
     route:
       minio:
         parentRefs:
@@ -131,15 +172,6 @@ spec:
           - path: /etc/ssl/certs/ca.crt
             subPath: ca.crt
             readOnly: true
-      license:
-        type: secret
-        name: minio-secrets
-        advancedMounts:
-          minio:
-            app:
-              - path: /minio.license
-                subPath: MINIO_LICENSE
-                readOnly: true
       tmp:
         type: emptyDir
         globalMounts:
