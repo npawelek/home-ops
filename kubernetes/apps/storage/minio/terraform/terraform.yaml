@@ -24,15 +24,13 @@ spec:
         - name: ca-bundle
           configMap:
             name: internal-ca-bundle
-      containers:
-        - name: tf-runner
-          volumeMounts:
-            - name: ca-bundle
-              mountPath: /etc/ssl/certs/internal-ca.crt
-              subPath: ca.crt
-          env:
-            - name: SSL_CERT_FILE
-              value: /etc/ssl/certs/internal-ca.crt
+      volumeMounts:
+        - name: ca-bundle
+          mountPath: /etc/ssl/certs/internal-ca.crt
+          subPath: ca.crt
+      env:
+        - name: SSL_CERT_FILE
+          value: /etc/ssl/certs/internal-ca.crt
   varsFrom:
     - kind: Secret
       name: minio-terraform-secrets
