@@ -158,6 +158,17 @@ spec:
           - backendRefs:
               - identifier: app
                 port: 9001
+      s3:
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        hostnames:
+          - s3.${SECRET_DOMAIN}
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 9000
 
     persistence:
       data:
