@@ -12,7 +12,7 @@ resource "authentik_property_mapping_provider_scope" "scope_minio_policy" {
 }
 
 resource "authentik_provider_oauth2" "minio" {
-  name               = "minio-oidc"
+  name               = "minio-oauth"
   client_id          = "minio"
   authorization_flow = data.authentik_flow.default_authorization_flow.id
   invalidation_flow  = data.authentik_flow.default_invalidation_flow.id
