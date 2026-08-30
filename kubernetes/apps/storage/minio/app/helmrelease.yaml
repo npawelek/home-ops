@@ -38,7 +38,7 @@ spec:
           license:
             image:
               repository: public.ecr.aws/docker/library/alpine
-              tag: 3.21.3
+              tag: 3.24.1
             command:
               - /bin/sh
               - -c
