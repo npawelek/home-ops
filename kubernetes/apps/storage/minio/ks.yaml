@@ -31,5 +31,4 @@ spec:
       - kind: Secret
         name: cluster-secrets
   components:
-    - ../../../../components/authentik-proxy
     - ../../../../components/backend-tls
