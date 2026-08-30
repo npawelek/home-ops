@@ -30,9 +30,9 @@ spec:
       enabled: false
 
     s3:
-      endpoint: http://garage.storage.svc.cluster.local:3900
+      endpoint: https://minio.storage.svc.cluster.local:9000
       bucket: buzz
-      region: racknas
+      region: us-east-1
       addressingStyle: path
 
     persistence:
@@ -40,7 +40,7 @@ spec:
         enabled: true
         storageClass: longhorn
         accessMode: ReadWriteOnce
-        size: 10Gi
+        size: 3Gi
 
     httproute:
       enabled: true
