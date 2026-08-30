@@ -97,7 +97,7 @@ spec:
                     path: /minio/health/live
                     scheme: HTTPS
                     port: 9000
-                  initialDelaySeconds: 30
+                  initialDelaySeconds: 5
                   periodSeconds: 30
                   failureThreshold: 3
               readiness:
@@ -108,8 +108,8 @@ spec:
                     path: /minio/health/ready
                     scheme: HTTPS
                     port: 9000
-                  initialDelaySeconds: 30
-                  periodSeconds: 15
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
                   failureThreshold: 3
             resources:
               requests:
