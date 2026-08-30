@@ -17,8 +17,6 @@ spec:
       namespace: database
     - name: envoy-gateway
       namespace: gateway
-    - name: trust-manager-bundle
-      namespace: cert-manager
     - name: longhorn
       namespace: longhorn-system
   path: ./kubernetes/apps/buzz/buzz/app
