@@ -34,7 +34,7 @@ spec:
               - --bind
               - "0.0.0.0"
               - --port
-              - "0"
+              - "6379"
               - --tls-port
               - "6380"
               - --tls-cert-file
@@ -103,6 +103,8 @@ spec:
         controller: valkey
         ports:
           valkey:
+            port: 6379
+          valkey-tls:
             port: 6380
           metrics:
             port: 9121
