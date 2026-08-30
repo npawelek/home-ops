@@ -60,22 +60,41 @@ spec:
 
     # internal-ca-bundle ConfigMap is distributed to this namespace by
     # trust-manager because the buzz namespace carries the ca-bundle: internal label.
-    # SSL_CERT_FILE lets the relay's TLS stack trust the cluster-internal CA
-    # for both Valkey (rediss://) and Postgres connections.
+    # An initContainer merges the Alpine system CA bundle with the internal CA into
+    # a shared emptyDir, then SSL_CERT_FILE and the ca-certificates.crt mount cover
+    # both native-tls (OpenSSL) and rustls-native-certs code paths.
     extraVolumes:
       - name: internal-ca
         configMap:
           name: internal-ca-bundle
+      - name: shared-ca
+        emptyDir: {}
+
+    extraInitContainers:
+      - name: ca-bundle
+        # yamllint disable-line rule:line-length
+        image: public.ecr.aws/docker/library/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
+        command:
+          - /bin/sh
+          - -c
+          - |
+            cp /etc/ssl/certs/ca-certificates.crt /shared/ca-bundle.crt
+            cat /internal-ca/ca.crt >> /shared/ca-bundle.crt
+        volumeMounts:
+          - name: shared-ca
+            mountPath: /shared
+          - name: internal-ca
+            mountPath: /internal-ca
+            subPath: ca.crt
 
     relay:
       extraVolumeMounts:
-        - name: internal-ca
-          mountPath: /etc/ssl/certs/internal-ca.crt
-          subPath: ca.crt
-          readOnly: true
+        - name: shared-ca
+          mountPath: /etc/ssl/certs/ca-certificates.crt
+          subPath: ca-bundle.crt
       extraEnv:
         - name: SSL_CERT_FILE
-          value: /etc/ssl/certs/internal-ca.crt
+          value: /etc/ssl/certs/ca-certificates.crt
         - name: BUZZ_ADMIN_HOST
           value: buzz-admin.${SECRET_DOMAIN}
         - name: RELAY_OPERATOR_PUBKEYS
