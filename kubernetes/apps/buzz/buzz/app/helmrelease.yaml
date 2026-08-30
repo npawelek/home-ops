@@ -84,7 +84,7 @@ spec:
           - name: shared-ca
             mountPath: /shared
           - name: internal-ca
-            mountPath: /internal-ca
+            mountPath: /internal-ca/ca.crt
             subPath: ca.crt
 
     relay:
