@@ -73,7 +73,17 @@ spec:
               - /data/.minio.license
             env:
               TZ: ${TIMEZONE}
+              MINIO_CALLHOME_ENABLE: "off"
+              MINIO_SITE_NAME: MinIO
+              MINIO_SITE_REGION: us-east-1
               MINIO_PROMETHEUS_AUTH_TYPE: public
+              # yamllint disable-line rule:line-length
+              MINIO_IDENTITY_OPENID_CONFIG_URL: https://authentik.${SECRET_DOMAIN}/application/o/minio/.well-known/openid-configuration
+              MINIO_IDENTITY_OPENID_CLIENT_ID: minio
+              MINIO_IDENTITY_OPENID_SCOPES: openid,profile,email,minio
+              MINIO_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC: "on"
+              MINIO_IDENTITY_OPENID_CLAIM_NAME: policy
+              MINIO_IDENTITY_OPENID_DISPLAY_NAME: Authentik
             envFrom:
               - secretRef:
                   name: minio-secrets
