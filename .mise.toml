@@ -22,7 +22,7 @@ enter = "mise run check-deps"
 
 [tools]
 "aqua:astral-sh/uv" = "0.12.7"
-"aqua:awscli" = "2.36.31"
+"aqua:awscli" = "2.36.34"
 "aqua:budimanjojo/talhelper" = "3.1.17"
 "aqua:BurntSushi/ripgrep" = "15.2.0"
 "aqua:cilium/cilium-cli" = "0.20.0"
