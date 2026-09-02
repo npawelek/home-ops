@@ -18,18 +18,8 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         type: deployment
-        initContainers:
-          init:
-            image:
-              repository: public.ecr.aws/docker/library/alpine
-              tag: 3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
-            securityContext:
-              runAsUser: 0
-              runAsNonRoot: false
-            command:
-              - /bin/sh
-              - -c
-              - chown -Rv 977:977 /etc/searxng
+        replicas: 2
+        strategy: RollingUpdate
         containers:
           app:
             image:
@@ -41,6 +31,7 @@ spec:
               https_proxy: ${HTTPS_PROXY}
               no_proxy: ${NO_PROXY}
               SEARXNG_BASE_URL: "https://{{.Release.Name}}.${SECRET_DOMAIN}"
+              SEARXNG_PORT: &port 8080
             envFrom:
               - secretRef:
                   name: searxng-secret
@@ -51,7 +42,7 @@ spec:
                 spec:
                   httpGet:
                     path: /healthz
-                    port: &port 8080
+                    port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -66,8 +57,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
+                memory: 256Mi
               limits:
-                memory: 1024Mi
+                memory: 2048Mi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -77,14 +69,24 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     persistence:
       config:
-        type: persistentVolumeClaim
-        existingClaim: searxng-config
+        type: configMap
+        name: "{{.Release.Name}}-configmap"
         advancedMounts:
           searxng:
-            init:
-              - path: /etc/searxng
             app:
-              - path: /etc/searxng
+              - path: /etc/searxng/settings.yml
+                subPath: settings.yml
+                readOnly: true
+              - path: /etc/searxng/limiter.toml
+                subPath: limiter.toml
+                readOnly: true
+      ca-bundle:
+        type: configMap
+        name: internal-ca-bundle
+        globalMounts:
+          - path: /etc/ssl/certs/ca.crt
+            subPath: ca.crt
+            readOnly: true
       tmp:
         type: emptyDir
         globalMounts:
