@@ -38,6 +38,13 @@
   },
   packageRules: [
     {
+      description: "Separate Immich Valkey into its own Renovate group to decouple from shared valkey upgrades",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["valkey/valkey"],
+      matchFileNames: ["kubernetes/apps/immich/redis/**"],
+      groupName: "immich-valkey",
+    },
+    {
       description: "Override Helmfile Dependency Name",
       matchDatasources: ["docker"],
       matchManagers: ["helmfile"],
