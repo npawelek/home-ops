@@ -1,0 +1,20 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dragonfly-tls
+spec:
+  secretName: dragonfly-tls
+  commonName: dragonfly.database.svc.cluster.local
+  dnsNames:
+    - dragonfly
+    - dragonfly.database.svc
+    - dragonfly.database.svc.cluster.local
+  privateKey:
+    algorithm: ECDSA
+    size: 384
+  duration: 168h
+  renewBefore: 24h
+  issuerRef:
+    name: internal-ca
+    kind: ClusterIssuer

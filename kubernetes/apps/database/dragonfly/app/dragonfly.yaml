@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/dragonflydb.io/dragonfly_v1alpha1.json
+---
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  name: dragonfly
+spec:
+  replicas: 2
+  tlsSecretRef:
+    name: dragonfly-tls
+  aclFromSecret:
+    name: dragonfly-acl
+    key: users.acl
+  args:
+    - --maxmemory=$(MAX_MEMORY)Mi
+  env:
+    - name: MAX_MEMORY
+      valueFrom:
+        resourceFieldRef:
+          resource: limits.memory
+          divisor: 1Mi
+  snapshot:
+    cron: "*/10 * * * *"
+    persistentVolumeClaimSpec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: longhorn
+  networkPolicyEnabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 768Mi

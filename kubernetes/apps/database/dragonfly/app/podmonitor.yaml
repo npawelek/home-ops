@@ -1,0 +1,18 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: dragonfly
+  labels:
+    monitoring: otel
+spec:
+  podMetricsEndpoints:
+    - port: admin
+      interval: 30s
+      path: /metrics
+  selector:
+    matchLabels:
+      app: dragonfly
+  namespaceSelector:
+    matchNames:
+      - database
