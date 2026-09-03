@@ -11,3 +11,4 @@ resources:
   - ./postgres/ks.yaml
   - ./postgres/databases-ks.yaml
   - ./pgadmin/ks.yaml
+  - ./valkey/ks.yaml

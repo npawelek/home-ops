@@ -4,7 +4,7 @@ kind: Kustomization
 metadata:
   name: &app valkey
 spec:
-  targetNamespace: valkey
+  targetNamespace: database
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -13,7 +13,7 @@ spec:
       namespace: longhorn-system
     - name: trust-manager-bundle
       namespace: cert-manager
-  path: ./kubernetes/apps/valkey/valkey/app
+  path: ./kubernetes/apps/database/valkey/app
   prune: true
   sourceRef:
     kind: GitRepository

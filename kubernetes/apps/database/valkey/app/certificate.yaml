@@ -3,14 +3,14 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: valkey-tls
-  namespace: valkey
+  namespace: database
 spec:
   secretName: valkey-tls
-  commonName: valkey.valkey.svc.cluster.local
+  commonName: valkey.database.svc.cluster.local
   dnsNames:
     - valkey
-    - valkey.valkey.svc
-    - valkey.valkey.svc.cluster.local
+    - valkey.database.svc
+    - valkey.database.svc.cluster.local
   privateKey:
     algorithm: ECDSA
     size: 384

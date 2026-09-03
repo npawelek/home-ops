@@ -12,7 +12,7 @@ spec:
     - name: minio
       namespace: storage
     - name: valkey
-      namespace: valkey
+      namespace: database
     - name: database-postgres
       namespace: database
     - name: envoy-gateway
