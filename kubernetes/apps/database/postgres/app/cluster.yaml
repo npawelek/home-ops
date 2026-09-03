@@ -1,5 +1,5 @@
 ---
-# https://cloudnative-pg.io/documentation/1.18/samples/cluster-example-full.yaml
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/postgresql.cnpg.io/cluster_v1.json
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -7,11 +7,16 @@ metadata:
 spec:
   instances: 3
   # yamllint disable-line rule:line-length
-  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:18.4-1.1.1@sha256:9c9246cb8ba0332f7e1115def71329410657237db8ef104160a479a89c7e03a2
+  imageName: ghcr.io/cloudnative-pg/postgresql:18-minimal-trixie@sha256:5c389b0268d9e637ca55efa41a7fafa3996332b5ea3c6099d0861c5f31acb00e
   primaryUpdateStrategy: unsupervised
   startDelay: 300
 
   postgresql:
+    extensions:
+      - name: vchord
+        image:
+          # yamllint disable-line rule:line-length
+          reference: ghcr.io/jdijt/cnpg-vchord:1.1.1-20260823082441-18-trixie@sha256:93991656e82d43cff9713e14670723f35dec0433436a5a8c8b91a549d1704a7f
     shared_preload_libraries:
       - "vchord.so"
     parameters:
