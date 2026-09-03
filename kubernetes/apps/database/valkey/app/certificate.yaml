@@ -3,7 +3,6 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: valkey-tls
-  namespace: database
 spec:
   secretName: valkey-tls
   commonName: valkey.database.svc.cluster.local
