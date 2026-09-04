@@ -6,14 +6,21 @@ metadata:
   name: dragonfly
 spec:
   replicas: 2
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app: dragonfly
+          topologyKey: kubernetes.io/hostname
   # renovate: datasource=docker depName=ghcr.io/dragonflydb/dragonfly
   image: ghcr.io/dragonflydb/dragonfly:v1.40.2@sha256:18afa43e911f1dff18c7d1eb452361876d9702bb1cdff5c5d75c69617a4065c9
-  tlsSecretRef:
-    name: dragonfly-tls
-  authentication:
-    passwordFromSecret:
-      name: dragonfly-acl
-      key: authPassword
+  # tlsSecretRef:
+  #   name: dragonfly-tls
+  # authentication:
+  #   passwordFromSecret:
+  #     name: dragonfly-acl
+  #     key: authPassword
   aclFromSecret:
     name: dragonfly-acl
     key: users.acl
@@ -40,5 +47,5 @@ spec:
       cpu: 100m
       memory: 128Mi
     limits:
-      cpu: 500m
-      memory: 768Mi
+      cpu: 400m
+      memory: 512Mi
