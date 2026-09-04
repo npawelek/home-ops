@@ -107,7 +107,7 @@ resource "grafana_dashboard" "cert_manager_health" {
 }
 
 resource "grafana_dashboard" "postgres_health" {
-  folder      = grafana_folder.platform.uid
+  folder      = grafana_folder.database.uid
   config_json = file("${path.module}/dashboards/postgres-health.json")
   overwrite   = true
 }
@@ -173,7 +173,13 @@ resource "grafana_dashboard" "kubernetes_pods" {
 }
 
 resource "grafana_dashboard" "valkey_health" {
-  folder      = grafana_folder.platform.uid
+  folder      = grafana_folder.database.uid
   config_json = file("${path.module}/dashboards/valkey-health.json")
+  overwrite   = true
+}
+
+resource "grafana_dashboard" "dragonfly_health" {
+  folder      = grafana_folder.database.uid
+  config_json = file("${path.module}/dashboards/dragonfly.json")
   overwrite   = true
 }

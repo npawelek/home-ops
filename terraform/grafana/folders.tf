@@ -55,3 +55,8 @@ resource "grafana_folder" "auth" {
   uid   = "auth"
   title = "Auth"
 }
+
+resource "grafana_folder" "database" {
+  uid   = "database"
+  title = "Database"
+}
