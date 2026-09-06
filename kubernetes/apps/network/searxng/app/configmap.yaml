@@ -104,7 +104,7 @@ data:
         engine: kagi
         api_key: $${KAGI_API_KEY}
         shortcut: k
-        disabled: false
+        disabled: true
         categories: [general, web]
         kagi_categ: search
 
