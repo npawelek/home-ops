@@ -93,6 +93,13 @@ data:
         disabled: false
         inactive: false
         api_key: $${BRAVE_API_KEY}
+      - name: kagi
+        engine: kagi
+        api_key: $${KAGI_API_KEY}
+        disabled: false
+        categories:
+          - general
+          - web
 
   limiter.toml: |
     [botdetection]
