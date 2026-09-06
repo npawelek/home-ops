@@ -11,7 +11,7 @@ spec:
   dependsOn:
     - name: minio
       namespace: storage
-    - name: valkey
+    - name: dragonfly
       namespace: database
     - name: database-postgres
       namespace: database
