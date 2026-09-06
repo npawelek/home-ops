@@ -95,6 +95,7 @@ data:
         brave_category: search
         shortcut: b
         disabled: false
+        inactive: false
         results_per_page: 20
         time_range_support: true
         time_range_map: {'day': 'past_day', 'month': 'past_month', 'week': 'past_week', 'year': 'past_year'}

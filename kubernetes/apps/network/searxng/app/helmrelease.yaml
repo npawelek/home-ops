@@ -20,6 +20,23 @@ spec:
         type: deployment
         replicas: 2
         strategy: RollingUpdate
+        initContainers:
+          config-init:
+            image:
+              repository: public.ecr.aws/docker/library/alpine
+              tag: 3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
+            command:
+              - /bin/sh
+              - -c
+              - |
+                sed \
+                  -e "s|\$${BRAVE_API_KEY}|$${BRAVE_API_KEY}|g" \
+                  -e "s|\$${KAGI_API_KEY}|$${KAGI_API_KEY}|g" \
+                  /tmp/settings-template/settings.yml \
+                  > /etc/searxng/settings.yml
+            envFrom:
+              - secretRef:
+                  name: searxng-secret
         containers:
           app:
             image:
@@ -73,13 +90,22 @@ spec:
         name: "{{.Release.Name}}-configmap"
         advancedMounts:
           searxng:
-            app:
-              - path: /etc/searxng/settings.yml
+            config-init:
+              - path: /tmp/settings-template/settings.yml
                 subPath: settings.yml
                 readOnly: true
+            app:
               - path: /etc/searxng/limiter.toml
                 subPath: limiter.toml
                 readOnly: true
+      config-processed:
+        type: emptyDir
+        advancedMounts:
+          searxng:
+            config-init:
+              - path: /etc/searxng
+            app:
+              - path: /etc/searxng
       ca-bundle:
         type: configMap
         name: internal-ca-bundle
