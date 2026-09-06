@@ -27,7 +27,7 @@ data:
 
     general:
       instance_name: SearXNG
-      debug: true
+      # debug: true
 
     ui:
       default_theme: simple
