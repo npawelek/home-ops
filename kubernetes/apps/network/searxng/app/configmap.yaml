@@ -13,7 +13,6 @@ data:
       image_proxy: true
       method: GET
       public_instance: false
-      debug: true
 
     search:
       autocomplete: ""
@@ -28,6 +27,7 @@ data:
 
     general:
       instance_name: SearXNG
+      debug: true
 
     ui:
       default_theme: simple
