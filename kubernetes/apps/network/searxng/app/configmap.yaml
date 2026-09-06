@@ -90,17 +90,20 @@ data:
       - name: duckduckgo web
         disabled: false
       - name: braveapi
+        engine: braveapi
+        brave_category: search
         disabled: false
-        inactive: false
+        results_per_page: 20
+        time_range_support: true
+        time_range_map: {'day': 'past_day', 'month': 'past_month', 'week': 'past_week', 'year': 'past_year'}
         api_key: $${BRAVE_API_KEY}
       - name: kagi
         engine: kagi
         api_key: $${KAGI_API_KEY}
         shortcut: k
         disabled: false
-        categories:
-          - general
-          - web
+        categories: [general, web]
+        kagi_categ: search
 
   limiter.toml: |
     [botdetection]
