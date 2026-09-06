@@ -96,6 +96,7 @@ data:
       - name: kagi
         engine: kagi
         api_key: $${KAGI_API_KEY}
+        shortcut: k
         disabled: false
         categories:
           - general
