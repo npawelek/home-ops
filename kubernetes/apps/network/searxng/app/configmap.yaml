@@ -13,6 +13,7 @@ data:
       image_proxy: true
       method: GET
       public_instance: false
+      debug: true
 
     search:
       autocomplete: ""
@@ -92,6 +93,7 @@ data:
       - name: braveapi
         engine: braveapi
         brave_category: search
+        shortcut: b
         disabled: false
         results_per_page: 20
         time_range_support: true
