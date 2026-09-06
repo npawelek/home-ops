@@ -1,0 +1,140 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-5.1.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: rustfs
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: rustfs
+  interval: 1h
+  values:
+    global:
+      createDefaultServiceAccount: false
+    controllers:
+      rustfs:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: rustfs/rustfs
+              # renovate: datasource=docker depName=rustfs/rustfs
+              tag: 1.0.0-rc.5@sha256:c36b3efea3d1e503f1a2581abd0e7611e0e5820dd30e1850a52384b3fc52bda4
+            args:
+              - /data
+            env:
+              TZ: ${TIMEZONE}
+              RUSTFS_ADDRESS: ":9000"
+              RUSTFS_CONSOLE_ADDRESS: ":9001"
+              RUSTFS_CONSOLE_ENABLE: "true"
+              RUSTFS_BROWSER_REDIRECT_URL: https://rustfs.${SECRET_DOMAIN}
+              RUSTFS_SERVER_DOMAINS: s3.${SECRET_DOMAIN}
+              # OIDC — configure after successful initial deploy
+              # RUSTFS_OUTBOUND_ALLOW_ORIGINS: https://auth.${SECRET_DOMAIN}
+              # RUSTFS_IDENTITY_OPENID_ENABLE: "true"
+              # yamllint disable-line rule:line-length
+              # RUSTFS_IDENTITY_OPENID_CONFIG_URL: https://auth.${SECRET_DOMAIN}/application/o/rustfs/.well-known/openid-configuration
+              # RUSTFS_IDENTITY_OPENID_CLIENT_ID: rustfs
+              # yamllint disable-line rule:line-length
+              # RUSTFS_IDENTITY_OPENID_REDIRECT_URI: https://rustfs.${SECRET_DOMAIN}/rustfs/admin/v3/oidc/callback/default
+              # RUSTFS_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC: "off"
+              # RUSTFS_IDENTITY_OPENID_SCOPES: openid,profile,email,minio
+              # RUSTFS_IDENTITY_OPENID_CLAIM_NAME: policy
+              # RUSTFS_IDENTITY_OPENID_DISPLAY_NAME: Authentik
+            envFrom:
+              - secretRef:
+                  name: rustfs-secrets
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 9000
+                  initialDelaySeconds: 5
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 6
+              readiness: *probes
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    service:
+      app:
+        controller: rustfs
+        ports:
+          s3api:
+            port: 9000
+          console:
+            port: 9001
+
+    # serviceMonitor:
+    #   app:
+    #     enabled: true
+    #     labels:
+    #       monitoring: otel
+    #     service:
+    #       identifier: app
+    #     endpoints:
+    #       - port: s3api
+    #         interval: 30s
+    #         path: /minio/v2/metrics/cluster  # verify endpoint path before enabling
+
+    route:
+      rustfs:
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        hostnames:
+          - rustfs.${SECRET_DOMAIN}
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 9001
+      s3:
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        hostnames:
+          - s3.${SECRET_DOMAIN}
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: 9000
+
+    persistence:
+      data:
+        existingClaim: racknas-rustfs
+        globalMounts:
+          - path: /data
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

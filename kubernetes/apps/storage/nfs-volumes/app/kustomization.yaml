@@ -8,3 +8,4 @@ resources:
   - ./racknas-photos.yaml
   - ./racknas-garage.yaml
   - ./racknas-minio.yaml
+  - ./racknas-rustfs.yaml

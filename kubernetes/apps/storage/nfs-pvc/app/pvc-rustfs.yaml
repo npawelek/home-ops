@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: racknas-rustfs
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  volumeName: racknas-rustfs
+  resources:
+    requests:
+      storage: 50Ti

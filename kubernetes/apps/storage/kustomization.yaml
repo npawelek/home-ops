@@ -11,4 +11,4 @@ resources:
   - ./nfs-volumes/ks.yaml
   - ./nfs-pvc/ks.yaml
   - ./garage/ks.yaml
-  # - ./rustfs/ks.yaml
+  - ./rustfs/ks.yaml
