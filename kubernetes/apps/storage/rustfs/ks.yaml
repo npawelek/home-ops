@@ -11,6 +11,8 @@ spec:
   dependsOn:
     - name: nfs-volumes
     - name: nfs-pvc-storage
+    - name: authentik-terraform
+      namespace: auth
   path: ./kubernetes/apps/storage/rustfs/app
   prune: true
   sourceRef:

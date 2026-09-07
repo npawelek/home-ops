@@ -35,18 +35,19 @@ spec:
               RUSTFS_OBS_ENDPOINT_USE_STDOUT: "true"
               RUSTFS_CONSOLE_ENABLE: "true"
               RUSTFS_BROWSER_REDIRECT_URL: https://rustfs.${SECRET_DOMAIN}
-              # OIDC — configure after successful initial deploy
-              # RUSTFS_OUTBOUND_ALLOW_ORIGINS: https://auth.${SECRET_DOMAIN}
-              # RUSTFS_IDENTITY_OPENID_ENABLE: "true"
+              RUSTFS_OUTBOUND_ALLOW_ORIGINS: https://auth.${SECRET_DOMAIN}
+              RUSTFS_IDENTITY_OPENID_ENABLE: "true"
               # yamllint disable-line rule:line-length
-              # RUSTFS_IDENTITY_OPENID_CONFIG_URL: https://auth.${SECRET_DOMAIN}/application/o/rustfs/.well-known/openid-configuration
-              # RUSTFS_IDENTITY_OPENID_CLIENT_ID: rustfs
+              RUSTFS_IDENTITY_OPENID_CONFIG_URL: https://auth.${SECRET_DOMAIN}/application/o/rustfs/.well-known/openid-configuration
+              RUSTFS_IDENTITY_OPENID_CLIENT_ID: rustfs
               # yamllint disable-line rule:line-length
-              # RUSTFS_IDENTITY_OPENID_REDIRECT_URI: https://rustfs.${SECRET_DOMAIN}/rustfs/admin/v3/oidc/callback/default
-              # RUSTFS_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC: "off"
-              # RUSTFS_IDENTITY_OPENID_SCOPES: openid,profile,email,minio
-              # RUSTFS_IDENTITY_OPENID_CLAIM_NAME: policy
-              # RUSTFS_IDENTITY_OPENID_DISPLAY_NAME: Authentik
+              RUSTFS_IDENTITY_OPENID_REDIRECT_URI: https://rustfs.${SECRET_DOMAIN}/rustfs/admin/v3/oidc/callback/default
+              RUSTFS_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC: "off"
+              RUSTFS_IDENTITY_OPENID_SCOPES: openid,profile,email,rustfs
+              RUSTFS_IDENTITY_OPENID_CLAIM_NAME: roles
+              RUSTFS_IDENTITY_OPENID_GROUPS_CLAIM: roles
+              RUSTFS_IDENTITY_OPENID_ROLES_CLAIM: roles
+              RUSTFS_IDENTITY_OPENID_DISPLAY_NAME: Authentik
             envFrom:
               - secretRef:
                   name: rustfs-secrets
