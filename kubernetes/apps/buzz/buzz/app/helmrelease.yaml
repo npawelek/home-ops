@@ -35,7 +35,7 @@ spec:
 
     s3:
       endpoint: https://s3.${SECRET_DOMAIN}
-      bucket: buzz
+      bucket: buzz-media
       region: us-east-1
       addressingStyle: path
 

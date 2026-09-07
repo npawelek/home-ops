@@ -28,8 +28,11 @@ spec:
               - /data
             env:
               TZ: ${TIMEZONE}
-              RUSTFS_ADDRESS: ":9000"
-              RUSTFS_CONSOLE_ADDRESS: ":9001"
+              RUSTFS_ADDRESS: :9000
+              RUSTFS_CONSOLE_ADDRESS: :9001
+              RUSTFS_REGION: us-east-1
+              RUSTFS_OBS_LOG_DIRECTORY: ""
+              RUSTFS_OBS_ENDPOINT_USE_STDOUT: "true"
               RUSTFS_CONSOLE_ENABLE: "true"
               RUSTFS_BROWSER_REDIRECT_URL: https://rustfs.${SECRET_DOMAIN}
               # OIDC — configure after successful initial deploy
