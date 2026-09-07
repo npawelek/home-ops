@@ -9,7 +9,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: minio
+    - name: rustfs-terraform
       namespace: storage
     - name: dragonfly
       namespace: database
