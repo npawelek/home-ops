@@ -37,8 +37,7 @@ spec:
               RUSTFS_BROWSER_REDIRECT_URL: https://rustfs.${SECRET_DOMAIN}
               RUSTFS_OUTBOUND_ALLOW_ORIGINS: https://auth.${SECRET_DOMAIN}
               RUSTFS_IDENTITY_OPENID_ENABLE: "true"
-              # yamllint disable-line rule:line-length
-              RUSTFS_IDENTITY_OPENID_CONFIG_URL: https://auth.${SECRET_DOMAIN}/application/o/rustfs/.well-known/openid-configuration
+              RUSTFS_IDENTITY_OPENID_CONFIG_URL: https://auth.${SECRET_DOMAIN}/application/o/rustfs/
               RUSTFS_IDENTITY_OPENID_CLIENT_ID: rustfs
               # yamllint disable-line rule:line-length
               RUSTFS_IDENTITY_OPENID_REDIRECT_URI: https://rustfs.${SECRET_DOMAIN}/rustfs/admin/v3/oidc/callback/default
