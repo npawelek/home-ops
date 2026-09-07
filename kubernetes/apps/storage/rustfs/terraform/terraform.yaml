@@ -1,0 +1,36 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha2
+kind: Terraform
+metadata:
+  name: rustfs
+spec:
+  interval: 1h
+  approvePlan: auto
+  destroyResourcesOnDeletion: false
+  path: ./terraform/rustfs
+  serviceAccountName: tf-runner
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  vars:
+    - name: rustfs_server
+      value: rustfs.storage.svc.cluster.local:9000
+  runnerPodTemplate:
+    spec:
+      volumes:
+        - name: ca-bundle
+          configMap:
+            name: internal-ca-bundle
+      volumeMounts:
+        - name: ca-bundle
+          mountPath: /etc/ssl/certs/internal-ca.crt
+          subPath: ca.crt
+      env:
+        - name: SSL_CERT_FILE
+          value: /etc/ssl/certs/internal-ca.crt
+  varsFrom:
+    - kind: Secret
+      name: rustfs-secrets
+  writeOutputsToSecret:
+    name: rustfs-terraform-outputs

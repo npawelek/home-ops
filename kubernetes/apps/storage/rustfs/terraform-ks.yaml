@@ -1,0 +1,20 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: rustfs-terraform
+spec:
+  dependsOn:
+    - name: tofu-controller
+      namespace: flux-system
+    - name: rustfs
+      namespace: storage
+  interval: 1h
+  path: ./kubernetes/apps/storage/rustfs/terraform
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: storage
+  wait: false
