@@ -6,7 +6,7 @@ metadata:
 spec:
   configuration:
     destinationPath: ${BACKUP_DESTINATION_PATH_AUTHENTIK}
-    endpointURL: http://garage.storage.svc.cluster.local:3900
+    endpointURL: http://rustfs.storage.svc.cluster.local:9000
     s3Credentials:
       accessKeyId:
         name: credentials-backup-s3
@@ -21,4 +21,4 @@ spec:
       compression: gzip
     data:
       compression: gzip
-  retentionPolicy: "21d"
+  retentionPolicy: 21d
