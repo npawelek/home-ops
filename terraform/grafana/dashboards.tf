@@ -70,12 +70,6 @@ resource "grafana_dashboard" "loki_health" {
   overwrite   = true
 }
 
-resource "grafana_dashboard" "garage_health" {
-  folder      = grafana_folder.storage.uid
-  config_json = file("${path.module}/dashboards/garage-health.json")
-  overwrite   = true
-}
-
 resource "grafana_dashboard" "grafana_health" {
   folder      = grafana_folder.observability.uid
   config_json = file("${path.module}/dashboards/grafana-health.json")

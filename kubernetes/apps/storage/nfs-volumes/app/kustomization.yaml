@@ -6,5 +6,4 @@ resources:
   - ./racknas-media.yaml
   - ./racknas-transcode.yaml
   - ./racknas-photos.yaml
-  - ./racknas-garage.yaml
   - ./racknas-rustfs.yaml
