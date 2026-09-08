@@ -25,7 +25,7 @@ spec:
           app:
             image:
               repository: jauderho/yt-dlp
-              tag: 2026.08.19@sha256:86834776c82815b21aa6db33e10b0cff9c4853592a010b25b6fa4f89a79f86c4
+              tag: 2026.08.19@sha256:66b23e01dbe55e0ec3d6e89fce11a72b5b8587b5c389e175b9d11d9e604f9718
             command:
               - /bin/sh
               - /scripts/get_trailers.sh
