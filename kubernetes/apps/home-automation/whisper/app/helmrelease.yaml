@@ -8,7 +8,8 @@ metadata:
 spec:
   chartRef:
     kind: OCIRepository
-    name: whisper
+    name: app-template
+    namespace: flux-system
   interval: 1h
   values:
     global:

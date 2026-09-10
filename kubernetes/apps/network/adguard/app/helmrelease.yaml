@@ -8,7 +8,8 @@ metadata:
 spec:
   chartRef:
     kind: OCIRepository
-    name: adguard
+    name: app-template
+    namespace: flux-system
   interval: 1h
   driftDetection:
     mode: enabled
