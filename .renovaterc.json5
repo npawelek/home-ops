@@ -62,6 +62,12 @@
       minimumGroupSize: 3,
     },
     {
+      description: "jellyfin versioning changed from X.Y.Z (10.x) to X.Y.YYYYMMDD-HHMMSS (12.x)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["jellyfin/jellyfin"],
+      versioning: "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(-\\d+)?$",
+    },
+    {
       description: "SearXNG date-based tag versioning",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/searxng/searxng"],
