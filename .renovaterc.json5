@@ -10,6 +10,7 @@
     ":semanticCommits",
   ],
   dependencyDashboard: true,
+  separateMultipleMajor: true,
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   prConcurrentLimit: 0,
   prHourlyLimit: 0,
@@ -37,11 +38,6 @@
     managerFilePatterns: ["/(^|/)\\.pre-commit-config\\.ya?ml$/"],
   },
   packageRules: [
-    {
-      description: "Handle skipped major versions for Docker images (e.g. 10.x -> 12.x with no 11.x)",
-      matchDatasources: ["docker"],
-      separateMultipleMajor: true,
-    },
     {
       description: "Separate Immich Valkey into its own Renovate group to decouple from shared valkey upgrades",
       matchDatasources: ["docker"],
