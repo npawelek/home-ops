@@ -38,6 +38,11 @@
   },
   packageRules: [
     {
+      description: "Handle skipped major versions for Docker images (e.g. 10.x -> 12.x with no 11.x)",
+      matchDatasources: ["docker"],
+      separateMultipleMajor: true,
+    },
+    {
       description: "Separate Immich Valkey into its own Renovate group to decouple from shared valkey upgrades",
       matchDatasources: ["docker"],
       matchPackageNames: ["valkey/valkey"],
