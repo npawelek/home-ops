@@ -23,7 +23,7 @@ spec:
           app:
             image:
               repository: bellamy/wallos
-              tag: 5.8.0@sha256:1496f4f0d48bc29b5386c659dfa8e24cbf57edbb8c7a4da84fd0750637758d18
+              tag: 5.8.1@sha256:0f049dbab45b9f8e8d43b84fd1b77ef9e55909bd1a384a0f4fe8597ab68a1d5d
             env:
               TZ: ${TIMEZONE}
               PUID: "82"
