@@ -39,6 +39,12 @@
   },
   packageRules: [
     {
+      description: "Separate authentik Terraform provider updates from Helm chart updates",
+      matchManagers: ["terraform"],
+      matchPackageNames: ["goauthentik/authentik"],
+      groupName: "authentik-terraform-provider",
+    },
+    {
       description: "Separate Immich Valkey into its own Renovate group to decouple from shared valkey upgrades",
       matchDatasources: ["docker"],
       matchPackageNames: ["valkey/valkey"],
