@@ -28,3 +28,10 @@ repos:
     rev: v2.1.1
     hooks:
       - id: forbid-secrets
+  - repo: local
+    hooks:
+      - id: sops-encrypted
+        name: Check files matched by .sops.yaml are encrypted
+        entry: scripts/check-sops-encrypted.sh
+        language: script
+        files: \.ya?ml$
