@@ -52,6 +52,20 @@
       groupName: "immich-valkey",
     },
     {
+      description: "Keep talosVersion (talos/topf.yaml) and the talosctl mise pin on one PR — they must match",
+      matchPackageNames: ["/siderolabs/talos$/"],
+      groupName: "talos",
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Talos v1.14+ requires the manual multi-document config migration (tech-debt #13); surface it on the Dependency Dashboard instead of opening a PR",
+      matchPackageNames: ["/siderolabs/talos$/"],
+      matchUpdateTypes: ["major", "minor"],
+      dependencyDashboardApproval: true,
+    },
+    {
       description: "Override Helmfile Dependency Name",
       matchDatasources: ["docker"],
       matchManagers: ["helmfile"],
