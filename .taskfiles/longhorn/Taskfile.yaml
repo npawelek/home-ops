@@ -1,0 +1,81 @@
+---
+version: '3'
+
+tasks:
+
+  status:
+    desc: Show Longhorn volume robustness and replica placement
+    cmds:
+      - |
+        cols='NAME:.metadata.name,STATE:.status.state,ROBUSTNESS:.status.robustness'
+        cols="${cols},REPLICAS:.spec.numberOfReplicas,NODE:.status.currentNodeID"
+        kubectl -n longhorn-system get volumes.longhorn.io -o custom-columns="${cols}"
+      - |
+        echo ""
+        echo "Replicas and provisioned size per node:"
+        kubectl -n longhorn-system get replicas.longhorn.io -o json \
+          | yq -r '.items[] | .spec.nodeID + " " + (.spec.volumeSize // 0 | tostring)' \
+          | awk '{n[$1]++; b[$1]+=$2}
+                 END{for (k in n) printf "  %-12s %3d replicas  %8.1f GiB\n", k, n[k], b[k]/1073741824}' \
+          | sort -k3 -rn
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl yq
+
+  wait-healthy:
+    desc: Block until every Longhorn volume is healthy and fully replicated [TIMEOUT=10800]
+    # Every volume here is numberOfReplicas=2 across three workers, so a rebooted worker
+    # leaves its volumes on ONE healthy replica. Rebooting the next worker before the
+    # rebuild finishes can strand a volume.
+    #
+    # Longhorn reports `degraded` while a replica rebuilds and `healthy` only once every
+    # replica is read-write, so robustness is the gate. Engine `rebuildStatus` carries the
+    # percentage, but a replica can be queued (WO) with no rebuildStatus yet, so it is
+    # used for progress reporting only - never to decide completion.
+    #
+    # TIMEOUT is a runaway guard, NOT an expectation. Rebuild time tracks actual data over
+    # the slowest link involved: donnager and hammurabi are 2.5Gbps, pella is 10Gbps, so
+    # any rebuild touching the first two is capped there regardless of pella's NIC.
+    # Observed runs are 30-45 min; a fuller or busier cluster is slower, and pella alone
+    # holds ~420 GiB provisioned. Default 3h so the guard never fires before a genuinely
+    # healthy rebuild completes. Watch the progress lines to judge liveness; raise TIMEOUT
+    # rather than lowering it.
+    vars:
+      TIMEOUT: '{{.TIMEOUT | default "10800"}}'
+      INTERVAL: '{{.INTERVAL | default "30"}}'
+    silent: true
+    cmds:
+      - |
+        start=$(date +%s)
+        deadline=$(( start + {{.TIMEOUT}} ))
+        echo "==> Waiting for all Longhorn volumes to report healthy (guard {{.TIMEOUT}}s)..."
+        while true; do
+          unhealthy=$(kubectl -n longhorn-system get volumes.longhorn.io -o json \
+            | yq -r '.items[] | select(.status.robustness != "healthy") | .metadata.name')
+          now=$(date +%s)
+          elapsed=$(( now - start ))
+          if [ -z "$unhealthy" ]; then
+            total=$(kubectl -n longhorn-system get volumes.longhorn.io -o json | yq -r '.items | length')
+            printf '==> All %s Longhorn volumes healthy after %dm%02ds.\n' \
+              "$total" $(( elapsed / 60 )) $(( elapsed % 60 ))
+            break
+          fi
+          count=$(echo "$unhealthy" | wc -l | tr -d ' ')
+          progress=$(kubectl -n longhorn-system get engines.longhorn.io -o json \
+            | yq -r '.items[].status.rebuildStatus // {} | to_entries | .[] | .value.progress' \
+            | awk 'NF{n++; s+=$1}
+                   END{if (n) printf "syncing %d, avg %d%%", n, s/n; else printf "queued, no sync yet"}')
+          if [ "$now" -ge "$deadline" ]; then
+            printf 'x Timed out after %dm with %s volume(s) still degraded (%s):\n' \
+              $(( elapsed / 60 )) "$count" "$progress" >&2
+            echo "$unhealthy" | sed 's/^/    /' >&2
+            echo "  Still advancing? Re-run with a longer TIMEOUT. Stalled? task longhorn:status" >&2
+            exit 1
+          fi
+          printf '    [%3dm%02ds] %s degraded, %s\n' \
+            $(( elapsed / 60 )) $(( elapsed % 60 )) "$count" "$progress"
+          sleep {{.INTERVAL}}
+        done
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl yq

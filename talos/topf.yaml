@@ -1,0 +1,46 @@
+---
+clusterName: kubernetes
+clusterEndpoint: https://192.168.0.75:6443
+
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+talosVersion: v1.13.10
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+kubernetesVersion: v1.35.1
+
+factory: factory.talos.dev
+schematicId: 0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da
+
+secretsPath: secrets.yaml
+
+# `data.mac` selects the node's primary NIC; see all/04-network-links.yaml.tpl
+nodes:
+  - host: m1
+    ip: 192.168.0.27
+    role: control-plane
+    data:
+      mac: "e0:51:d8:1f:8a:f9"
+  - host: m2
+    ip: 192.168.0.28
+    role: control-plane
+    data:
+      mac: "e0:51:d8:1f:9a:a9"
+  - host: m3
+    ip: 192.168.0.29
+    role: control-plane
+    data:
+      mac: "e0:51:d8:1f:36:3f"
+  - host: pella
+    ip: 192.168.0.35
+    role: worker
+    data:
+      mac: "6c:92:bf:65:0b:66"
+  - host: donnager
+    ip: 192.168.0.33
+    role: worker
+    data:
+      mac: "54:b2:03:f0:a6:54"
+  - host: hammurabi
+    ip: 192.168.0.34
+    role: worker
+    data:
+      mac: "54:b2:03:f0:a4:b5"

@@ -33,10 +33,12 @@ goto build_menu
 :build_menu
 menu ${os} - Factory Builds (${talos_version})
 item --gap Select Build Type:
-item intel_i915 ${space} Intel iGPU (i915, intel-ucode, iscsi, nfs, nvme)
-item intel_xe_arc ${space} Intel Arc (xe, intel-ucode, iscsi, mei, nfs, nvme)
-item amd_igpu ${space} AMD iGPU (amdgpu, amd-ucode, iscsi, nfs, nvme)
-item rpi_arm64 ${space} Raspberry Pi (ARM64, iscsi, nfs)
+# BEGIN GENERATED BUILD MENU
+item intel_i915 ${space} Intel i915 (i915, intel-ucode, iscsi-tools, nfs-utils, nvme-cli, util-linux-tools)
+item intel_arc_i915 ${space} Intel Arc i915 (i915, intel-ucode, iscsi-tools, mei, nfs-utils, nvme-cli, util-linux-tools)
+item amd_igpu ${space} AMD iGPU (amdgpu, amd-ucode, iscsi-tools, nfs-utils, nvme-cli, util-linux-tools)
+item rpi ${space} Raspberry Pi (iscsi-tools, nfs-utils, util-linux-tools)
+# END GENERATED BUILD MENU
 item --gap Parameters:
 item talos_config_url ${space} Set userdata.yaml URL: ${talos_config_url}
 item talos_maintenance ${space} Toggle Maintenance Mode: ${talos_maintenance_mode}
@@ -50,18 +52,22 @@ choose --default back_version --timeout 10000 target && goto ${target}
 clear talos_version
 goto talos_custom
 
+# Build menu and entries are generated from BUILD_CONFIGS in generate-schematics.py; edit there.
+# BEGIN GENERATED BUILD ENTRIES
 :intel_i915
 set kernel_file intel-i915-kernel-amd64
 set initramfs_file intel-i915-initramfs-amd64.xz
 set os_name Talos Intel i915
 set extensions siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+set os_arch amd64
 goto talos_boot
 
-:intel_xe_arc
-set kernel_file intel-xe-arc-kernel-amd64
-set initramfs_file intel-xe-arc-initramfs-amd64.xz
-set os_name Talos Intel XE Arc
-set extensions siderolabs/xe, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+:intel_arc_i915
+set kernel_file intel-arc-i915-kernel-amd64
+set initramfs_file intel-arc-i915-initramfs-amd64.xz
+set os_name Talos Intel Arc i915
+set extensions siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+set os_arch amd64
 goto talos_boot
 
 :amd_igpu
@@ -69,15 +75,17 @@ set kernel_file amd-igpu-kernel-amd64
 set initramfs_file amd-igpu-initramfs-amd64.xz
 set os_name Talos AMD iGPU
 set extensions siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
+set os_arch amd64
 goto talos_boot
 
-:rpi_arm64
+:rpi
 set kernel_file rpi-kernel-arm64
 set initramfs_file rpi-initramfs-arm64.xz
 set os_name Talos Raspberry Pi
 set extensions siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/util-linux-tools
 set os_arch arm64
 goto talos_boot
+# END GENERATED BUILD ENTRIES
 
 :talos_config_url
 echo -n Set userdata.yaml URL: && read talos_config_url

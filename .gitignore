@@ -12,6 +12,7 @@
 # Kubernetes
 kubeconfig
 talosconfig
+/talos/output/
 # Misc.
 00_inspiration/
 02_cluster-template/

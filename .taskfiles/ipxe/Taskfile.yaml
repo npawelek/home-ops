@@ -13,11 +13,11 @@ vars:
 tasks:
 
   generate:
-    desc: Generate Talos iPXE schematics from talenv.yaml
+    desc: Generate Talos iPXE schematics from topf.yaml
     dir: '{{.IPXE_DIR}}'
     cmd: python3 generate-schematics.py
     preconditions:
-      - test -f {{.ROOT_DIR}}/talos/talenv.yaml
+      - test -f {{.ROOT_DIR}}/talos/topf.yaml
       - which python3
 
   sync-menu:
@@ -33,7 +33,7 @@ tasks:
       DOWNLOAD_CMD=$(python3 generate-schematics.py 2>&1 | grep -A 1000 "Run this command" | tail -n +3 | head -n 1)
       ssh {{.NETBOOT_HOST}} "cd {{.NETBOOT_PATH}} && ${DOWNLOAD_CMD} && chown -R 1000:1000 {{.NETBOOT_PATH}}"
     preconditions:
-      - test -f {{.ROOT_DIR}}/talos/talenv.yaml
+      - test -f {{.ROOT_DIR}}/talos/topf.yaml
       - which python3
       - which yq
 

@@ -1,7 +1,8 @@
+---
 machine:
   logging:
     destinations:
       - endpoint: "udp://192.168.0.83:5044"
         format: "json_lines"
         extraTags:
-          hostname: pella
+          hostname: {{ .Node.Host }}

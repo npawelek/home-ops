@@ -8,16 +8,23 @@ tasks:
     dir: '{{.TALOS_DIR}}'
     shell: bash
     cmds:
-      - '[ -f talsecret.sops.yaml ] || talhelper gensecret | sops --filename-override talos/talsecret.sops.yaml --encrypt /dev/stdin > talsecret.sops.yaml'
-      - talhelper genconfig
-      - talhelper gencommand apply --extra-flags="--insecure" | bash
-      - until talhelper gencommand bootstrap | bash; do sleep 10; done
-      - until talhelper gencommand kubeconfig --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
+      # `topf secrets` writes secrets.yaml itself, so let it, then encrypt in place.
+      # Piping its stdout into the same path races topf's own write and leaves the
+      # plaintext bundle on disk if sops fails. --confirm=false is required: the
+      # "generate a new one?" prompt goes to stdout.
+      - >-
+        [ -f secrets.yaml ] ||
+        { topf secrets --confirm=false >/dev/null && sops -e -i secrets.yaml; }
+      - topf talosconfig > {{.TALOSCONFIG}}
+      # --auto-bootstrap runs the etcd bootstrap once the control plane accepts the config
+      - topf apply --auto-bootstrap --confirm=false
+      # topf kubeconfig is only valid for 12h; talosctl issues the durable admin one
+      - until talosctl kubeconfig {{.ROOT_DIR}} --force; do sleep 10; done
     preconditions:
       - test -f {{.ROOT_DIR}}/.sops.yaml
       - test -f {{.SOPS_AGE_KEY_FILE}}
-      - test -f {{.TALOS_DIR}}/talconfig.yaml
-      - which talhelper talosctl sops
+      - test -f {{.TALOS_DIR}}/topf.yaml
+      - which topf talosctl sops
 
   apps:
     desc: Bootstrap apps into the Talos cluster

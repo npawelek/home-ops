@@ -15,10 +15,10 @@ util-linux-tools (required)
 ### Longhorn-specific Machine Configs
 
 You need to create and apply the necessary machine configs to each node as
-they are not homogenous. Refer to `talos/patches/nodes` to apply
-`UserVolumeConfig` for the associated disk that Longhorn will be using on that
+they are not homogenous. Refer to `talos/node/<host>/20-longhorn-volume.yaml`
+to apply `UserVolumeConfig` for the associated disk that Longhorn will be using on that
 associated worker node. There is a generic worker configuration in
-`talos/patches/worker` that will mount the proper disk to `/var/mnt/longhorn`.
+`talos/worker` that will mount the proper disk to `/var/mnt/longhorn`.
 
 You can verify with the following:
 
@@ -27,11 +27,12 @@ You can verify with the following:
 set NODE <name>
 set XX <lastOctetofIPAddr>
 
-# Apply and verify the configuration
-task talos:generate-config
-yq '.machine.kubelet' talos/clusterconfig/kubernetes-$NODE.yaml
+# Render and verify the configuration (output contains secrets; delete it afterwards)
+task talos:render
+yq 'select(.machine) | .machine.kubelet' talos/output/$NODE.yaml
+rm -rf talos/output
 # Reboot may be required
-task talos:apply-node IP=192.168.0.$XX
+task talos:apply-node HOST=$NODE
 talosctl -n 192.168.0.$XX get mounts | grep longhorn
 talosctl -n 192.168.0.$XX read /proc/mounts | grep longhorn
 

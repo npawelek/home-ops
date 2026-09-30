@@ -18,3 +18,4 @@ rules:
 ignore: |
   *.sops.yaml
   *.sops.yml
+  talos/secrets.yaml

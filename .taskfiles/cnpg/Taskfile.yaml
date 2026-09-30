@@ -1,0 +1,44 @@
+---
+version: '3'
+
+tasks:
+
+  status-authentik:
+    desc: Show CNPG cluster status for authentik-postgres in the auth namespace
+    cmd: kubectl cnpg status authentik-postgres -n auth
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+
+  status-postgres:
+    desc: Show CNPG cluster status for postgres in the database namespace
+    cmd: kubectl cnpg status postgres -n database
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+
+  promote-authentik:
+    desc: Promote a given instance to primary in the auth namespace [NODE=required]
+    cmds:
+      - kubectl cnpg status authentik-postgres -n auth
+      - kubectl cnpg promote authentik-postgres {{.NODE}} -n auth
+      - sleep 30
+      - kubectl cnpg status authentik-postgres -n auth
+    requires:
+      vars: [NODE]
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+
+  promote-postgres:
+    desc: Promote a given instance to primary in the database namespace [NODE=required]
+    cmds:
+      - kubectl cnpg status postgres -n database
+      - kubectl cnpg promote postgres {{.NODE}} -n database
+      - sleep 30
+      - kubectl cnpg status postgres -n database
+    requires:
+      vars: [NODE]
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl

@@ -65,7 +65,7 @@ kill $(cat /run/dnsmasq-main.pid)
 
 This repo includes custom iPXE configurations for netboot.xyz with hardware-specific Talos builds:
 
-1. **Update talenv.yaml with version intending to upgrade**:
+1. **Update topf.yaml with version intending to upgrade**:
 
 2. **Generate schematics and download assets**:
 
@@ -164,7 +164,7 @@ See [ipxe/README.md](./ipxe/README.md) for detailed setup instructions.
 
     ```sh
     git add -A
-    git commit -m "chore: add talhelper encrypted secret :lock:"
+    git commit -m "chore: add topf encrypted secret :lock:"
     git push
     ```
 
@@ -232,15 +232,30 @@ task bootstrap:apps
 ### ⚙️ Updating Talos node configuration
 
 > [!TIP]
-> Ensure you have updated `talconfig.yaml` and any patches with your updated configuration. In some cases you **not only need to apply the configuration but also upgrade talos** to apply new configuration.
+> Ensure you have updated `topf.yaml` and any patches with your updated configuration. In some cases you **not only need to apply the configuration but also upgrade talos** to apply new configuration.
 
 ```sh
-# (Re)generate the Talos config
-task talos:generate-config
-# Apply the config to the node
-task talos:apply-node IP=? MODE=?
-# e.g. task talos:apply-node IP=10.10.10.10 MODE=auto
+# Preview what the change does to every node
+task talos:diff
+# Apply the config to one node
+task talos:apply-node HOST=? MODE=?
+# e.g. task talos:apply-node HOST=pella MODE=auto
+# Or apply to every node, one at a time
+task talos:apply
 ```
+
+`task talos:diff` exits 2 when there are changes to apply, so `task` reports it as
+failed. That is the signal, not an error.
+
+> [!IMPORTANT]
+> Most config changes apply without a reboot — check `task talos:diff` output for
+> "without a reboot". If a change *does* require one, do not use `task talos:apply`: it
+> would roll all six nodes with only a 30s gap. Apply per node with `talos:apply-node`
+> and run `task longhorn:wait-healthy` between workers, as in the upgrade section below.
+
+`topf` renders and applies in one step, so there is no separate generate step. Use
+`task talos:render` to write the generated configs to `talos/output/` for inspection —
+they contain cluster secrets in plaintext, so delete them afterwards.
 
 ### ➕ Adding a new node
 
@@ -261,33 +276,36 @@ talosctl -n <IP> wipe disk <disk> --insecure # e.g. nvme0n1
 talosctl get links -n <IP> --insecure
 ```
 
-#### 3. Add the node to `talos/talconfig.yaml`
+#### 3. Add the node to `talos/topf.yaml`
 
 ```yaml
-- hostname: "newnode"                                       # update
-  ipAddress: "192.168.0.XX"                                 # update
-  installDisk: "/dev/sda"                                   # update (OS disk)
-  machineSpec:
-    secureboot: false
-  talosImageURL: factory.talos.dev/installer/<schematic-id> # update
-  controlPlane: false
-  networkInterfaces:
-    - deviceSelector:
-        hardwareAddr: "xx:xx:xx:xx:xx:xx"                   # update
-      dhcp: false
-      addresses:
-        - "192.168.0.XX/24"                                 # update
-      routes:
-        - network: "0.0.0.0/0"
-          gateway: "192.168.0.1"
-      mtu: 9000
-  patches:
-- "@./patches/nodes/newnode-longhorn-volume.yaml"           # update
+- host: newnode                   # update
+  ip: 192.168.0.XX                # update
+  role: worker                    # or control-plane
+  data:
+    mac: "xx:xx:xx:xx:xx:xx"      # update — selects the primary NIC
 ```
 
-#### 4. Create the Longhorn volume patch
+Hostname, the network link and the address come from `talos/all/`, which templates
+them off `host`, `ip` and `data.mac`. Only the install disk needs a per-node patch.
 
-Create `talos/patches/nodes/newnode-longhorn-volume.yaml`:
+Also add the node to the `hosts` of its build in `BUILD_CONFIGS`
+(`ipxe/generate-schematics.py`), then run `task ipxe:generate`. That sets the node's image:
+the most common build's schematic is the cluster-wide `schematicId`, and a node on a
+different build gets its own per-node `schematicId` in `topf.yaml`. A host missing from
+`BUILD_CONFIGS` makes the generator skip the `topf.yaml` update.
+
+#### 4. Create the per-node patches
+
+Create `talos/node/newnode/01-install.yaml`:
+
+```yaml
+machine:
+  install:
+    disk: /dev/sda   # update (OS disk)
+```
+
+Create `talos/node/newnode/20-longhorn-volume.yaml`:
 
 ```yaml
 apiVersion: v1alpha1
@@ -300,11 +318,12 @@ provisioning:
   maxSize: 1TB
 ```
 
-#### 5. Generate config and apply
+#### 5. Apply
+
+`topf` dials nodes in maintenance mode too, so the same task bootstraps a new node:
 
 ```sh
-task talos:generate-config
-task talos:bootstrap-new-node IP=192.168.0.XX
+task talos:apply-node HOST=newnode
 ```
 
 #### 6. Verify
@@ -320,23 +339,55 @@ talosctl -n <IP> get volumestatus
 ### ⬆️ Updating Talos and Kubernetes versions
 
 > [!TIP]
-> Ensure the `talosVersion` and `kubernetesVersion` in `talenv.yaml` are up-to-date with the version you wish to upgrade to.
+> Ensure the `talosVersion` and `kubernetesVersion` in `topf.yaml` are up-to-date with the version you wish to upgrade to.
 
 Prerequisites:
 1. Validate that compatibility of talos and kubernetes versions
 2. Upgrade the client tools in mise before the upgrade
 3. Validate cilium compatibility with the kubernetes version being upgraded
 
-```sh
-# Upgrade node to a newer Talos version
-task talos:upgrade-node IP=?
-# e.g. task talos:upgrade-node IP=10.10.10.10
-```
+> [!CAUTION]
+> Every Longhorn volume in this cluster is `numberOfReplicas: 2` spread across three
+> workers, so rebooting one worker leaves its volumes on a **single** healthy replica.
+> Rebooting the next worker before the rebuild finishes can strand a volume. Always
+> confirm Longhorn is fully rebuilt between worker reboots.
+
+Rebuilds typically take **30-45 minutes** and can take longer. Rebuild time tracks actual
+data over the slowest link involved — donnager and hammurabi are 2.5Gbps, pella is
+10Gbps — so any rebuild touching the 2.5Gbps pair is capped there no matter how fast
+pella is. pella alone holds ~420 GiB provisioned across 46 replicas. Plan the maintenance
+window around that, and treat a slow rebuild as normal rather than stuck.
+
+Upgrade Talos one node at a time, waiting for Longhorn between workers:
 
 ```sh
-# Upgrade cluster to a newer Kubernetes version
-task talos:upgrade-k8s
-# e.g. task talos:upgrade-k8s
+# Upgrade a single node (cordons and drains it first, so PDBs gate the reboot)
+task talos:upgrade-node HOST=?
+# e.g. task talos:upgrade-node HOST=donnager
+
+# Then, before touching the next worker, block until every volume is rebuilt.
+# Prints elapsed time and sync progress every 30s. Guard defaults to 3h; it is a
+# runaway guard, not a target, so raise TIMEOUT rather than lowering it.
+task longhorn:wait-healthy
+# e.g. task longhorn:wait-healthy TIMEOUT=21600 INTERVAL=60
+
+# Inspect robustness, replica placement and provisioned size per node at any time
+task longhorn:status
+```
+
+Control-plane nodes (m1/m2/m3) hold no Longhorn replicas — Longhorn only manages the
+three workers — so they need no wait between them; only etcd quorum matters there.
+
+> [!WARNING]
+> `task talos:upgrade` upgrades **every** node in succession with only a 30s
+> stabilization gap, which is not long enough for a Longhorn rebuild. Do not use it on
+> this cluster; drive upgrades per node with `talos:upgrade-node` as above.
+
+```sh
+# Upgrade cluster to a newer Kubernetes version.
+# Per node: drain (PDB-gated) -> patch kubelet -> wait Ready -> uncordon -> wait for
+# Longhorn to finish rebuilding. Safe to leave unattended.
+task talos:upgrade-k8s-safe
 ```
 
 ### Secrets

@@ -10,7 +10,7 @@ vars:
   SCRIPTS_DIR: '{{.ROOT_DIR}}/scripts'
   TALOS_DIR: '{{.ROOT_DIR}}/talos'
   PRIVATE_DIR: '{{.ROOT_DIR}}/.private'
-  TALOSCONFIG: '{{.ROOT_DIR}}/talos/clusterconfig/talosconfig'
+  TALOSCONFIG: '{{.ROOT_DIR}}/talos/talosconfig'
   IPXE_DIR: '{{.ROOT_DIR}}/ipxe'
 
 env:
@@ -22,6 +22,7 @@ includes:
   bootstrap: .taskfiles/bootstrap
   cnpg: .taskfiles/cnpg
   ipxe: .taskfiles/ipxe
+  longhorn: .taskfiles/longhorn
   talos: .taskfiles/talos
 
 tasks:

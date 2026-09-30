@@ -1,0 +1,8 @@
+---
+cluster:
+  network:
+    # Disable built-in CNI to use Cilium
+    cni:
+      name: none
+    podSubnets: ["10.32.0.0/12"]
+    serviceSubnets: ["10.96.0.0/12"]
