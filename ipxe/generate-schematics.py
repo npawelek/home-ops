@@ -72,7 +72,7 @@ BUILD_CONFIGS = [
         arch="amd64",
         extensions=["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         use_case="Intel systems with integrated graphics (i915 driver)",
-        hosts=["m1", "m2", "m3", "karakum", "pella", "donnager", "hammurabi"],
+        hosts=["m1", "m2", "m3", "karakum", "donnager", "hammurabi"],
     ),
     BuildConfig(
         name="Intel Arc i915",
@@ -81,6 +81,7 @@ BUILD_CONFIGS = [
         extensions=["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/mei", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
         use_case="Intel Arc gen1 (Alchemist/DG2) discrete GPUs. xe does not support gen1, so this uses i915; "
                  "mei lets the GSC load HuC, which the low-power encoders need for bitrate control",
+        hosts=["pella"],
     ),
     BuildConfig(
         name="AMD iGPU",

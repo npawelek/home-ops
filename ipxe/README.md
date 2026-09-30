@@ -35,13 +35,13 @@ All builds include common extensions and kernel parameters:
    - Extensions: siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
    - Kernel Parameters: `net.ifnames=0`
    - Use case: Intel systems with integrated graphics (i915 driver)
-   - Nodes: m1, m2, m3, karakum, pella, donnager, hammurabi
+   - Nodes: m1, m2, m3, karakum, donnager, hammurabi
 
 2. **Intel Arc i915** (amd64)
    - Extensions: siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
    - Kernel Parameters: `net.ifnames=0`
    - Use case: Intel Arc gen1 (Alchemist/DG2) discrete GPUs. xe does not support gen1, so this uses i915; mei lets the GSC load HuC, which the low-power encoders need for bitrate control
-   - Nodes: none
+   - Nodes: pella
 
 3. **AMD iGPU** (amd64)
    - Extensions: siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
@@ -65,9 +65,9 @@ All builds include common extensions and kernel parameters:
 | m2 | Intel i915 | `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
 | m3 | Intel i915 | `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
 | karakum | Intel i915 | `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
-| pella | Intel i915 | `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
 | donnager | Intel i915 | `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
 | hammurabi | Intel i915 | `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
+| pella | Intel Arc i915 | `92cdade33f77e1c7ec5a581e3415952d107414facf9da5383ad8c9f579064377` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
 | rocinante | AMD iGPU | `f0b77609affe4cdc9b0e8fcf943e5e14eeba33678424860a3a845bb1b10c82d8` | siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
 <!-- NODES_END -->
 

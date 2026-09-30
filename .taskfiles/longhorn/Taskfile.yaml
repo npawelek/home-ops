@@ -33,6 +33,13 @@ tasks:
     # percentage, but a replica can be queued (WO) with no rebuildStatus yet, so it is
     # used for progress reporting only - never to decide completion.
     #
+    # ONLY attached volumes are gated on. A detached volume reports robustness=unknown and
+    # has no running replicas to rebuild, so it can never reach `healthy` on its own. While
+    # a node is cordoned, workloads that cannot schedule elsewhere sit Pending and their
+    # volumes stay detached - gating on those deadlocks, because they only attach again
+    # AFTER the node is uncordoned. They are counted and reported, never waited on.
+    # `faulted` fails immediately: no amount of waiting recovers it.
+    #
     # TIMEOUT is a runaway guard, NOT an expectation. Rebuild time tracks actual data over
     # the slowest link involved: donnager and hammurabi are 2.5Gbps, pella is 10Gbps, so
     # any rebuild touching the first two is capped there regardless of pella's NIC.
@@ -50,14 +57,26 @@ tasks:
         deadline=$(( start + {{.TIMEOUT}} ))
         echo "==> Waiting for all Longhorn volumes to report healthy (guard {{.TIMEOUT}}s)..."
         while true; do
-          unhealthy=$(kubectl -n longhorn-system get volumes.longhorn.io -o json \
-            | yq -r '.items[] | select(.status.robustness != "healthy") | .metadata.name')
+          vols=$(kubectl -n longhorn-system get volumes.longhorn.io -o json)
+          faulted=$(echo "$vols" | yq -r '.items[] | select(.status.robustness == "faulted") | .metadata.name')
+          if [ -n "$faulted" ]; then
+            echo "x Volume(s) FAULTED - waiting will not recover these:" >&2
+            echo "$faulted" | sed 's/^/    /' >&2
+            exit 1
+          fi
+          unhealthy=$(echo "$vols" \
+            | yq -r '.items[]
+                     | select(.status.state == "attached" and .status.robustness != "healthy")
+                     | .metadata.name')
+          detached=$(echo "$vols" | yq -r '[.items[] | select(.status.state != "attached")] | length')
           now=$(date +%s)
           elapsed=$(( now - start ))
           if [ -z "$unhealthy" ]; then
-            total=$(kubectl -n longhorn-system get volumes.longhorn.io -o json | yq -r '.items | length')
-            printf '==> All %s Longhorn volumes healthy after %dm%02ds.\n' \
-              "$total" $(( elapsed / 60 )) $(( elapsed % 60 ))
+            att=$(echo "$vols" | yq -r '[.items[] | select(.status.state == "attached")] | length')
+            printf '==> All %s attached Longhorn volumes healthy after %dm%02ds' \
+              "$att" $(( elapsed / 60 )) $(( elapsed % 60 ))
+            [ "$detached" -gt 0 ] && printf ' (%s detached, not gated)' "$detached"
+            printf '.\n'
             break
           fi
           count=$(echo "$unhealthy" | wc -l | tr -d ' ')
@@ -66,14 +85,16 @@ tasks:
             | awk 'NF{n++; s+=$1}
                    END{if (n) printf "syncing %d, avg %d%%", n, s/n; else printf "queued, no sync yet"}')
           if [ "$now" -ge "$deadline" ]; then
-            printf 'x Timed out after %dm with %s volume(s) still degraded (%s):\n' \
+            printf 'x Timed out after %dm with %s attached volume(s) still degraded (%s):\n' \
               $(( elapsed / 60 )) "$count" "$progress" >&2
             echo "$unhealthy" | sed 's/^/    /' >&2
             echo "  Still advancing? Re-run with a longer TIMEOUT. Stalled? task longhorn:status" >&2
             exit 1
           fi
-          printf '    [%3dm%02ds] %s degraded, %s\n' \
+          printf '    [%3dm%02ds] %s rebuilding, %s' \
             $(( elapsed / 60 )) $(( elapsed % 60 )) "$count" "$progress"
+          [ "$detached" -gt 0 ] && printf ' (%s detached, skipped)' "$detached"
+          printf '\n'
           sleep {{.INTERVAL}}
         done
     preconditions:

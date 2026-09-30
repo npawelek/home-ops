@@ -375,6 +375,13 @@ task longhorn:wait-healthy
 task longhorn:status
 ```
 
+Only **attached** volumes are gated on. While a node is cordoned, workloads that cannot
+schedule elsewhere sit `Pending` and their volumes stay `detached` with
+`robustness: unknown` — those can only attach again *after* the node is uncordoned, so
+waiting on them would deadlock. They are reported as `(N detached, not gated)` rather
+than waited on. A `faulted` volume fails the task immediately, since waiting cannot
+recover it.
+
 Control-plane nodes (m1/m2/m3) hold no Longhorn replicas — Longhorn only manages the
 three workers — so they need no wait between them; only etcd quorum matters there.
 
