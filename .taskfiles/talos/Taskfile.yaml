@@ -129,9 +129,13 @@ tasks:
           echo "    Draining ${hostname} (blocks until PDBs allow)..."
           kubectl drain "${hostname}" --ignore-daemonsets --delete-emptydir-data --timeout=0
           echo "    Patching kubelet image to {{.KUBERNETES_VERSION}}..."
-          patch=$(printf '[{"op":"replace","path":"/machine/kubelet/image","value":"ghcr.io/siderolabs/kubelet:%s"}]' \
-            '{{.KUBERNETES_VERSION}}')
-          talosctl patch mc --nodes "${ip}" --mode=no-reboot --patch "${patch}"
+          # Talos 1.14 multi-doc config: the kubelet image lives in the KubeletConfig
+          # document, not /machine/kubelet. This matches upstream's stdpatches.WithKubeletImage.
+          patchfile=$(mktemp)
+          printf 'apiVersion: v1alpha1\nkind: KubeletConfig\nimage: ghcr.io/siderolabs/kubelet:%s\n' \
+            '{{.KUBERNETES_VERSION}}' >"${patchfile}"
+          talosctl patch mc --nodes "${ip}" --mode=no-reboot --patch @"${patchfile}"
+          rm -f "${patchfile}"
           echo "    Waiting for ${hostname} to be Ready..."
           kubectl wait node "${hostname}" --for=condition=Ready --timeout=5m
           echo "    Uncordoning ${hostname}..."

@@ -60,12 +60,6 @@
       },
     },
     {
-      description: "Talos v1.14+ requires the manual multi-document config migration (tech-debt #13); surface it on the Dependency Dashboard instead of opening a PR",
-      matchPackageNames: ["/siderolabs/talos$/"],
-      matchUpdateTypes: ["major", "minor"],
-      dependencyDashboardApproval: true,
-    },
-    {
       description: "Override Helmfile Dependency Name",
       matchDatasources: ["docker"],
       matchManagers: ["helmfile"],

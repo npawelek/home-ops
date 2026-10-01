@@ -20,9 +20,8 @@ TOPF loads patches for each node from these directories, in this order:
 - `node/${node-host}/`: applied to the node with that `host` in `topf.yaml`
 
 Within a directory, files are applied in lexicographic order, hence the numeric
-prefixes. Later patches merge over earlier ones; lists with a merge key
-(`machine.files` by `path`, `cluster.inlineManifests` by `name`) append rather than
-replace, so a role patch adds to what `all/` already set.
+prefixes. Later patches merge over earlier ones, so a role patch adds to or overrides
+what `all/` already set.
 
 ## Patch Format
 
@@ -35,3 +34,35 @@ Files ending in `.tpl` are rendered as Go templates first, with `.Node.Host`,
 `.Node.IP`, `.Node.Role`, `.Node.Data.*`, `.Data.*` and `.ClusterName` in scope. A
 missing key is a hard error. Plain `.yaml` patches are never templated, so `{{` and
 `${...}` in them pass through untouched.
+
+## Multi-Document Config (Talos 1.14+)
+
+Since Talos 1.14 the machine config is a stream of typed documents, each with
+`apiVersion: v1alpha1` and a `kind:` (`KubeletConfig`, `ResolverConfig`,
+`SysctlConfig`, `KubeAPIServerConfig`, ...), instead of one big `machine:`/`cluster:`
+mapping. Patches target those documents:
+
+- A patch document merges into the generated document with the same `kind`, plus the
+  same `name` for named kinds (`KernelModuleConfig`, `EthernetConfig`,
+  `UserVolumeConfig`, `KubeAdmissionControlConfig`, ...). A patch whose `kind`/`name`
+  matches nothing is added as a new document.
+- A v1alpha1 field and the document that replaces it cannot both be set; Talos rejects
+  the config. Never reintroduce a deprecated `machine.*`/`cluster.*` key next to its
+  document.
+- Leaving a document out of the patches does not remove it, because TOPF generates a
+  base config that already contains it. Delete a generated document explicitly:
+
+      apiVersion: v1alpha1
+      kind: KubeFlannelCNIConfig
+      $patch: delete
+
+  That one (`control-plane/05-flannel-disable.yaml`) is what keeps Flannel off so
+  Cilium owns the CNI; `cni.name: none` no longer does it.
+- Which format TOPF generates follows each node's running Talos version, not
+  `talosVersion` in `topf.yaml`. Upgrade the OS first, then change config.
+
+Three things stay in the v1alpha1 document on purpose: `machine.certSANs`
+(`all/03-cert-sans.yaml`, never deprecated), `machine.logging`
+(`all/15-machine-logging.yaml.tpl`, because `KmsgLogConfig` has no `extraTags` for the
+hostname tag), and `cluster.etcd` (`control-plane/01-etcd.yaml`, no replacement
+document yet).
