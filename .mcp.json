@@ -1,5 +1,16 @@
 {
   "mcpServers": {
+    "flux-operator-mcp": {
+      "type": "stdio",
+      "command": "mise",
+      "args": [
+        "x",
+        "--",
+        "flux-operator-mcp",
+        "serve",
+        "--read-only"
+      ]
+    },
     "grafana": {
       "command": "mise",
       "args": [
