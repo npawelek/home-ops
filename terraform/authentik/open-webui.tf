@@ -3,15 +3,16 @@ resource "authentik_provider_oauth2" "open_webui" {
   client_id          = "open-webui"
   authorization_flow = data.authentik_flow.default_authorization_flow.id
   invalidation_flow  = data.authentik_flow.default_invalidation_flow.id
-  property_mappings  = [
+  property_mappings = [
     data.authentik_property_mapping_provider_scope.scope_openid.id,
     data.authentik_property_mapping_provider_scope.scope_profile.id,
     data.authentik_property_mapping_provider_scope.scope_email.id,
   ]
   allowed_redirect_uris = [
     {
-      matching_mode = "strict"
-      url           = "https://open-webui.${var.domain}/oauth/oidc/callback"
+      matching_mode     = "strict"
+      redirect_uri_type = "authorization"
+      url               = "https://open-webui.${var.domain}/oauth/oidc/callback"
     }
   ]
   signing_key                = data.authentik_certificate_key_pair.default.id
@@ -19,7 +20,7 @@ resource "authentik_provider_oauth2" "open_webui" {
   refresh_token_validity     = var.refresh_token_validity
   client_type                = "confidential"
   include_claims_in_id_token = true
-  grant_types                = [
+  grant_types = [
     "authorization_code",
     "refresh_token",
   ]

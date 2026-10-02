@@ -10,8 +10,9 @@ resource "authentik_provider_oauth2" "synology" {
   ]
   allowed_redirect_uris = [
     {
-      matching_mode = "strict"
-      url           = "https://racknas.${var.domain}:8079"
+      matching_mode     = "strict"
+      redirect_uri_type = "authorization"
+      url               = "https://racknas.${var.domain}:8079"
     }
   ]
   signing_key                = data.authentik_certificate_key_pair.default.id

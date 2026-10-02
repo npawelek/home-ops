@@ -24,8 +24,9 @@ resource "authentik_provider_oauth2" "rustfs" {
   ]
   allowed_redirect_uris = [
     {
-      matching_mode = "strict"
-      url           = "https://rustfs.${var.domain}/rustfs/admin/v3/oidc/callback/default"
+      matching_mode     = "strict"
+      redirect_uri_type = "authorization"
+      url               = "https://rustfs.${var.domain}/rustfs/admin/v3/oidc/callback/default"
     }
   ]
   signing_key                = data.authentik_certificate_key_pair.default.id

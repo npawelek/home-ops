@@ -10,19 +10,21 @@ resource "authentik_provider_oauth2" "audiobookshelf" {
   ]
   allowed_redirect_uris = [
     {
-      matching_mode = "strict"
-      url           = "https://audiobookshelf.${var.domain}/audiobookshelf/auth/openid/callback"
+      matching_mode     = "strict"
+      redirect_uri_type = "authorization"
+      url               = "https://audiobookshelf.${var.domain}/audiobookshelf/auth/openid/callback"
     },
     {
-      matching_mode = "strict"
-      url           = "https://audiobookshelf.${var.domain}/audiobookshelf/auth/openid/mobile-redirect"
+      matching_mode     = "strict"
+      redirect_uri_type = "authorization"
+      url               = "https://audiobookshelf.${var.domain}/audiobookshelf/auth/openid/mobile-redirect"
     }
   ]
-  signing_key                 = data.authentik_certificate_key_pair.default.id
-  access_token_validity       = var.access_token_validity
-  refresh_token_validity      = var.refresh_token_validity
-  client_type                 = "confidential"
-  include_claims_in_id_token  = true
+  signing_key                = data.authentik_certificate_key_pair.default.id
+  access_token_validity      = var.access_token_validity
+  refresh_token_validity     = var.refresh_token_validity
+  client_type                = "confidential"
+  include_claims_in_id_token = true
 }
 
 resource "authentik_application" "audiobookshelf" {
