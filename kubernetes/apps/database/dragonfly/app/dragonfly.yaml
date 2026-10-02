@@ -41,7 +41,6 @@ spec:
         requests:
           storage: 2Gi
       storageClassName: longhorn
-  networkPolicyEnabled: false
   resources:
     requests:
       cpu: 100m
