@@ -19,6 +19,15 @@ name: Renovate
     paths:
       - .github/workflows/renovate.yaml
       - .renovaterc.json5
+  # Self-hosted Renovate gets no webhooks; run when a human ticks a checkbox
+  pull_request:
+    types: [edited]
+  issues:
+    types: [edited]
+
+concurrency:
+  group: renovate
+  cancel-in-progress: false
 
 env:
   LOG_LEVEL: debug
@@ -30,6 +39,18 @@ jobs:
   renovate:
     name: Renovate
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event.sender.type != 'Bot' && (
+        (github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          startsWith(github.event.pull_request.head.ref, 'renovate/') &&
+          contains(github.event.pull_request.body, '- [x] <!-- rebase-check -->')) ||
+        (github.event_name == 'issues' &&
+          github.event.issue.title == 'Renovate Dashboard 🤖' &&
+          contains(github.event.issue.body, '- [x] <!--'))))
     steps:
       - name: Generate Token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -42,6 +63,8 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: "${{ steps.app-token.outputs.token }}"
+          # pull_request events default to the PR merge ref; always read config from main
+          ref: "${{ github.event.repository.default_branch }}"
 
       - name: Override default config from dispatch variables
         shell: bash
