@@ -111,14 +111,24 @@ tasks:
         sh: yq '.kubernetesVersion' {{.TALOS_DIR}}/topf.yaml
       CONTROL_PLANE_IP:
         sh: yq '[.nodes[] | select(.role == "control-plane")][0].ip' {{.TALOS_DIR}}/topf.yaml
+      # Worker kubelet order, space-separated hostnames. Control-plane nodes always go
+      # first, in topf.yaml order. Override with e.g. WORKERS="hammurabi pella donnager".
+      TOPF_WORKERS:
+        sh: yq '[.nodes[] | select(.role != "control-plane") | .host] | join(" ")' {{.TALOS_DIR}}/topf.yaml
+      WORKERS: '{{.WORKERS | default .TOPF_WORKERS}}'
     cmds:
       - |
         echo "==> Upgrading control plane components to {{.KUBERNETES_VERSION}} (no drain)..."
         talosctl --nodes {{.CONTROL_PLANE_IP}} upgrade-k8s --to '{{.KUBERNETES_VERSION}}' --upgrade-kubelet=false
       - |
+        # Stop at the first failed step so a node is never uncordoned, and the next
+        # node never drained, after a failed patch, Ready wait or Longhorn gate.
+        set -euo pipefail
         nodes=$(
           yq '.nodes[] | select(.role == "control-plane") | .ip + " " + .host' {{.TALOS_DIR}}/topf.yaml
-          yq '.nodes[] | select(.role != "control-plane") | .ip + " " + .host' {{.TALOS_DIR}}/topf.yaml
+          for host in {{.WORKERS}}; do
+            HOST="${host}" yq '.nodes[] | select(.host == strenv(HOST)) | .ip + " " + .host' {{.TALOS_DIR}}/topf.yaml
+          done
         )
         total=$(echo "$nodes" | wc -l | tr -d ' ')
         count=0
@@ -126,6 +136,10 @@ tasks:
           count=$((count + 1))
           echo ""
           echo "==> [${count}/${total}] Upgrading kubelet on ${hostname} (${ip})..."
+          # No CNPG pre-promotion: the drain hits each cluster's primary PDB and CNPG
+          # switches over by itself. A manual promote here demoted the old primary under
+          # the node's old kubelet, which never restarted it, and left a replica diverged
+          # by the old primary's shutdown checkpoint (see the k8s 1.36 ExecPlan).
           echo "    Draining ${hostname} (blocks until PDBs allow)..."
           kubectl drain "${hostname}" --ignore-daemonsets --delete-emptydir-data --timeout=0
           echo "    Patching kubelet image to {{.KUBERNETES_VERSION}}..."
@@ -136,7 +150,11 @@ tasks:
             '{{.KUBERNETES_VERSION}}' >"${patchfile}"
           talosctl patch mc --nodes "${ip}" --mode=no-reboot --patch @"${patchfile}"
           rm -f "${patchfile}"
-          echo "    Waiting for ${hostname} to be Ready..."
+          # The node is still Ready on the old kubelet right after the patch, so wait
+          # for the new version to report before trusting the Ready condition.
+          echo "    Waiting for ${hostname} to report kubelet {{.KUBERNETES_VERSION}} and be Ready..."
+          kubectl wait node "${hostname}" --timeout=5m \
+            --for=jsonpath='{.status.nodeInfo.kubeletVersion}'='{{.KUBERNETES_VERSION}}'
           kubectl wait node "${hostname}" --for=condition=Ready --timeout=5m
           echo "    Uncordoning ${hostname}..."
           kubectl uncordon "${hostname}"
@@ -154,6 +172,10 @@ tasks:
       - test -f {{.TALOSCONFIG}}
       - test -f {{.KUBECONFIG}}
       - which kubectl talosctl task yq
+      - sh: |
+          topf_workers=$(yq '.nodes[] | select(.role != "control-plane") | .host' {{.TALOS_DIR}}/topf.yaml)
+          [ "$(printf '%s\n' {{.WORKERS}} | sort | tr '\n' ' ')" = "$(echo "${topf_workers}" | sort | tr '\n' ' ')" ]
+        msg: 'WORKERS="{{.WORKERS}}" must list every worker in talos/topf.yaml exactly once'
 
   reset:
     desc: Resets nodes back to maintenance mode
