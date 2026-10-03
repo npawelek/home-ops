@@ -6,8 +6,6 @@ metadata:
   name: metallb
 spec:
   interval: 1h
-  driftDetection:
-    mode: enabled
   chart:
     spec:
       chart: metallb
