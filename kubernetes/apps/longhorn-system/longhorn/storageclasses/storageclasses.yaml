@@ -5,25 +5,6 @@ metadata:
   annotations:
     # Parameters are immutable; let Flux recreate the SC on change
     kustomize.toolkit.fluxcd.io/force: Enabled
-  name: longhorn-no-backup
-provisioner: driver.longhorn.io
-allowVolumeExpansion: true
-reclaimPolicy: Retain
-volumeBindingMode: Immediate
-parameters:
-  numberOfReplicas: "2"
-  staleReplicaTimeout: "2880"
-  fsType: ext4
-  dataLocality: best-effort
-  migratable: "true"
-  recurringJobSelector: '[{"name":"default","isGroup":true}]'
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  annotations:
-    # Parameters are immutable; let Flux recreate the SC on change
-    kustomize.toolkit.fluxcd.io/force: Enabled
   name: longhorn-12h
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
@@ -33,8 +14,13 @@ parameters:
   numberOfReplicas: "2"
   staleReplicaTimeout: "2880"
   fsType: ext4
+  dataEngine: v1
   dataLocality: best-effort
+  replicaAutoBalance: least-effort
+  replicaSoftAntiAffinity: disabled
   migratable: "true"
+  encrypted: "false"
+  disableRevisionCounter: "true"
   recurringJobSelector: '[{"name":"backup-12h","isGroup":true},{"name":"default","isGroup":true}]'
 ---
 apiVersion: storage.k8s.io/v1
@@ -52,8 +38,13 @@ parameters:
   numberOfReplicas: "2"
   staleReplicaTimeout: "2880"
   fsType: ext4
+  dataEngine: v1
   dataLocality: best-effort
+  replicaAutoBalance: least-effort
+  replicaSoftAntiAffinity: disabled
   migratable: "true"
+  encrypted: "false"
+  disableRevisionCounter: "true"
   recurringJobSelector: '[{"name":"backup-6h","isGroup":true},{"name":"default","isGroup":true}]'
 ---
 # For apps with their own replication (CNPG, etc.): single replica pinned to the pod's node
@@ -72,5 +63,11 @@ parameters:
   numberOfReplicas: "1"
   staleReplicaTimeout: "2880"
   fsType: ext4
+  dataEngine: v1
   dataLocality: strict-local
+  # Single replica: nothing to balance
+  replicaAutoBalance: disabled
+  migratable: "false"
+  encrypted: "false"
+  disableRevisionCounter: "true"
   recurringJobSelector: '[{"name":"default","isGroup":true}]'
