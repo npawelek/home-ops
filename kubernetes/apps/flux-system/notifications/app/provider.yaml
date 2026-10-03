@@ -1,0 +1,10 @@
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: home-assistant
+spec:
+  type: generic
+  # address key: http://hass-app.home-automation.svc.cluster.local:8123/api/webhook/<webhook-id>
+  secretRef:
+    name: flux-alerts-home-assistant

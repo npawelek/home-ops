@@ -10,5 +10,6 @@ resources:
   - ./namespace.yaml
   - ./flux-instance/ks.yaml
   - ./flux-operator/ks.yaml
+  - ./notifications/ks.yaml
   - ./repos/ks.yaml
   - ./tofu-controller/ks.yaml
