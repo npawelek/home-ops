@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: nodered/node-red
-              tag: 4.1.15-18-minimal@sha256:077e4eb1665146fc85edd29a9fddba853125c660859a9289325df9a3f39fe8aa
+              tag: 5.0.7-minimal@sha256:828be222da3c61b10eebb85d5192d1da98e3e5d59c2fc1d7e9cd7958e0a69314
             env:
               TZ: ${TIMEZONE}
               FLOWS: flows.json
