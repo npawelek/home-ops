@@ -26,6 +26,7 @@ enter = "mise run check-deps"
 "aqua:BurntSushi/ripgrep" = "15.2.0"
 "aqua:cilium/cilium-cli" = "0.20.1"
 "aqua:cli/cli" = "2.102.0"
+"aqua:controlplaneio-fluxcd/flux-operator" = { version = "0.61.0", postinstall = "flux-operator skills install ghcr.io/fluxcd/agent-skills --agent claude-code" }
 "aqua:controlplaneio-fluxcd/flux-operator/flux-operator-mcp" = "0.61.0"
 "aqua:cue-lang/cue" = "0.17.1"
 "aqua:FiloSottile/age" = "1.3.2"
