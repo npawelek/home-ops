@@ -72,7 +72,7 @@ spec:
 
   storage:
     size: 30Gi
-    storageClass: longhorn-no-backup
+    storageClass: longhorn-local
 
   # TODO(1.30): replace with spec.backup.plugins once CNPG 1.30+ is deployed
   backup:

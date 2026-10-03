@@ -2,6 +2,9 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
+  annotations:
+    # Parameters are immutable; let Flux recreate the SC on change
+    kustomize.toolkit.fluxcd.io/force: Enabled
   name: longhorn-no-backup
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
@@ -13,12 +16,14 @@ parameters:
   fsType: ext4
   dataLocality: best-effort
   migratable: "true"
-  replicaAutoBalance: best-effort
   recurringJobSelector: '[{"name":"default","isGroup":true}]'
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
+  annotations:
+    # Parameters are immutable; let Flux recreate the SC on change
+    kustomize.toolkit.fluxcd.io/force: Enabled
   name: longhorn-12h
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
@@ -30,12 +35,14 @@ parameters:
   fsType: ext4
   dataLocality: best-effort
   migratable: "true"
-  replicaAutoBalance: best-effort
   recurringJobSelector: '[{"name":"backup-12h","isGroup":true},{"name":"default","isGroup":true}]'
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
+  annotations:
+    # Parameters are immutable; let Flux recreate the SC on change
+    kustomize.toolkit.fluxcd.io/force: Enabled
   name: longhorn-6h
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
@@ -47,5 +54,23 @@ parameters:
   fsType: ext4
   dataLocality: best-effort
   migratable: "true"
-  replicaAutoBalance: best-effort
   recurringJobSelector: '[{"name":"backup-6h","isGroup":true},{"name":"default","isGroup":true}]'
+---
+# For apps with their own replication (CNPG, etc.): single replica pinned to the pod's node
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    # Parameters are immutable; let Flux recreate the SC on change
+    kustomize.toolkit.fluxcd.io/force: Enabled
+  name: longhorn-local
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  numberOfReplicas: "1"
+  staleReplicaTimeout: "2880"
+  fsType: ext4
+  dataLocality: strict-local
+  recurringJobSelector: '[{"name":"default","isGroup":true}]'

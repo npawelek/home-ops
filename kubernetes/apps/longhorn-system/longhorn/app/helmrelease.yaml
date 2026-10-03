@@ -17,9 +17,7 @@ spec:
       defaultClass: true
       defaultClassReplicaCount: 2
       reclaimPolicy: Retain
-      replicaSoftAntiAffinity: false
-      replicaAutoBalance: best-effort
-      dataLocality: best-effort
+      defaultDataLocality: best-effort
       migratable: true
       recurringJobSelector:
         enable: true
@@ -34,7 +32,8 @@ spec:
       defaultDataPath: /var/mnt/longhorn
       defaultReplicaCount: 2
       replicaSoftAntiAffinity: false
-      replicaAutoBalance: best-effort
+      replicaAutoBalance: least-effort
+      allowVolumeCreationWithDegradedAvailability: false
       restoreVolumeRecurringJobs: true
       storageMinimalAvailablePercentage: 10
       storageReservedPercentageForDefaultDisk: 10
