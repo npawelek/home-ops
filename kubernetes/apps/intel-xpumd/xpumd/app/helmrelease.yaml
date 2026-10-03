@@ -8,6 +8,12 @@ spec:
     kind: OCIRepository
     name: xpumd
   interval: 1h
+  driftDetection:
+    ignore:
+      # ResourceClaimTemplate spec is immutable; SSA dry-run fails instead of diffing
+      - paths: [""]
+        target:
+          kind: ResourceClaimTemplate
   values:
     image:
       tag: v2.x
