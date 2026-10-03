@@ -16,7 +16,7 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: auth
-  wait: false
+  wait: true
   dependsOn:
     - name: envoy-gateway
       namespace: gateway

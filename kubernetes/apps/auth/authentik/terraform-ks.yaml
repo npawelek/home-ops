@@ -22,4 +22,9 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: auth
-  wait: false
+  wait: true
+  healthCheckExprs:
+    - apiVersion: infra.contrib.fluxcd.io/v1alpha2
+      kind: Terraform
+      failed: status.conditions.exists(e, e.type == 'Ready' && e.status == 'False')
+      current: status.conditions.exists(e, e.type == 'Ready' && e.status == 'True')
