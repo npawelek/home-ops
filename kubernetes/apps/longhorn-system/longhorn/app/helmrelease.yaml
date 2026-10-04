@@ -52,14 +52,6 @@ spec:
       backupTarget: nfs://${RACKNAS_ADDR}:/volume1/LonghornBackupstore
       pollInterval: 300
 
-    # Webhook configuration - adjust replicas as needed
-    longhornConversionWebhook:
-      replicas: 0
-    longhornAdmissionWebhook:
-      replicas: 0
-    longhornRecoveryBackend:
-      replicas: 0
-
     networkPolicies:
       enabled: false
 
