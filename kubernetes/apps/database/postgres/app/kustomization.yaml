@@ -6,6 +6,7 @@ resources:
   - ./credentials-admin.sops.yaml
   - ./credentials-backup.sops.yaml
   - ./credentials-buzz.sops.yaml
+  - ./credentials-dawarich.sops.yaml
   - ./credentials-firefly.sops.yaml
   - ./credentials-hass.sops.yaml
   - ./credentials-immich.sops.yaml

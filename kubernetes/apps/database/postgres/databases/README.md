@@ -8,6 +8,7 @@ This directory contains Database CRDs for creating databases in the main postgre
 - **jellystat**: Jellyfin statistics database
 - **firefly**: Firefly III finance manager database
 - **immich**: Immich photo management database (requires vector extensions)
+- **dawarich**: Dawarich location history (PostGIS, declared in CR)
 
 ## Immich Setup
 
@@ -28,3 +29,12 @@ kubectl exec -n database postgres-1 -c postgres -- \
 ```
 
 You should see `vchord` and `earthdistance` in the list.
+
+## Dawarich Setup
+
+The `dawarich` Database CR declares `postgis` and `pgcrypto` under `spec.extensions`, so CNPG creates them as superuser — no manual step. PostGIS libraries come from the `postgis` extension image in `../app/cluster.yaml`. Verify:
+
+```bash
+kubectl exec -n database postgres-1 -c postgres -- \
+  psql -U postgres -d dawarich -c "\dx"
+```

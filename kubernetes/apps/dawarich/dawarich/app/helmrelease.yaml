@@ -1,0 +1,195 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-5.2.1/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: dawarich
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  interval: 1h
+  values:
+    global:
+      createDefaultServiceAccount: false
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+    controllers:
+      dawarich:
+        type: deployment
+        # RWO volumes shared by both containers; old pod must release them first
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          web:
+            image: &image
+              repository: docker.io/freikin/dawarich
+              tag: 1.15.3@sha256:589e3606b11b61c3fa2d9661832cb73645a9b93a9cc7d807a071e2bc6c584498
+            command: ["web-entrypoint.sh"]
+            args: ["bin/rails", "server", "-p", "3000", "-b", "::"]
+            # List form keeps order: POD_IP must precede APPLICATION_HOSTS for $(POD_IP) expansion.
+            # Pod IP lets vmagent scrape /metrics past Rails host authorization.
+            env: &env
+              - name: POD_IP
+                valueFrom:
+                  fieldRef:
+                    fieldPath: status.podIP
+              - name: APPLICATION_HOSTS
+                value: "dawarich.${SECRET_DOMAIN},$(POD_IP)"
+              - name: APPLICATION_PROTOCOL
+                value: https
+              - name: DOMAIN
+                value: "dawarich.${SECRET_DOMAIN}"
+              - name: RAILS_ENV
+                value: production
+              - name: RAILS_LOG_TO_STDOUT
+                value: "true"
+              - name: TIME_ZONE
+                value: "${TIMEZONE}"
+              - name: SELF_HOSTED
+                value: "true"
+              - name: STORE_GEODATA
+                value: "true"
+              - name: DATABASE_HOST
+                value: postgres-rw.database.svc.cluster.local
+              - name: DATABASE_PORT
+                value: "5432"
+              - name: DATABASE_NAME
+                value: dawarich
+              # Shared Dragonfly: dedicated DB indexes keep keys apart from other tenants
+              - name: RAILS_CACHE_DB
+                value: "10"
+              - name: RAILS_JOB_QUEUE_DB
+                value: "11"
+              - name: RAILS_WS_DB
+                value: "12"
+              - name: WEB_CONCURRENCY
+                value: "1"
+              - name: BACKGROUND_PROCESSING_CONCURRENCY
+                value: "3"
+              - name: PROMETHEUS_EXPORTER_ENABLED
+                value: "true"
+              - name: PROMETHEUS_EXPORTER_PORT
+                value: "9394"
+              - name: SIDEKIQ_METRICS_URL
+                value: http://localhost:9394/metrics
+              # SMTP via shared cluster-secrets (Flux postBuild substitution)
+              - name: SMTP_SERVER
+                value: "${EMAIL_HOST}"
+              - name: SMTP_PORT
+                value: "587"
+              - name: SMTP_DOMAIN
+                value: "${SECRET_DOMAIN}"
+              - name: SMTP_FROM
+                value: "${EMAIL_FROM}"
+              - name: SMTP_USERNAME
+                value: "${EMAIL_USERNAME}"
+              - name: SMTP_PASSWORD
+                value: "${EMAIL_PASSWORD}"
+              - name: SMTP_AUTHENTICATION
+                value: login
+              - name: SMTP_STARTTLS
+                value: "true"
+            envFrom: &envFrom
+              - secretRef:
+                  name: dawarich-secrets
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: &port 3000
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  # entrypoint runs migrations + seeds before Puma listens
+                  periodSeconds: 10
+                  failureThreshold: 60
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+          sidekiq:
+            image: *image
+            command: ["sidekiq-entrypoint.sh"]
+            args: ["sidekiq"]
+            env: *env
+            envFrom: *envFrom
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["pgrep", "-f", "sidekiq"]
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+    service:
+      app:
+        controller: dawarich
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{.Release.Name}}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      storage:
+        existingClaim: dawarich-storage
+        globalMounts:
+          - path: /var/app/storage
+      # Drop-folder for auto-imports; unused (web uploads go to storage) but the watcher job needs the dir
+      watched:
+        type: emptyDir
+        globalMounts:
+          - path: /var/app/tmp/imports/watched
+      # Static assets; web-entrypoint.sh recopies them from /var/app/public_dist on every start
+      public:
+        type: emptyDir
+        globalMounts:
+          - path: /var/app/public

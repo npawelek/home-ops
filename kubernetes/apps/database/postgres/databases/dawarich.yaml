@@ -1,0 +1,16 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: dawarich
+spec:
+  cluster:
+    name: postgres
+  name: dawarich
+  owner: dawarich
+  # postgis is untrusted: must be created by the operator (superuser), not the app role
+  extensions:
+    - name: postgis
+      ensure: present
+    - name: pgcrypto
+      ensure: present

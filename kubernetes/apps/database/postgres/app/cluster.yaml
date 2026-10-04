@@ -17,6 +17,13 @@ spec:
         image:
           # yamllint disable-line rule:line-length
           reference: ghcr.io/jdijt/cnpg-vchord:1.1.1-20260823082441-18-trixie@sha256:93991656e82d43cff9713e14670723f35dec0433436a5a8c8b91a549d1704a7f
+      # PostGIS for dawarich; bundles GEOS/PROJ/GDAL under /system (absent from minimal base)
+      - name: postgis
+        image:
+          # yamllint disable-line rule:line-length
+          reference: ghcr.io/cloudnative-pg/postgis-extension:3.6.4-18-trixie@sha256:9f4c4ad171f5747d48763063b06fe10a75f0f4881423df96120e29bbadc667b1
+        ld_library_path:
+          - system
     shared_preload_libraries:
       - "vchord.so"
     parameters:
@@ -141,6 +148,16 @@ spec:
         ensure: present
         passwordSecret:
           name: credentials-buzz
+        login: true
+        createdb: true
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
+      - name: dawarich
+        ensure: present
+        passwordSecret:
+          name: credentials-dawarich
         login: true
         createdb: true
         superuser: false

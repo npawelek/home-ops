@@ -1,5 +1,10 @@
 # yaml-language-server: $schema=https://k8s-schemas.home-operations.com/dragonflydb.io/dragonfly_v1alpha1.json
 ---
+# Shared multi-tenant instance. One ACL user per app in dragonfly-acl (users.acl);
+# ACLs cannot restrict DB indexes, so each tenant gets its own:
+#   buzz      0           (REDIS_URL without /N)
+#   dawarich  10, 11, 12  (RAILS_CACHE_DB, RAILS_JOB_QUEUE_DB, RAILS_WS_DB)
+# ACL template: user <app> on ><pw> ~* &* +@all -flushall  (FLUSHALL wipes every DB)
 apiVersion: dragonflydb.io/v1alpha1
 kind: Dragonfly
 metadata:

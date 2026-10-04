@@ -8,3 +8,4 @@ resources:
   - ./immich.yaml
   - ./lubelogger.yaml
   - ./buzz.yaml
+  - ./dawarich.yaml
