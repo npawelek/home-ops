@@ -30,10 +30,10 @@ tasks:
   default: task --list
 
   validate:
-    desc: Validate Kubernetes manifests with flux-local
-    cmd: flux-local test --enable-helm --all-namespaces --path {{.KUBERNETES_DIR}}/flux/cluster -v
+    desc: Validate Kubernetes manifests with flate
+    cmd: flate test all --path {{.KUBERNETES_DIR}}/flux/cluster
     preconditions:
-      - which flux-local
+      - which flate
 
   reconcile:
     desc: Force Flux to pull in changes from your Git repository
