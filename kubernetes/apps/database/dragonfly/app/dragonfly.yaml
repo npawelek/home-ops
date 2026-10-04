@@ -29,6 +29,12 @@ spec:
   aclFromSecret:
     name: dragonfly-acl
     key: users.acl
+  # Dragonfly reads users.acl only at startup, and the operator reverts Reloader's
+  # StatefulSet patches. Bump this whenever users.acl changes (date -u +%Y-%m-%dT%H:%MZ);
+  # the pod-template change makes the operator roll replicas, then fail over the master.
+  podMetadata:
+    annotations:
+      dragonfly.home-ops/acl-revision: "2026-10-04T21:50Z"
   args:
     - --maxmemory=$(MAX_MEMORY)Mi
   env:
