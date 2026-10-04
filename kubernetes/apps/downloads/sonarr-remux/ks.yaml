@@ -14,17 +14,15 @@ spec:
       namespace: longhorn-system
     - name: envoy-gateway
       namespace: gateway
-    - name: prowlarr
   path: ./kubernetes/apps/downloads/sonarr-remux/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: false
+  wait: true
   interval: 30m
   retryInterval: 1m
-  timeout: 5m
   postBuild:
     substitute:
       APP: *app
