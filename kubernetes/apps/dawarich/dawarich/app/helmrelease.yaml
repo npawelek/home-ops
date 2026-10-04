@@ -44,8 +44,10 @@ spec:
                     fieldPath: status.podIP
               - name: APPLICATION_HOSTS
                 value: "dawarich.${SECRET_DOMAIN},$(POD_IP)"
+              # Pod speaks plain HTTP; envoy terminates TLS. "https" turns on Rails force_ssl,
+              # which 301s kubelet probes and metric scrapes (no X-Forwarded-Proto header).
               - name: APPLICATION_PROTOCOL
-                value: https
+                value: http
               - name: DOMAIN
                 value: "dawarich.${SECRET_DOMAIN}"
               - name: RAILS_ENV

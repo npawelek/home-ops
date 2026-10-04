@@ -37,6 +37,9 @@ spec:
       dragonfly.home-ops/acl-revision: "2026-10-04T21:50Z"
   args:
     - --maxmemory=$(MAX_MEMORY)Mi
+    # sidekiq-limit_fetch (dawarich) Lua builds key names at runtime; Redis allows it, Dragonfly
+    # rejects with "script tried accessing undeclared key" unless allowed. Costs broader script locking.
+    - --default_lua_flags=allow-undeclared-keys
   env:
     - name: MAX_MEMORY
       valueFrom:
