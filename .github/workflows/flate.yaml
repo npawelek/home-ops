@@ -16,11 +16,17 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+    # Render offline as the live cluster would; keep in sync with .mise.toml.
+    env:
+      FLATE_API_VERSIONS: gateway.networking.k8s.io/v1/HTTPRoute
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+
+      - name: Set Kubernetes version
+        run: echo "FLATE_KUBE_VERSION=$(yq '.kubernetesVersion' talos/topf.yaml)" >> "$GITHUB_ENV"
 
       # Exports FLATE_BASE, so test and diff below run in changed-only mode
       # against the default branch (no-op when nothing under kubernetes/ changed).
@@ -68,3 +74,16 @@ jobs:
             ```diff
             ${{ steps.diff.outputs.diff }}
             ```
+
+      - name: Setup flux-schema version
+        id: flux-schema
+        run: echo "version=v$(yq -p toml -oy '.tools["github:fluxcd/flux-schema"]' .mise.toml)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup flux-schema
+        uses: fluxcd/flux-schema/actions/setup@fac00ee3cb2fb0bd904c77e9e7727e98ba8a3c05 # v0.15.0
+        with:
+          version: ${{ steps.flux-schema.outputs.version }}
+
+      # Changed-only via FLATE_BASE; yq is preinstalled on ubuntu runners.
+      - name: Run flux-schema validate
+        run: scripts/flux-schema-validate.sh

@@ -1,0 +1,16 @@
+---
+# flux-schema defaults for `task validate`, CI and ad-hoc runs.
+# mise exports FLUX_SCHEMA_CONFIG pointing here; the script passes --config.
+# Feed it flate output via scripts/flux-schema-validate.sh, not the raw tree:
+# app/ dirs are linked by Flux ks.yaml, not Kustomize.
+apiVersion: schema.plugin.fluxcd.io/v1beta1
+kind: Config
+validate:
+  schemaLocation:
+    - default
+    - ecosystem
+  skipKind:
+    # TODO: tofu-controller CRD is in neither catalog, adding todo to periodically check
+    - infra.contrib.fluxcd.io/v1alpha2/Terraform
+  skipJSONPath:
+    - Secret:/sops
