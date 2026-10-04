@@ -110,6 +110,21 @@
       minimumReleaseAge: "3 days",
     },
     {
+      description: "Auto-merge Renovate CLI (pre-commit validator); releases near-daily",
+      matchManagers: ["mise"],
+      matchPackageNames: ["renovate", "npm:renovate"],
+      automerge: true,
+      automergeType: "branch",
+      matchUpdateTypes: ["minor", "patch"],
+      minimumReleaseAge: "3 days",
+    },
+    {
+      description: "Node runs only npm:renovate; hold to Renovate's engines range (^24.11.0)",
+      matchManagers: ["mise"],
+      matchPackageNames: ["node"],
+      allowedVersions: "<25",
+    },
+    {
       matchUpdateTypes: ["major"],
       semanticCommitType: "feat",
       commitMessagePrefix: "{{semanticCommitType}}({{semanticCommitScope}})!:",

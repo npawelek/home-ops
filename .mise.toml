@@ -32,6 +32,7 @@ enter = "mise run check-deps"
 "aqua:BurntSushi/ripgrep" = "15.2.0"
 "aqua:cilium/cilium-cli" = "0.20.1"
 "aqua:cli/cli" = "2.102.0"
+# TODO: verify Renovate tracks this inline-table pin (first bump PR, or Dependency Dashboard lists aqua:controlplaneio-fluxcd/flux-operator)
 "aqua:controlplaneio-fluxcd/flux-operator" = { version = "0.61.0", postinstall = "flux-operator skills install ghcr.io/fluxcd/agent-skills --agent claude-code" }
 "aqua:controlplaneio-fluxcd/flux-operator/flux-operator-mcp" = "0.61.0"
 "aqua:cue-lang/cue" = "0.17.1"
@@ -52,7 +53,10 @@ enter = "mise run check-deps"
 "aqua:siderolabs/talos" = "1.14.2"
 "go" = "1.27.1"
 "go:github.com/fiatjaf/nak" = "0.20.7"
-"node" = "26.10.0"
+"node" = "24.21.0"
+# libzip 3.2.2: maintainer (arcanis) manual publish without provenance, 3.2.0 had it; accepted 2026-10-04
+# TODO: verify Renovate tracks this inline-table pin (first bump PR/automerge, or Dependency Dashboard lists npm:renovate)
+"npm:renovate" = { version = "44.133.0", trust_policy_excludes = ["@yarnpkg/libzip@3.2.2"] }
 "github:fluxcd/flux-schema" = "0.15.0"
 "github:home-operations/flate" = "0.6.5"
 "github:postfinance/topf" = "0.6.1"

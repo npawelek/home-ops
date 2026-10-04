@@ -35,3 +35,9 @@ repos:
         entry: scripts/check-sops-encrypted.sh
         language: script
         files: \.ya?ml$
+      - id: renovate-config-validator
+        name: Validate Renovate config
+        entry: renovate-config-validator --strict
+        language: system
+        files: ^\.renovaterc\.json5$
+        pass_filenames: false
