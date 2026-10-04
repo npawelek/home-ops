@@ -1,7 +1,6 @@
 ---
-# talhelper generated these two documents from each node's `networkInterfaces:`
-# entry, naming the alias after the selector's index (ethSel0). Keep the name
-# so the rendered config stays byte-identical to the talhelper baseline.
+# Alias the node's NIC by MAC (`.Node.Data.mac`) and configure it. The alias name
+# ethSel0 is what the nodes already run; renaming it changes every node's config.
 apiVersion: v1alpha1
 kind: LinkAliasConfig
 name: ethSel0

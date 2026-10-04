@@ -66,3 +66,25 @@ Three things stay in the v1alpha1 document on purpose: `machine.certSANs`
 (`all/15-machine-logging.yaml.tpl`, because `KmsgLogConfig` has no `extraTags` for the
 hostname tag), and `cluster.etcd` (`control-plane/01-etcd.yaml`, no replacement
 document yet).
+
+## Operational Gotchas
+
+Learned during the Talos 1.14 rollout (commits `c63dd4f7`, `7f852f91`, `04ab7ed9`):
+
+- `talosctl reboot` does **not** cordon or drain the node; only `shutdown` and
+  `upgrade` do. A bare reboot kills pods in place and ignores PodDisruptionBudgets.
+  Wrap a deliberate reboot in `kubectl drain` / `kubectl uncordon`, and on a control
+  plane run `talosctl etcd forfeit-leadership` first if the node is the leader.
+- `topf apply` and `topf upgrade` prompt for confirmation (`TOPF_CONFIRM`, default
+  true). Without a TTY the prompt reads EOF as "no", logs `skipping`, and **exits 0
+  having done nothing**. Run them from a real terminal and check that the version or
+  config actually changed. Don't set `TOPF_CONFIRM=false` to automate around the
+  prompt; it is the human gate before a reboot.
+- `CRICustomizationConfig` writes no part file under `/etc/cri/conf.d/`. Talos merges
+  it into the generated `/etc/cri/conf.d/cri.toml`, so check that file.
+- Talos 1.14 bind-mounts `/var/mnt` into the kubelet, so Longhorn at
+  `/var/mnt/longhorn` needs no `extraMounts` (`MountPropagation=True`).
+- On the first boot into a new Talos minor, containerd may log a burst of
+  `failed to unmarshal sandbox spec` for pods that existed before the reboot. Its size
+  scales with the node's pod count. A burst that stops is benign; one that keeps going
+  is a real signal.
