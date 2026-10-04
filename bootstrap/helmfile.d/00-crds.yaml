@@ -1,24 +1,29 @@
 ---
 
 # This helmfile is for extracting and installing Custom Resource Definitions (CRDs) from Helm charts.
-# It is not intended to be used with helmfile apply or helmfile sync.
+# It is not intended to be used with helmfile apply or helmfile sync. Output is filtered to CRDs
+# with yq in scripts/bootstrap-apps.sh (Helm 4 post-renderers must be plugins, not executables).
 
 helmDefaults:
   args:
     - --include-crds
     - --no-hooks
-  postRenderer: bash
-  postRendererArgs:
-    - -c
-    - yq eval-all --exit-status 'select(.kind == "CustomResourceDefinition")'
+
+bases:
+  - templates/default.yaml
 
 releases:
   - name: external-dns
     namespace: network
-    chart: oci://ghcr.io/home-operations/charts-mirror/external-dns
-    version: 1.23.0
+    inherit:
+      - template: default
 
-  - name: envoy-gateway
+  - name: envoy
     namespace: gateway
-    chart: oci://mirror.gcr.io/envoyproxy/gateway-helm
-    version: v1.9.2
+    inherit:
+      - template: default
+
+  - name: prometheus-operator-crds
+    namespace: monitoring
+    inherit:
+      - template: default
