@@ -1,0 +1,10 @@
+---
+# Shared release template: chart, version, and values are read from the Flux
+# OCIRepository and HelmRelease at kubernetes/apps/<namespace>/<name>/app/ so
+# bootstrap stays in lockstep with what Flux later reconciles.
+templates:
+  default:
+    chart: '{{ (fromYaml (tpl (readFile "./templates/release.yaml.gotmpl") .)).chart }}'
+    version: '{{ (fromYaml (tpl (readFile "./templates/release.yaml.gotmpl") .)).version }}'
+    values:
+      - ./templates/values.yaml.gotmpl
