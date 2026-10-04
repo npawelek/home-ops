@@ -12,7 +12,7 @@ GRAFANA_ORG_ID = "1"
 FLUX_SCHEMA_CONFIG = "{{config_root}}/.fluxschema.yml"
 # Render offline as the live cluster would: Kubernetes version from Talos, and
 # Gateway API in .Capabilities (else app-template emits HTTPRoute v1alpha2).
-# Keep in sync with .github/workflows/flate.yaml.
+# .github/workflows/flate.yaml reads both from the same sources.
 FLATE_KUBE_VERSION = { value = "{{exec(command='yq .kubernetesVersion talos/topf.yaml')}}", tools = true }
 FLATE_API_VERSIONS = "gateway.networking.k8s.io/v1/HTTPRoute"
 AWS_PROFILE = "default"

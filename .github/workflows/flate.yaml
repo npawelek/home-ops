@@ -16,17 +16,17 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    # Render offline as the live cluster would; keep in sync with .mise.toml.
-    env:
-      FLATE_API_VERSIONS: gateway.networking.k8s.io/v1/HTTPRoute
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - name: Set Kubernetes version
-        run: echo "FLATE_KUBE_VERSION=$(yq '.kubernetesVersion' talos/topf.yaml)" >> "$GITHUB_ENV"
+      # Render offline as the live cluster would; same sources as .mise.toml.
+      - name: Set flate render env
+        run: |
+          echo "FLATE_KUBE_VERSION=$(yq '.kubernetesVersion' talos/topf.yaml)" >> "$GITHUB_ENV"
+          echo "FLATE_API_VERSIONS=$(yq -p toml -oy '.env.FLATE_API_VERSIONS' .mise.toml)" >> "$GITHUB_ENV"
 
       # Exports FLATE_BASE, so test and diff below run in changed-only mode
       # against the default branch (no-op when nothing under kubernetes/ changed).
