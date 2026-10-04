@@ -19,6 +19,10 @@ spec:
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
         containers:
           app:
             image:
@@ -65,8 +69,6 @@ spec:
             securityContext:
               runAsUser: 568
               runAsGroup: 568
-              fsGroup: 568
-              fsGroupChangePolicy: "OnRootMismatch"
             resources:
               requests:
                 cpu: 100m
