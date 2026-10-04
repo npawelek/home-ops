@@ -8,6 +8,18 @@ spec:
     kind: OCIRepository
     name: buzz
   interval: 1h
+  # Chart hardcodes RollingUpdate; single replica on a Longhorn RWO volume needs Recreate
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: buzz
+            patch: |
+              - op: replace
+                path: /spec/strategy
+                value:
+                  type: Recreate
   values:
     podAnnotations:
       reloader.stakater.com/auto: "true"
