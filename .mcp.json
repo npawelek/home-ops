@@ -28,6 +28,17 @@
         "--",
         "ha-mcp"
       ]
+    },
+    "trek": {
+      "type": "stdio",
+      "command": "mise",
+      "args": [
+        "x",
+        "--",
+        "sh",
+        "-c",
+        "exec mcp-remote \"https://trek.${SECRET_DOMAIN}/mcp\""
+      ]
     }
   }
 }

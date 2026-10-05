@@ -54,6 +54,7 @@ enter = "mise run check-deps"
 "go" = "1.27.1"
 "go:github.com/fiatjaf/nak" = "0.20.7"
 "node" = "24.21.0"
+"npm:mcp-remote" = "0.14.3"
 # libzip 3.2.2: maintainer (arcanis) manual publish without provenance, 3.2.0 had it; accepted 2026-10-04
 # TODO: verify Renovate tracks this inline-table pin (first bump PR/automerge, or Dependency Dashboard lists npm:renovate)
 "npm:renovate" = { version = "44.133.0", trust_policy_excludes = ["@yarnpkg/libzip@3.2.2"] }
