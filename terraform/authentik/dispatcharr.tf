@@ -13,7 +13,7 @@ resource "authentik_application" "dispatcharr" {
   name               = "Dispatcharr"
   slug               = "dispatcharr"
   protocol_provider  = authentik_provider_proxy.dispatcharr.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/emby.svg"
+  meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/dispatcharr.svg"
   meta_launch_url    = "https://dispatcharr.${var.domain}"
   policy_engine_mode = "any"
 }

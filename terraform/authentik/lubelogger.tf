@@ -30,7 +30,7 @@ resource "authentik_application" "lubelogger" {
   name               = "LubeLogger"
   slug               = "lubelogger"
   protocol_provider  = authentik_provider_oauth2.lubelogger.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/ittools.svg"
+  meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/lubelogger.png"
   meta_launch_url    = "https://lubelogger.${var.domain}"
   policy_engine_mode = "any"
 }

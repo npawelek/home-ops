@@ -30,7 +30,7 @@ resource "authentik_application" "open_webui" {
   name               = "Open WebUI"
   slug               = "open-webui"
   protocol_provider  = authentik_provider_oauth2.open_webui.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/openai-white.svg"
+  meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/open-webui-light.svg"
   meta_launch_url    = "https://open-webui.${var.domain}"
   policy_engine_mode = "any"
 }

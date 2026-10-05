@@ -41,7 +41,7 @@ resource "authentik_application" "trek" {
   name               = "TREK"
   slug               = "trek"
   protocol_provider  = authentik_provider_oauth2.trek.id
-  meta_icon          = "https://raw.githubusercontent.com/liketrek/TREK/main/client/public/logo-dark.svg"
+  meta_icon          = "https://raw.githubusercontent.com/liketrek/TREK/main/client/public/logo-light.svg"
   meta_launch_url    = "https://trek.${var.domain}"
   policy_engine_mode = "any"
 }
