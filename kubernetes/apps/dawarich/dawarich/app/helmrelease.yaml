@@ -43,19 +43,19 @@ spec:
                   fieldRef:
                     fieldPath: status.podIP
               - name: APPLICATION_HOSTS
-                value: "dawarich.${SECRET_DOMAIN},$(POD_IP)"
+                value: dawarich.${SECRET_DOMAIN},$(POD_IP)
               # Pod speaks plain HTTP; envoy terminates TLS. "https" turns on Rails force_ssl,
               # which 301s kubelet probes and metric scrapes (no X-Forwarded-Proto header).
               - name: APPLICATION_PROTOCOL
                 value: http
               - name: DOMAIN
-                value: "dawarich.${SECRET_DOMAIN}"
+                value: dawarich.${SECRET_DOMAIN}
               - name: RAILS_ENV
                 value: production
               - name: RAILS_LOG_TO_STDOUT
                 value: "true"
               - name: TIME_ZONE
-                value: "${TIMEZONE}"
+                value: ${TIMEZONE}
               - name: SELF_HOSTED
                 value: "true"
               - name: STORE_GEODATA
@@ -83,19 +83,24 @@ spec:
                 value: "9394"
               - name: SIDEKIQ_METRICS_URL
                 value: http://localhost:9394/metrics
-              # SMTP via shared cluster-secrets (Flux postBuild substitution)
               - name: SMTP_SERVER
-                value: "${EMAIL_HOST}"
+                value: ${EMAIL_HOST}
               - name: SMTP_PORT
                 value: "587"
               - name: SMTP_DOMAIN
-                value: "${SECRET_DOMAIN}"
+                value: ${SECRET_DOMAIN}
               - name: SMTP_FROM
-                value: "${EMAIL_FROM}"
+                value: ${EMAIL_FROM}
               - name: SMTP_USERNAME
-                value: "${EMAIL_USERNAME}"
+                valueFrom:
+                  secretKeyRef:
+                    name: cluster-secrets
+                    key: EMAIL_USERNAME
               - name: SMTP_PASSWORD
-                value: "${EMAIL_PASSWORD}"
+                valueFrom:
+                  secretKeyRef:
+                    name: cluster-secrets
+                    key: EMAIL_PASSWORD
               - name: SMTP_AUTHENTICATION
                 value: login
               - name: SMTP_STARTTLS
@@ -105,9 +110,9 @@ spec:
               - name: OIDC_CLIENT_ID
                 value: dawarich
               - name: OIDC_ISSUER
-                value: "https://auth.${SECRET_DOMAIN}/application/o/dawarich/"
+                value: https://auth.${SECRET_DOMAIN}/application/o/dawarich/
               - name: OIDC_REDIRECT_URI
-                value: "https://dawarich.${SECRET_DOMAIN}/users/auth/openid_connect/callback"
+                value: https://dawarich.${SECRET_DOMAIN}/users/auth/openid_connect/callback
               - name: OIDC_PROVIDER_NAME
                 value: Authentik
               - name: OIDC_AUTO_REGISTER
