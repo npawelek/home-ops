@@ -51,3 +51,14 @@ resource "authentik_policy_binding" "trek_admins_access" {
   group  = data.authentik_group.authentik_admins.id
   order  = 0
 }
+
+resource "authentik_group" "trek_users" {
+  name         = "trek-users"
+  is_superuser = false
+}
+
+resource "authentik_policy_binding" "trek_users_access" {
+  target = authentik_application.trek.uuid
+  group  = authentik_group.trek_users.id
+  order  = 1
+}

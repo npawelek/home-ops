@@ -70,6 +70,7 @@ spec:
               OIDC_DISPLAY_NAME: Authentik
               OIDC_ADMIN_CLAIM: groups
               OIDC_ADMIN_VALUE: authentik Admins
+              OIDC_ONLY: "true"
             envFrom:
               - secretRef:
                   name: trek-secrets
