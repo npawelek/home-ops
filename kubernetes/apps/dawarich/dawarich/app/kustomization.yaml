@@ -6,3 +6,11 @@ resources:
   - ./pvc.yaml
   - ./secrets.sops.yaml
   - ./servicemonitor.yaml
+configMapGenerator:
+  - name: dawarich-initializers
+    files:
+      - zz_disable_origin_check.rb=./resources/zz_disable_origin_check.rb
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
