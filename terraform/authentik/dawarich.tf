@@ -53,3 +53,14 @@ resource "authentik_policy_binding" "dawarich_admins_access" {
   group  = data.authentik_group.authentik_admins.id
   order  = 0
 }
+
+resource "authentik_group" "dawarich_users" {
+  name         = "dawarich-users"
+  is_superuser = false
+}
+
+resource "authentik_policy_binding" "dawarich_users_access" {
+  target = authentik_application.dawarich.uuid
+  group  = authentik_group.dawarich_users.id
+  order  = 1
+}
