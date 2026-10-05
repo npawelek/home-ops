@@ -1,3 +1,16 @@
+# Authentiks managed email scope always sends email_verified=False. Dawarich refuses to
+# link an OIDC login to an existing account (same email) unless the claim is true.
+resource "authentik_property_mapping_provider_scope" "scope_dawarich_email" {
+  name       = "Dawarich email (verified)"
+  scope_name = "email"
+  expression = <<-EOF
+    return {
+        "email": request.user.email,
+        "email_verified": True,
+    }
+  EOF
+}
+
 resource "authentik_provider_oauth2" "dawarich" {
   name               = "dawarich-oauth"
   client_id          = "dawarich"
@@ -6,7 +19,7 @@ resource "authentik_provider_oauth2" "dawarich" {
   property_mappings = [
     data.authentik_property_mapping_provider_scope.scope_openid.id,
     data.authentik_property_mapping_provider_scope.scope_profile.id,
-    data.authentik_property_mapping_provider_scope.scope_email.id,
+    authentik_property_mapping_provider_scope.scope_dawarich_email.id,
   ]
   allowed_redirect_uris = [
     {
