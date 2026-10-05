@@ -1,0 +1,134 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-5.2.1/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: trek
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  interval: 1h
+  values:
+    global:
+      createDefaultServiceAccount: false
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      trek:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: docker.io/mauriceboe/trek
+              tag: 4.3.3@sha256:1ef1ccf41af8ae409e0435518facb5789b6adc99681ef26d1869508355455749
+            command:
+              - dumb-init
+              - --
+              - node
+              - --require
+              - tsconfig-paths/register
+              - dist/index.js
+            workingDir: /app/server
+            env:
+              TZ: ${TIMEZONE}
+              LOG_LEVEL: info
+              APP_URL: &url https://trek.${SECRET_DOMAIN}
+              ALLOWED_ORIGINS: *url
+              TRUST_PROXY: "1"
+              FORCE_HTTPS: "true"
+              SMTP_HOST: ${EMAIL_HOST}
+              SMTP_PORT: "587"
+              SMTP_FROM: ${EMAIL_FROM}
+              SMTP_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: cluster-secrets
+                    key: EMAIL_USERNAME
+              SMTP_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: cluster-secrets
+                    key: EMAIL_PASSWORD
+              HTTP_PROXY: ${HTTP_PROXY}
+              HTTPS_PROXY: ${HTTPS_PROXY}
+              NO_PROXY: ${NO_PROXY}
+            envFrom:
+              - secretRef:
+                  name: trek-secrets
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: &port 3000
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: *port
+                  periodSeconds: 10
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+    service:
+      app:
+        controller: trek
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{.Release.Name}}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      data:
+        existingClaim: trek-data
+        globalMounts:
+          - path: /app/data
+      nas:
+        existingClaim: racknas-services-trek
+        globalMounts:
+          - path: /app/uploads
+            subPath: uploads
+          - path: /app/data/backups
+            subPath: backups
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
