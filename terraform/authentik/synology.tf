@@ -21,6 +21,10 @@ resource "authentik_provider_oauth2" "synology" {
   client_type                = "confidential"
   sub_mode                   = "user_email"
   include_claims_in_id_token = true
+  grant_types = [
+    "authorization_code",
+    "refresh_token",
+  ]
 }
 
 resource "authentik_application" "synology" {

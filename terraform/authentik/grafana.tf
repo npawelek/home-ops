@@ -21,8 +21,12 @@ resource "authentik_provider_oauth2" "grafana" {
   refresh_token_validity     = var.refresh_token_validity
   client_type                = "confidential"
   include_claims_in_id_token = true
-  logout_uri                 = "https://grafana.${var.domain}/logout"
-  logout_method              = "frontchannel"
+  grant_types = [
+    "authorization_code",
+    "refresh_token",
+  ]
+  logout_uri    = "https://grafana.${var.domain}/logout"
+  logout_method = "frontchannel"
 }
 
 resource "authentik_application" "grafana" {

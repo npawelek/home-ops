@@ -25,6 +25,10 @@ resource "authentik_provider_oauth2" "audiobookshelf" {
   refresh_token_validity     = var.refresh_token_validity
   client_type                = "confidential"
   include_claims_in_id_token = true
+  grant_types = [
+    "authorization_code",
+    "refresh_token",
+  ]
 }
 
 resource "authentik_application" "audiobookshelf" {
