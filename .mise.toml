@@ -52,7 +52,7 @@ enter = "mise run check-deps"
 "aqua:pre-commit" = "4.6.2"
 "aqua:siderolabs/talos" = "1.14.2"
 "go" = "1.27.1"
-"go:github.com/fiatjaf/nak" = "0.20.7"
+"go:github.com/fiatjaf/nak" = "0.21.0"
 "node" = "24.21.0"
 "npm:mcp-remote" = "0.14.3"
 # libzip 3.2.2: maintainer (arcanis) manual publish without provenance, 3.2.0 had it; accepted 2026-10-04
