@@ -27,7 +27,7 @@ postinstall = "mise run i"
 enter = "mise run check-deps"
 
 [tools]
-"aqua:astral-sh/uv" = "0.12.22"
+"aqua:astral-sh/uv" = "0.12.23"
 "aqua:awscli" = "2.37.9"
 "aqua:BurntSushi/ripgrep" = "15.2.0"
 "aqua:cilium/cilium-cli" = "0.20.1"
