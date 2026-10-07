@@ -4,3 +4,9 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./pvc.yaml
+configMapGenerator:
+  - name: dispatcharr-scripts
+    files:
+      - hdhr-epg.sh=./resources/hdhr-epg.sh
+generatorOptions:
+  disableNameSuffixHash: true

@@ -102,3 +102,11 @@ spec:
         existingClaim: dispatcharr-data
         globalMounts:
           - path: /data
+      scripts:
+        type: configMap
+        name: dispatcharr-scripts
+        defaultMode: 0755
+        globalMounts:
+          - path: /data/scripts/hdhr-epg.sh
+            subPath: hdhr-epg.sh
+            readOnly: true
