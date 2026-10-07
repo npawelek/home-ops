@@ -11,4 +11,5 @@ resources:
   - ./nfs-pvc/ks.yaml
   - ./audiobookshelf/ks.yaml
   - ./dispatcharr/ks.yaml
+  - ./epg/ks.yaml
   - ./jellyfin/ks.yaml

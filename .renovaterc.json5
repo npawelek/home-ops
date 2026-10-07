@@ -119,6 +119,15 @@
       minimumReleaseAge: "3 days",
     },
     {
+      description: "iptv-org/epg only publishes :master with site scrapers baked in; auto-merge digest bumps to pick up upstream scraper fixes",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/iptv-org/epg"],
+      matchUpdateTypes: ["digest"],
+      automerge: true,
+      automergeType: "branch",
+      minimumReleaseAge: "2 days",
+    },
+    {
       description: "Node runs only npm:renovate; hold to Renovate's engines range (^24.11.0)",
       matchManagers: ["mise"],
       matchPackageNames: ["node"],

@@ -1,0 +1,87 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-5.2.1/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: epg
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  interval: 1h
+  values:
+    global:
+      createDefaultServiceAccount: false
+    controllers:
+      epg:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/iptv-org/epg
+              tag: master@sha256:183b98112a4abd3637b8b78c825c76ca2ae7e76991161b103339a0919c8cda9f
+            env:
+              TZ: ${TIMEZONE}
+              HOME: /tmp
+              PM2_HOME: /tmp/.pm2
+              CRON_SCHEDULE: "0 */6 * * *"
+              RUN_AT_STARTUP: "true"
+              DAYS: "3"
+              MAX_CONNECTIONS: "2"
+              NODE_OPTIONS: --max-old-space-size=3072
+              http_proxy: ${HTTP_PROXY}
+              https_proxy: ${HTTPS_PROXY}
+              no_proxy: ${NO_PROXY}
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 3000
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 50m
+                memory: 512Mi
+              limits:
+                memory: 3Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    persistence:
+      public:
+        type: emptyDir
+        globalMounts:
+          - path: /epg/public
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      channels:
+        type: configMap
+        name: epg-channels
+        globalMounts:
+          - path: /epg/public/channels.xml
+            subPath: channels.xml
+            readOnly: true

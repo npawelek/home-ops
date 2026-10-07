@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  xmltv_id must equal the stream tvg-id in the iptv-org US M3U so Dispatcharr auto-matches.
+  site/site_id come from iptv-org/epg sites/<site>/*.channels.xml.
+  No source: MMA TV, MLB Strike Zone (tvtv.us only, broken); use Dispatcharr dummy EPG.
+  Prefer plex.tv over i.mjh.nz Plex/*: mjh site_ids carry a rotating provider prefix.
+-->
+<channels>
+  <!-- Weather -->
+  <channel site="tvpassport.com" site_id="weathernation/13501" lang="en" xmltv_id="WeatherNation.us@SD">WeatherNation</channel>
+  <channel site="i.mjh.nz" site_id="SamsungTVPlus/us#USAJ3400014LK" lang="en" xmltv_id="WeatherSpy.us@SD">WeatherSpy</channel>
+  <!-- News -->
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#5df97894467dfa00091c873c" lang="en" xmltv_id="NBCNewsNOW.us@SD">NBC News NOW</channel>
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#5d695f7db53adf96b78e7ce3" lang="en" xmltv_id="TODAYAllDay.us@SD">TODAY All Day</channel>
+  <!-- Investigative -->
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#637413d8531e0c0007442d6d" lang="en" xmltv_id="Dateline247.us@SD">Dateline 24/7</channel>
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#6176f39e709f160007ec61c3" lang="en" xmltv_id="48Hours.us@US">48 Hours</channel>
+  <channel site="tvpassport.com" site_id="true-crime-network-kgw3-portland-or/32440" lang="en" xmltv_id="TrueCrimeNetwork.us@SD">True Crime Network</channel>
+  <!-- Entertainment -->
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#628e685ba3811100070551a8" lang="en" xmltv_id="HallmarkMoviesMore.us@SD">Hallmark Movies &amp; More</channel>
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#5cb0cae7a461406ffe3f5213" lang="en" xmltv_id="ParamountMovieChannel.us@SD">Paramount Movie Channel</channel>
+  <channel site="pluto.tv" site_id="656535fc2c46f30008870fae" lang="en" xmltv_id="BBCEarth.uk@US">BBC Earth</channel>
+  <channel site="plex.tv" site_id="64831c8be3541c909e96d240" lang="en" xmltv_id="CuriosityNOW.de@EN">Curiosity NOW</channel>
+  <channel site="tvguide.com" site_id="9233008002" lang="en" xmltv_id="History.us@East">History</channel>
+  <!-- Sports -->
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#5616f9c0ada51f8004c4b091" lang="en" xmltv_id="WorldPokerTour.us@US">World Poker Tour</channel>
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#5fc54366b04b2300072e31af" lang="en" xmltv_id="PokerGo.us@US">PokerGO</channel>
+  <channel site="plex.tv" site_id="6896595a58a6658b3d6a501a" lang="en" xmltv_id="F1Channel.ie@US">F1 Channel</channel>
+  <channel site="pluto.tv" site_id="696e024a7e92438c27a425a8" lang="en" xmltv_id="RallyTV.us@SD">Rally TV</channel>
+  <channel site="tvguide.com" site_id="9233008440" lang="en" xmltv_id="FoxSports1.us@HD">FOX Sports 1</channel>
+  <channel site="tvguide.com" site_id="9233011350" lang="en" xmltv_id="ESPNU.us@HD">ESPNU</channel>
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#5e66968a70f34c0007d050be" lang="en" xmltv_id="MLB.us@SD">MLB</channel>
+  <channel site="tvguide.com" site_id="9200000070" lang="en" xmltv_id="NBATV.us@SD">NBA TV</channel>
+  <channel site="i.mjh.nz" site_id="PlutoTV/us#5ced7d5df64be98e07ed47b6" lang="en" xmltv_id="NFLChannel.us@SD">NFL Channel</channel>
+  <channel site="plex.tv" site_id="621670feab2095ca85353ad4" lang="en" xmltv_id="XFCTV.us@SD">XFC TV</channel>
+  <channel site="plex.tv" site_id="61f04d2bb01a6e8df3f72902" lang="en" xmltv_id="SwerveCombat.us@SD">Swerve Combat</channel>
+  <channel site="i.mjh.nz" site_id="Roku/all#c5e8a74546771de365652cd053f73351" lang="en" xmltv_id="RedBullTV.at@US">Red Bull TV</channel>
+</channels>
