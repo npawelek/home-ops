@@ -21,6 +21,6 @@ QUANTITY_YQ='(.. | select((tag == "!!int" or tag == "!!float") and (path | lengt
 
 # FLATE_KUBE_VERSION and FLATE_API_VERSIONS come from mise (local) or the workflow (CI).
 flate build all --path "${ROOT_DIR}/kubernetes/flux/cluster" --no-progress "$@" \
-    | sed -E "${PLACEHOLDER_SED}" \
-    | yq "${QUANTITY_YQ}" \
-    | flux-schema validate --config "${ROOT_DIR}/.fluxschema.yml"
+  | sed -E "${PLACEHOLDER_SED}" \
+  | yq "${QUANTITY_YQ}" \
+  | flux-schema validate --config "${ROOT_DIR}/.fluxschema.yml"

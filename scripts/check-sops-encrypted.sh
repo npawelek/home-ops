@@ -9,13 +9,13 @@ while IFS= read -r rx; do patterns+=("$rx"); done < <(yq '.creation_rules[].path
 
 failed=0
 for file in "$@"; do
-    for rx in "${patterns[@]}"; do
-        [[ $file =~ $rx ]] || continue
-        if ! sops filestatus "$file" | grep -q '"encrypted":true'; then
-            echo "✗ $file matches '$rx' in .sops.yaml but is not encrypted" >&2
-            failed=1
-        fi
-        break
-    done
+  for rx in "${patterns[@]}"; do
+    [[ $file =~ $rx ]] || continue
+    if ! sops filestatus "$file" | grep -q '"encrypted":true'; then
+      echo "✗ $file matches '$rx' in .sops.yaml but is not encrypted" >&2
+      failed=1
+    fi
+    break
+  done
 done
 exit $failed
