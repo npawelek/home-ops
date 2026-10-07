@@ -21,7 +21,7 @@ spec:
       - name: postgis
         image:
           # yamllint disable-line rule:line-length
-          reference: ghcr.io/cloudnative-pg/postgis-extension:3.6.4-18-trixie@sha256:9f4c4ad171f5747d48763063b06fe10a75f0f4881423df96120e29bbadc667b1
+          reference: ghcr.io/cloudnative-pg/postgis-extension:3.6.4-18-trixie@sha256:eb05b5ec9ce608d7eb516b482a36d32fb32500d2f7a743255fb98760f02a3022
         ld_library_path:
           - system
     shared_preload_libraries:
