@@ -1,5 +1,4 @@
 * text=auto eol=lf
-*.env linguist-detectable linguist-language=SHELL
 *.json linguist-detectable linguist-language=JSON
 *.json5 linguist-detectable linguist-language=JSON5
 *.md linguist-detectable linguist-language=MARKDOWN
@@ -7,4 +6,12 @@
 *.toml linguist-detectable linguist-language=TOML
 *.yml linguist-detectable linguist-language=YAML
 *.yaml linguist-detectable linguist-language=YAML
-*.yaml.j2 linguist-detectable linguist-language=YAML
+*.yaml.gotmpl linguist-detectable linguist-language=YAML
+*.yaml.tpl linguist-detectable linguist-language=YAML
+
+# SOPS ciphertext: no line diffs, whole-file conflicts (line merges break the MAC)
+*.sops.* -diff merge=binary linguist-generated
+
+# Generated / exported files: collapse in PR diffs
+terraform/grafana/dashboards/*.json linguist-generated
+ipxe/README.md linguist-generated
