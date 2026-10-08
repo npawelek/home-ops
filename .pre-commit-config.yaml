@@ -41,3 +41,8 @@ repos:
         language: system
         files: ^\.renovaterc\.json5$
         pass_filenames: false
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        types: [shell]

@@ -4,7 +4,8 @@ set -Eeuo pipefail
 source "$(dirname "${0}")/lib/common.sh"
 
 export LOG_LEVEL="debug"
-export ROOT_DIR="$(git rev-parse --show-toplevel)"
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+export ROOT_DIR
 
 # Talos requires the nodes to be 'Ready=False' before applying resources
 function wait_for_nodes() {

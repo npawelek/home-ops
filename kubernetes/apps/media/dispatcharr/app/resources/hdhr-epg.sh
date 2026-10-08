@@ -5,8 +5,11 @@
 set -eu
 
 # Connect strips the container env, so re-export the proxy settings (Flux substitution)
+# shellcheck disable=SC2153
 export http_proxy="${HTTP_PROXY}"
+# shellcheck disable=SC2153
 export https_proxy="${HTTPS_PROXY}"
+# shellcheck disable=SC2153
 export no_proxy="${NO_PROXY}"
 
 HDHR=http://hdhomerun.network.svc.cluster.local
