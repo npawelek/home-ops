@@ -12,12 +12,16 @@
       ]
     },
     "grafana": {
+      "type": "stdio",
       "command": "mise",
       "args": [
         "x",
         "--",
-        "mcp-compressor",
-        "{\"mcpServers\":{\"grafana\":{\"command\":\"mcp-grafana\",\"args\":[\"--disable-incident\",\"--disable-alerting\",\"--usage-stats=disabled\",\"--disable-oncall\"]}}}"
+        "mcp-grafana",
+        "--disable-incident",
+        "--disable-alerting",
+        "--usage-stats=disabled",
+        "--disable-oncall"
       ]
     },
     "home-assistant": {
