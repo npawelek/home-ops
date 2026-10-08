@@ -31,9 +31,9 @@ spec:
               PORT: "3000"
               LOG_LEVEL: info
               TRUST_PROXY: "true"
-              CORS_ORIGIN: https://tracearr.${SECRET_DOMAIN}
+              CORS_ORIGIN: &url https://tracearr.${SECRET_DOMAIN}
               # Fixed origin for OIDC callbacks (otherwise derived per request)
-              BETTER_AUTH_URL: https://tracearr.${SECRET_DOMAIN}
+              BETTER_AUTH_URL: *url
               REDIS_PREFIX: "tracearr:"
               # Authentik OIDC (terraform/authentik/tracearr.tf); OIDC_CLIENT_SECRET in tracearr-secret.
               # Enabled only when issuer, client id and secret are all set.
