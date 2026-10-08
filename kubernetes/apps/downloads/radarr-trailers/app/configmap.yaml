@@ -56,7 +56,8 @@ data:
 
     # Iterate through all movies in radarr, skipping any with a null movieId
     echo -e "\n\nDownloading trailers for Radarr instance Movies ..."
-    for ID in $(curl -sL "${RADARR_URL}/api/v3/movie" -H "X-Api-Key:$RADARR_APIKEY" | jq -r '.[].movieFile.movieId | select( . != null)')
+    for ID in $(curl -sL "${RADARR_URL}/api/v3/movie" -H "X-Api-Key:$RADARR_APIKEY" \
+      | jq -r '.[].movieFile.movieId | select( . != null)')
     do
       # Store movie json
       MOVIE_DETAIL=$(curl -sL "${RADARR_URL}/api/v3/movie/${ID}" -H "X-Api-Key:$RADARR_APIKEY" | jq -r)
@@ -104,7 +105,8 @@ data:
 
     # Iterate through all movies in radarr remux, skipping any with a null movieId
     echo -e "\n\nDownloading trailers for Radarr instance Movies-Remux ..."
-    for ID in $(curl -sL "${RADARR_REMUX_URL}/api/v3/movie" -H "X-Api-Key:$RADARR_REMUX_APIKEY" | jq -r '.[].movieFile.movieId | select( . != null)')
+    for ID in $(curl -sL "${RADARR_REMUX_URL}/api/v3/movie" -H "X-Api-Key:$RADARR_REMUX_APIKEY" \
+      | jq -r '.[].movieFile.movieId | select( . != null)')
     do
       # Store movie json
       MOVIE_DETAIL=$(curl -sL "${RADARR_REMUX_URL}/api/v3/movie/${ID}" -H "X-Api-Key:$RADARR_REMUX_APIKEY" | jq -r)
@@ -152,7 +154,8 @@ data:
 
     # Iterate through all movies in radarr anime, skipping any with a null movieId
     echo -e "\n\nDownloading trailers for Radarr instance Movies-Anime ..."
-    for ID in $(curl -sL "${RADARR_ANIME_URL}/api/v3/movie" -H "X-Api-Key:$RADARR_ANIME_APIKEY" | jq -r '.[].movieFile.movieId | select( . != null)')
+    for ID in $(curl -sL "${RADARR_ANIME_URL}/api/v3/movie" -H "X-Api-Key:$RADARR_ANIME_APIKEY" \
+      | jq -r '.[].movieFile.movieId | select( . != null)')
     do
       # Store movie json
       MOVIE_DETAIL=$(curl -sL "${RADARR_ANIME_URL}/api/v3/movie/${ID}" -H "X-Api-Key:$RADARR_ANIME_APIKEY" | jq -r)
