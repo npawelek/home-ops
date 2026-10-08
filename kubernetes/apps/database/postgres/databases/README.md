@@ -5,7 +5,6 @@ This directory contains Database CRDs for creating databases in the main postgre
 ## Databases
 
 - **hass**: Home Assistant database
-- **jellystat**: Jellyfin statistics database
 - **firefly**: Firefly III finance manager database
 - **immich**: Immich photo management database (requires vector extensions)
 - **dawarich**: Dawarich location history (PostGIS, declared in CR)
