@@ -24,3 +24,12 @@ output "cnpg_authentik_postgres_secret_key" {
   value     = minio_iam_service_account.cnpg_authentik_postgres.secret_key
   sensitive = true
 }
+
+output "cnpg_database_timescale_access_key" {
+  value = minio_iam_service_account.cnpg_database_timescale.access_key
+}
+
+output "cnpg_database_timescale_secret_key" {
+  value     = minio_iam_service_account.cnpg_database_timescale.secret_key
+  sensitive = true
+}
