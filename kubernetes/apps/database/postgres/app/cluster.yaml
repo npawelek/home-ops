@@ -104,17 +104,6 @@ spec:
         createrole: false
         replication: false
         bypassrls: false
-      # Jellystat cleanup phase B: drop the role; remove this entry in phase C
-      - name: jellystat
-        ensure: absent
-        passwordSecret:
-          name: credentials-jellystat
-        login: true
-        createdb: true
-        superuser: false
-        createrole: false
-        replication: false
-        bypassrls: false
       - name: firefly
         ensure: present
         passwordSecret:
