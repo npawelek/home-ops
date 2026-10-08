@@ -1,4 +1,8 @@
 ---
+area/ansible:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ansible/**/*
 area/bootstrap:
   - changed-files:
       - any-glob-to-any-file:
@@ -11,18 +15,31 @@ area/github:
   - changed-files:
       - any-glob-to-any-file:
           - .github/**/*
+area/ipxe:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ipxe/**/*
 area/kubernetes:
   - changed-files:
       - any-glob-to-any-file:
           - kubernetes/**/*
+area/lint:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .editorconfig
+          - .fluxschema.yml
+          - .gitattributes
+          - .pre-commit-config.yaml
+          - .shellcheckrc
+          - .yamllint.yaml
 area/mise:
   - changed-files:
       - any-glob-to-any-file:
           - .mise.toml
+          - requirements.txt
 area/renovate:
   - changed-files:
       - any-glob-to-any-file:
-          - .renovate/**/*
           - .renovaterc.json5
 area/scripts:
   - changed-files:
@@ -37,7 +54,7 @@ area/taskfile:
       - any-glob-to-any-file:
           - .taskfiles/**/*
           - Taskfile.yaml
-area/templates:
+area/terraform:
   - changed-files:
       - any-glob-to-any-file:
-          - templates/**/*
+          - terraform/**/*
