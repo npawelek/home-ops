@@ -8,3 +8,5 @@ spec:
   owner: jellystat
   cluster:
     name: postgres
+  # Drop the PostgreSQL database when this CR is deleted (Jellystat cleanup, phase A)
+  databaseReclaimPolicy: delete
