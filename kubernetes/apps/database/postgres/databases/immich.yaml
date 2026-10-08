@@ -8,3 +8,22 @@ spec:
     name: postgres
   name: immich
   owner: immich
+  # Untrusted extensions: the operator (superuser) creates them, not the app role.
+  # CNPG doesn't CASCADE: vector must precede vchord, cube must precede earthdistance.
+  extensions:
+    - name: vector
+      ensure: present
+      # CNPG runs ALTER EXTENSION ... UPDATE TO when this changes; Renovate bumps it with the image in app/cluster.yaml
+      # yamllint disable-line rule:line-length
+      # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/pgvector extractVersion=^(?<version>\d+\.\d+\.\d+)-18-trixie$
+      version: 0.8.7
+    - name: vchord
+      ensure: present
+      # CNPG runs ALTER EXTENSION ... UPDATE TO when this changes; Renovate bumps it with the image in app/cluster.yaml
+      # yamllint disable-line rule:line-length
+      # renovate: datasource=docker depName=ghcr.io/jdijt/cnpg-vchord extractVersion=^(?<version>\d+\.\d+\.\d+)-\d+-18-trixie$
+      version: 1.1.1
+    - name: cube
+      ensure: present
+    - name: earthdistance
+      ensure: present
