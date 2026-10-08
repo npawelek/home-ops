@@ -101,7 +101,7 @@
       groupName: "vchord",
       automerge: false,
       prBodyNotes: [
-        "{{#unless (equals updateType 'digest')}}⚠️ vchord is preloaded; the `postgres` cluster restarts on this change. CNPG then runs `ALTER EXTENSION vchord UPDATE TO` in `immich` from the Database CR `version` (failures retry every 30s; see `kubectl -n database get database immich -o yaml` status). Check the VectorChord release notes for required reindexing. Verify with `select extname, extversion, default_version from pg_extension e join pg_available_extensions a on a.name = e.extname where extversion <> default_version;` (expect no rows). Run it with `psql -d immich`.{{/unless}}",
+        "{{#unless (equals updateType 'digest')}}⚠️ vchord is preloaded; the `postgres` cluster restarts on this change. CNPG then runs `ALTER EXTENSION vchord UPDATE TO` in `immich` from the Database CR `version` (failures retry every 30s; see `kubectl -n database get database immich -o yaml` status). Check the VectorChord release notes for required reindexing. Verify with `select e.extname, e.extversion, coalesce(a.default_version, 'MISSING') from pg_extension e left join pg_available_extensions a on a.name = e.extname where a.default_version is distinct from e.extversion;` (expect no rows). Run it with `psql -d immich`.{{/unless}}",
       ],
     },
     {
@@ -111,7 +111,7 @@
       groupName: "pgvector",
       automerge: false,
       prBodyNotes: [
-        "{{#unless (equals updateType 'digest')}}ℹ️ After the `postgres` cluster rolls, CNPG runs `ALTER EXTENSION vector UPDATE TO` in `immich` from the Database CR `version` (failures retry every 30s; see `kubectl -n database get database immich -o yaml` status). Verify with `select extname, extversion, default_version from pg_extension e join pg_available_extensions a on a.name = e.extname where extversion <> default_version;` (expect no rows). Run it with `psql -d immich`.{{/unless}}",
+        "{{#unless (equals updateType 'digest')}}ℹ️ After the `postgres` cluster rolls, CNPG runs `ALTER EXTENSION vector UPDATE TO` in `immich` from the Database CR `version` (failures retry every 30s; see `kubectl -n database get database immich -o yaml` status). Verify with `select e.extname, e.extversion, coalesce(a.default_version, 'MISSING') from pg_extension e left join pg_available_extensions a on a.name = e.extname where a.default_version is distinct from e.extversion;` (expect no rows). Run it with `psql -d immich`.{{/unless}}",
       ],
     },
     {
@@ -121,7 +121,7 @@
       groupName: "postgis",
       automerge: false,
       prBodyNotes: [
-        "{{#unless (equals updateType 'digest')}}ℹ️ After the `postgres` cluster rolls, CNPG runs `ALTER EXTENSION postgis UPDATE TO` in `dawarich` from the Database CR `version` (failures retry every 30s; see `kubectl -n database get database dawarich -o yaml` status). Verify with `select extname, extversion, default_version from pg_extension e join pg_available_extensions a on a.name = e.extname where extversion <> default_version;` (expect no rows). Run it with `psql -d dawarich`.{{/unless}}",
+        "{{#unless (equals updateType 'digest')}}ℹ️ After the `postgres` cluster rolls, CNPG runs `ALTER EXTENSION postgis UPDATE TO` in `dawarich` from the Database CR `version` (failures retry every 30s; see `kubectl -n database get database dawarich -o yaml` status). Verify with `select e.extname, e.extversion, coalesce(a.default_version, 'MISSING') from pg_extension e left join pg_available_extensions a on a.name = e.extname where a.default_version is distinct from e.extversion;` (expect no rows). Run it with `psql -d dawarich`.{{/unless}}",
       ],
     },
     {
