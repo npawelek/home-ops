@@ -1,0 +1,18 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: timescale
+  labels:
+    monitoring: otel
+spec:
+  podMetricsEndpoints:
+    - port: metrics
+      interval: "30s"
+      path: /metrics
+  selector:
+    matchLabels:
+      cnpg.io/cluster: timescale
+  namespaceSelector:
+    matchNames:
+      - database

@@ -1,0 +1,102 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-5.2.1/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tracearr
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  interval: 1h
+  values:
+    global:
+      createDefaultServiceAccount: false
+    controllers:
+      tracearr:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/connorgallopo/tracearr
+              tag: 2.7.0@sha256:bd40bf5d0e09da50208e3005671dee952a55dbc1ae1ec1f5e37e9d7cc72399f8
+            env:
+              TZ: ${TIMEZONE}
+              NODE_ENV: production
+              HOST: 0.0.0.0
+              PORT: "3000"
+              LOG_LEVEL: info
+              TRUST_PROXY: "true"
+              CORS_ORIGIN: https://tracearr.${SECRET_DOMAIN}
+              REDIS_PREFIX: "tracearr:"
+              # Authentik OIDC (terraform/authentik/tracearr.tf); OIDC_CLIENT_SECRET in tracearr-secret.
+              # Enabled only when issuer, client id and secret are all set.
+              OIDC_ISSUER_URL: https://auth.${SECRET_DOMAIN}/application/o/tracearr/
+              OIDC_CLIENT_ID: tracearr
+              OIDC_PROVIDER_NAME: Authentik
+            envFrom:
+              - secretRef:
+                  name: tracearr-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 3000
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+              # First boot runs all migrations and builds hypertables/continuous aggregates
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  periodSeconds: 10
+                  failureThreshold: 30
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 1536Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames: ["{{.Release.Name}}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      data:
+        existingClaim: tracearr-data
+        globalMounts:
+          - path: /data/backup
+            subPath: backup
+          - path: /data/tracearr
+            subPath: tracearr

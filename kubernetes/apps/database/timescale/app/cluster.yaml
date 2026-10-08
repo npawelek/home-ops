@@ -1,0 +1,99 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/postgresql.cnpg.io/cluster_v1.json
+# Dedicated TimescaleDB (Timescale License edition) cluster. Tenant: tracearr.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: timescale
+spec:
+  instances: 3
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ImageCatalog
+    name: timescale
+    major: 18
+  # timescaledb-ha runs postgres as UID/GID 1000 (CNPG default is 26)
+  postgresUID: 1000
+  postgresGID: 1000
+  primaryUpdateStrategy: unsupervised
+  startDelay: 300
+
+  postgresql:
+    shared_preload_libraries:
+      - timescaledb
+    parameters:
+      # TSL edition: continuous aggregates, compression, retention (tracearr requires these)
+      timescaledb.license: timescale
+      timescaledb.telemetry_level: "off"
+      timescaledb.max_background_workers: "8"
+      timescaledb.max_tuples_decompressed_per_dml_transaction: "100000"
+      # Must cover TimescaleDB background workers + parallel workers + 1
+      max_worker_processes: "16"
+      max_parallel_workers: "4"
+      max_locks_per_transaction: "1024"
+      max_connections: "100"
+      shared_buffers: "256MB"
+      effective_cache_size: "768MB"
+      maintenance_work_mem: "64MB"
+      work_mem: "8MB"
+      # Volume holds data + WAL: keep WAL small and cap slot retention
+      min_wal_size: "128MB"
+      max_wal_size: "512MB"
+      max_slot_wal_keep_size: "1GB"
+      wal_compression: "on"
+      checkpoint_completion_target: "0.9"
+      random_page_cost: "1.0"
+      effective_io_concurrency: "200"
+      log_min_duration_statement: "500"
+      password_encryption: "scram-sha-256"
+      ssl_min_protocol_version: "TLSv1.2"
+    pg_hba:
+      - local all all scram-sha-256
+      - hostssl all all 127.0.0.1/32 scram-sha-256
+      - hostssl all all ::1/128 scram-sha-256
+      - hostssl all all 10.32.0.0/12 scram-sha-256
+
+  bootstrap:
+    initdb:
+      database: postgres
+      owner: postgres
+
+  storage:
+    size: 10Gi
+    storageClass: longhorn-local
+
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: timescale-backup
+
+  managed:
+    roles:
+      - name: tracearr
+        ensure: present
+        passwordSecret:
+          name: credentials-tracearr
+        login: true
+        createdb: false
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
+    services:
+      disabledDefaultServices: ["ro", "r"]
+
+  monitoring:
+    enablePodMonitor: false
+
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 2Gi

@@ -1,0 +1,18 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: tracearr
+spec:
+  cluster:
+    name: timescale
+  name: tracearr
+  owner: tracearr
+  # Untrusted extensions: the operator (superuser) creates them, not the app role
+  extensions:
+    - name: timescaledb
+      ensure: present
+    - name: timescaledb_toolkit
+      ensure: present
+    - name: pg_trgm
+      ensure: present

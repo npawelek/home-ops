@@ -1,0 +1,11 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./imagecatalog.yaml
+  - ./cluster.yaml
+  - ./credentials-backup.sops.yaml
+  - ./credentials-tracearr.sops.yaml
+  - ./objectstore.yaml
+  - ./scheduledbackup.yaml
+  - ./podmonitor.yaml

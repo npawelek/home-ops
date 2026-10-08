@@ -1,0 +1,24 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: timescale-backup
+spec:
+  configuration:
+    destinationPath: s3://cnpg-database-timescale/
+    endpointURL: http://rustfs.storage.svc.cluster.local:9000
+    s3Credentials:
+      accessKeyId:
+        name: credentials-timescale-backup-s3
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: credentials-timescale-backup-s3
+        key: ACCESS_SECRET_KEY
+      region:
+        name: credentials-timescale-backup-s3
+        key: REGION
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: 21d

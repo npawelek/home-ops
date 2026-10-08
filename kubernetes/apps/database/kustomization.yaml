@@ -10,6 +10,8 @@ resources:
   - ./namespace.yaml
   - ./postgres/ks.yaml
   - ./postgres/databases-ks.yaml
+  - ./timescale/ks.yaml
+  - ./timescale/databases-ks.yaml
   - ./pgadmin/ks.yaml
   - ./valkey/ks.yaml
   - ./dragonfly/ks.yaml
