@@ -19,6 +19,11 @@ spec:
     namespace: flux-system
   targetNamespace: database
   wait: true
+  healthCheckExprs:
+    # CNPG Clusters have no Ready condition until the operator reconciles them; default kstatus calls that Current
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      current: has(status.conditions) && status.conditions.exists(e, e.type == 'Ready' && e.status == 'True')
   dependsOn:
     - name: longhorn
       namespace: longhorn-system

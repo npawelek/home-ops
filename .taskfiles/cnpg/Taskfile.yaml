@@ -17,6 +17,13 @@ tasks:
       - test -f {{.KUBECONFIG}}
       - which kubectl
 
+  status-timescale:
+    desc: Show CNPG cluster status for timescale in the database namespace
+    cmd: kubectl cnpg status timescale -n database
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+
   promote-authentik:
     desc: Promote a given instance to primary in the auth namespace [NODE=required]
     cmds:
@@ -37,6 +44,19 @@ tasks:
       - kubectl cnpg promote postgres {{.NODE}} -n database
       - sleep 30
       - kubectl cnpg status postgres -n database
+    requires:
+      vars: [NODE]
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+
+  promote-timescale:
+    desc: Promote a given instance to primary for timescale in the database namespace [NODE=required]
+    cmds:
+      - kubectl cnpg status timescale -n database
+      - kubectl cnpg promote timescale {{.NODE}} -n database
+      - sleep 30
+      - kubectl cnpg status timescale -n database
     requires:
       vars: [NODE]
     preconditions:

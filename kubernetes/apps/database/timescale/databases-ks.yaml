@@ -14,5 +14,10 @@ spec:
     namespace: flux-system
   targetNamespace: database
   wait: true
+  healthCheckExprs:
+    # CNPG Databases have no conditions; default kstatus calls them Current before the database exists
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Database
+      current: has(status.applied) && status.applied == true
   dependsOn:
     - name: database-timescale
