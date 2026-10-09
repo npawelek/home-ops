@@ -67,7 +67,7 @@ enter = "mise run check-deps"
 "pipx:makejinja" = "2.9.1"
 "pipx:yamllint" = "1.38.0"
 "python" = "3.14.8"
-"claude" = "2.1.291"
+"claude" = "2.1.292"
 
 [shell_alias]
 k = "kubectl"
