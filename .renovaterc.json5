@@ -175,6 +175,12 @@
       allowedVersions: "<25",
     },
     {
+      description: "hermes-agent switched from date tags (v2026.x) to semver (v0.x); old date tags still published, ignore them",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["nousresearch/hermes-agent"],
+      allowedVersions: "<2000",
+    },
+    {
       matchUpdateTypes: ["major"],
       semanticCommitType: "feat",
       commitMessagePrefix: "{{semanticCommitType}}({{semanticCommitScope}})!:",

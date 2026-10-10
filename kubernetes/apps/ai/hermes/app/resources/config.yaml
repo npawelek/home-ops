@@ -1,0 +1,90 @@
+model:
+  default: qwen3.5:35b-a3b
+  provider: custom:ollama-local
+providers:
+  custom:ollama-local:
+    api: http://ollama.network.svc.cluster.local:11434/v1
+    name: ollama-local
+    api_key: ollama
+    default_model: qwen3.5:35b-a3b
+    models:
+      qwen3.5:35b-a3b:
+        context_length: 65536
+toolsets:
+  - hermes-cli
+platform_toolsets:
+  buzz:
+    - clarify
+    - file
+    - memory
+    - session_search
+    - skills
+    - terminal
+    - todo
+agent:
+  max_turns: 90
+  gateway_timeout: 1800
+  restart_drain_timeout: 180
+  api_max_retries: 3
+  tool_use_enforcement: auto
+  reasoning_effort: medium
+  disabled_toolsets:
+    - browser
+    - code_execution
+    - computer_use
+    - cronjob
+    - delegation
+    - homeassistant
+    - spotify
+    - stt
+    - tts
+    - vision
+browser:
+  cloud_provider: camofox
+  camofox:
+    managed_persistence: true
+terminal:
+  backend: local
+  cwd: /opt/data/workspace
+  timeout: 180
+  persistent_shell: true
+  home_mode: real
+compression:
+  enabled: true
+  threshold: 0.5
+  target_ratio: 0.2
+  protect_last_n: 20
+display:
+  platforms:
+    buzz:
+      interim_assistant_messages: false
+      tool_progress: 'off'
+memory:
+  memory_enabled: true
+  user_profile_enabled: false
+  write_approval: false
+  memory_char_limit: 2200
+  user_char_limit: 1375
+security:
+  allow_private_urls: true
+  redact_secrets: true
+streaming:
+  enabled: false
+approvals:
+  mode: smart
+  timeout: 60
+  cron_mode: deny
+gateway:
+  message_timestamps:
+    enabled: true
+  platforms:
+    buzz:
+      enabled: true
+      extra:
+        transport: auto
+        require_mention: true
+        poll_interval: 4
+        allow_all_users: false
+web:
+  search_backend: searxng
+_config_version: 39

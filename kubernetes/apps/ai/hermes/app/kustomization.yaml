@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - pvc.yaml
+  - helmrelease.yaml
+  - secret-hermes-github-app.sops.yaml
+  - secret-hermes-github-config.sops.yaml
+  - secret-hermes-signing-key.sops.yaml
+  - secret-hermes-env-profile.sops.yaml
+configMapGenerator:
+  - name: hermes-configmap
+    files:
+      - config.yaml=./resources/config.yaml
+      - mise.toml=./resources/mise.toml
+      - init.sh=./resources/init.sh
+      - git-init.sh=./resources/git-init.sh
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
