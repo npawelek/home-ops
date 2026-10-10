@@ -21,9 +21,9 @@ spec:
           type: RuntimeDefault
     controllers:
       hermes:
+        type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
-        strategy: Recreate
         initContainers:
           init:
             image: &app_image
