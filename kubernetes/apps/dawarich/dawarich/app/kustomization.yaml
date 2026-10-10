@@ -5,7 +5,6 @@ resources:
   - ./helmrelease.yaml
   - ./pvc.yaml
   - ./secrets.sops.yaml
-  - ./servicemonitor.yaml
 configMapGenerator:
   - name: dawarich-initializers
     files:

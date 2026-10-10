@@ -35,17 +35,11 @@ spec:
               tag: 1.15.3@sha256:589e3606b11b61c3fa2d9661832cb73645a9b93a9cc7d807a071e2bc6c584498
             command: ["web-entrypoint.sh"]
             args: ["bin/rails", "server", "-p", "3000", "-b", "::"]
-            # List form keeps order: POD_IP must precede APPLICATION_HOSTS for $(POD_IP) expansion.
-            # Pod IP lets vmagent scrape /metrics past Rails host authorization.
             env: &env
-              - name: POD_IP
-                valueFrom:
-                  fieldRef:
-                    fieldPath: status.podIP
               - name: APPLICATION_HOSTS
-                value: dawarich.${SECRET_DOMAIN},$(POD_IP)
+                value: dawarich.${SECRET_DOMAIN}
               # Pod speaks plain HTTP; envoy terminates TLS. "https" turns on Rails force_ssl,
-              # which 301s kubelet probes and metric scrapes (no X-Forwarded-Proto header).
+              # which 301s kubelet probes (no X-Forwarded-Proto header).
               - name: APPLICATION_PROTOCOL
                 value: http
               - name: DOMAIN
@@ -77,12 +71,6 @@ spec:
                 value: "1"
               - name: BACKGROUND_PROCESSING_CONCURRENCY
                 value: "3"
-              - name: PROMETHEUS_EXPORTER_ENABLED
-                value: "true"
-              - name: PROMETHEUS_EXPORTER_PORT
-                value: "9394"
-              - name: SIDEKIQ_METRICS_URL
-                value: http://localhost:9394/metrics
               - name: SMTP_SERVER
                 value: ${EMAIL_HOST}
               - name: SMTP_PORT
