@@ -25,6 +25,7 @@ EOF
   grep -qF "${DATA_DIR}/.local/bin/mise activate bash" "${DATA_DIR}/.bashrc" \
     || echo "eval \"\$(${DATA_DIR}/.local/bin/mise activate bash)\"" >>"${DATA_DIR}/.bashrc"
 
+  chown hermes:hermes "${DATA_DIR}"/.local "${DATA_DIR}"/.local/{bin,share,state}
   chown -R hermes:hermes "${DATA_DIR}"/.bashrc "${DATA_DIR}"/.config \
     "${DATA_DIR}"/.local/bin/mise "${DATA_DIR}"/.local/share/mise \
     "${DATA_DIR}"/.local/state/mise "${DATA_DIR}"/.cache "${DATA_DIR}"/.profile
