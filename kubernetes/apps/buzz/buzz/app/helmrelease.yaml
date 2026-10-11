@@ -72,6 +72,22 @@ spec:
       hostnames:
         - buzz.${SECRET_DOMAIN}
         - buzz-admin.${SECRET_DOMAIN}
+      # Chart does not route the pairing relay; /pair (pairingRelay.url) goes to it, the rest to the relay
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /pair
+          backendRefs:
+            - name: buzz-pairing
+              port: 5000
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          backendRefs:
+            - name: buzz
+              port: 3000
 
     serviceMonitor:
       enabled: true
