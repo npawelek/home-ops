@@ -9,6 +9,8 @@ spec:
   # yamllint disable-line rule:line-length
   imageName: ghcr.io/cloudnative-pg/postgresql:18-minimal-trixie@sha256:37ade18dbdddba430858c72725aceeec66f33fa5333e82ea1df4942f6c1c83a3
   primaryUpdateStrategy: unsupervised
+  # Promote an updated replica instead of restarting the primary in place
+  primaryUpdateMethod: switchover
   startDelay: 300
 
   postgresql:
