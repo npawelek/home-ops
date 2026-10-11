@@ -16,6 +16,8 @@ spec:
   postgresUID: 1000
   postgresGID: 1000
   primaryUpdateStrategy: unsupervised
+  # Promote an updated replica instead of restarting the primary in place
+  primaryUpdateMethod: switchover
   startDelay: 300
 
   postgresql:
