@@ -158,9 +158,26 @@ spec:
             from: attributes["hostname"]
             to: resource["host.name"]
 
-      syslog:
+      # syslog receiver starts only one transport (tcp wins if both set),
+      # so tcp and udp need separate receiver instances.
+      syslog/tcp:
         tcp:
           listen_address: 0.0.0.0:1514
+        protocol: rfc3164
+        location: America/Chicago
+        enable_octet_counting: false
+        operators:
+          - type: move
+            from: attributes.hostname
+            to: resource["host.name"]
+          - type: move
+            from: attributes.appname
+            to: resource["service.name"]
+          - type: move
+            from: attributes.message
+            to: body
+
+      syslog/udp:
         udp:
           listen_address: 0.0.0.0:1514
         protocol: rfc3164
@@ -377,7 +394,8 @@ spec:
             - otlp_http/loki
         logs/syslog:
           receivers:
-            - syslog
+            - syslog/tcp
+            - syslog/udp
           processors:
             - memory_limiter
             - resourcedetection

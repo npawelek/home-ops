@@ -10,6 +10,7 @@ spec:
   externalTrafficPolicy: Local
   selector:
     app.kubernetes.io/name: opentelemetry-gateway
+    app.kubernetes.io/component: opentelemetry-collector
   ports:
     - name: udp-json
       port: 5044
