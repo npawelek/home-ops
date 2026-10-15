@@ -1,0 +1,7 @@
+---
+# Two NVMe drives can swap nvme0n1/nvme1n1 between boots, so select by model
+apiVersion: v1alpha1
+kind: UnattendedInstallConfig
+provisioning:
+  diskSelector:
+    match: disk.model == "NXM-256 2242"

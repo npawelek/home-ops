@@ -45,3 +45,9 @@ nodes:
     role: worker
     data:
       mac: "54:b2:03:f0:a4:b5"
+  - host: rocinante
+    ip: 192.168.0.32
+    role: worker
+    schematicId: 92cdade33f77e1c7ec5a581e3415952d107414facf9da5383ad8c9f579064377
+    data:
+      mac: "88:ae:dd:73:e7:3d"

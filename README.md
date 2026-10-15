@@ -32,15 +32,20 @@ There is **1 prerequisite** and **5 stages** outlined below for completing this 
 
 ### Prerequisites - Network (PXE) Boot
 
-UniFi remains broken because it **doesn't support proper PXE configuration via the UI**. In order to use UniFi as the primary DHCP, and enable network boot, you must configure it exclusively from the UI. Below is a reference configuration for booting across differing types of clients:
+UniFi remains broken because it **doesn't support proper PXE configuration via the UI**. In order to use UniFi as the primary DHCP, and enable network boot, you must inject a custom dnsmasq config over SSH. `/run/dnsmasq.dhcp.conf.d` is tmpfs and is also rewritten when the Network app reprovisions, so the config is kept in `/data` (survives reboots and firmware updates) and re-applied by a systemd timer.
 
 ```sh
 ssh udmp
+mkdir -p /data/custom
 
-cat << EOF > /run/dnsmasq.dhcp.conf.d/pxe.conf
+cat << 'EOF' > /data/custom/pxe.sh
+#!/bin/sh
 # dnsmasq configuration for netboot.xyz
 # PXE Server: 192.168.0.9
-#
+CONF=/run/dnsmasq.dhcp.conf.d/pxe.conf
+[ -f "$CONF" ] && exit 0
+
+cat > "$CONF" << 'CONF'
 dhcp-boot=netboot.xyz.kpxe,,192.168.0.9
 
 dhcp-vendorclass=BIOS,PXEClient:Arch:00000
@@ -52,14 +57,44 @@ dhcp-boot=net:UEFI32,netboot.xyz.efi,,192.168.0.9
 dhcp-boot=net:BIOS,netboot.xyz.kpxe,,192.168.0.9
 dhcp-boot=net:UEFI64,netboot.xyz.efi,,192.168.0.9
 dhcp-boot=net:UEFI,netboot.xyz.efi,,192.168.0.9
-EOF
+CONF
 
 # Bounce dnsmasq
-kill $(cat /run/dnsmasq-main.pid)
+kill "$(cat /run/dnsmasq-main.pid)"
+EOF
+chmod +x /data/custom/pxe.sh
+
+cat << 'EOF' > /data/custom/pxe.service
+[Unit]
+Description=Inject PXE dnsmasq config
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /data/custom/pxe.sh
+EOF
+
+cat << 'EOF' > /data/custom/pxe.timer
+[Unit]
+Description=Re-check PXE dnsmasq config
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
+EOF
 ```
 
-> [!TODO]
-> Still need to determine persistence on UniFi as this will reset upon reboot or UI changes.
+Enable the timer. `/etc/systemd/system` is wiped by UniFi OS firmware updates, so **re-run this after every firmware update**:
+
+```sh
+ln -sf /data/custom/pxe.service /data/custom/pxe.timer /etc/systemd/system/
+systemctl daemon-reload && systemctl enable --now pxe.timer
+```
+
+Verify with `systemctl list-timers pxe.timer` and `cat /run/dnsmasq.dhcp.conf.d/pxe.conf`.
 
 #### Custom Talos PXE Boot
 
@@ -259,21 +294,54 @@ they contain cluster secrets in plaintext, so delete them afterwards.
 
 ### ➕ Adding a new node
 
-#### 1. PXE boot the node
+#### 1. Pick the node's build and deploy it to netboot.xyz
 
-Boot the machine via netboot.xyz, select the appropriate Talos build (e.g. Intel i915), and enable both **Maintenance Mode** and **Disk Wipe** before booting.
+Add the node to the `hosts` of its build in `BUILD_CONFIGS`
+(`ipxe/generate-schematics.py`). The build sets the GPU driver and extensions: `Intel i915`
+for most Intel iGPUs, `Intel Arc i915` (i915 + mei) for Intel GPUs that load HuC through the
+GSC (Arc DG2, Meteor/Arrow Lake), `AMD iGPU` for AMD.
 
-#### 2. Gather disk and network info
+Add the node to `talos/topf.yaml` (step 3) at the same time, then deploy:
 
 ```sh
-# List disks to identify OS disk and Longhorn data disk
-talosctl get disks -n <IP> --insecure
+task ipxe:deploy
+```
+
+Always use `ipxe:deploy`, never `ipxe:generate` on its own: it regenerates the schematics,
+pushes the iPXE menu and downloads the kernel/initramfs to netboot.xyz, so the menu, the
+assets and the `schematicId`s in `topf.yaml` never drift. The most common build's
+schematic is the cluster-wide `schematicId`; a node on a different build gets its own
+per-node `schematicId`. A host missing from `BUILD_CONFIGS` makes the generator skip the
+`topf.yaml` update.
+
+#### 2. PXE boot the node and gather hardware info
+
+Boot the machine via pxe, select the node's build from step 1, and enable both
+**Maintenance Mode** and **Disk Wipe** before booting. A DHCP reservation for the node's
+MAC → its planned IP makes it reachable at its final address in maintenance mode.
+
+```fish
+# fish syntax; bash/zsh nodeIP=192.168.0.XX
+set nodeIP 192.168.0.XX
+
+# Confirm the node booted the expected schematic and extensions
+talosctl get extensions --insecure -n $nodeIP -e $nodeIP
+
+# List disks to identify OS disk and Longhorn data disk (note the MODEL column)
+talosctl get disks --insecure -n $nodeIP -e $nodeIP
 
 # Wipe the Longhorn data disk if it has existing partitions
-talosctl -n <IP> wipe disk <disk> --insecure # e.g. nvme0n1
+talosctl wipe disk <disk> --insecure -n $nodeIP -e $nodeIP # e.g. nvme0n1
 
-# Get MAC address for network interface config
-talosctl get links -n <IP> --insecure
+# MAC, link state and speed of the primary NIC
+talosctl get links --insecure -n $nodeIP -e $nodeIP
+
+# Find the GPU (Display controller), then read its product_id for the NFD rule
+talosctl get pcidevices --insecure -n $nodeIP -e $nodeIP
+talosctl get pcidevice 0000:00:02.0 --insecure -n $nodeIP -e $nodeIP -o yaml
+
+# GPU driver bound and HuC loaded
+talosctl dmesg --insecure -n $nodeIP -e $nodeIP | grep -iE "i915|xe |huc|gsc"
 ```
 
 #### 3. Add the node to `talos/topf.yaml`
@@ -287,22 +355,24 @@ talosctl get links -n <IP> --insecure
 ```
 
 Hostname, the network link and the address come from `talos/all/`, which templates
-them off `host`, `ip` and `data.mac`. Only the install disk needs a per-node patch.
-
-Also add the node to the `hosts` of its build in `BUILD_CONFIGS`
-(`ipxe/generate-schematics.py`), then run `task ipxe:generate`. That sets the node's image:
-the most common build's schematic is the cluster-wide `schematicId`, and a node on a
-different build gets its own per-node `schematicId` in `topf.yaml`. A host missing from
-`BUILD_CONFIGS` makes the generator skip the `topf.yaml` update.
+them off `host`, `ip` and `data.mac`. `schematicId` is written by `task ipxe:deploy`;
+don't set it by hand.
 
 #### 4. Create the per-node patches
+
+Select disks by model (or serial) when the node has more than one disk of the same kind:
+two NVMe drives can swap `nvme0n1`/`nvme1n1` between boots, so `dev_path` is only safe when
+the device name is unambiguous (e.g. one SATA `/dev/sda` plus one NVMe).
 
 Create `talos/node/newnode/01-install.yaml`:
 
 ```yaml
-machine:
-  install:
-    disk: /dev/sda   # update (OS disk)
+---
+apiVersion: v1alpha1
+kind: UnattendedInstallConfig
+provisioning:
+  diskSelector:
+    match: disk.model == "NXM-256 2242"  # update (OS disk)
 ```
 
 Create `talos/node/newnode/20-longhorn-volume.yaml`:
@@ -313,14 +383,23 @@ kind: UserVolumeConfig
 name: longhorn
 provisioning:
   diskSelector:
-    match: disk.dev_path == "/dev/nvme0n1"  # Longhorn data disk
+    match: disk.model == "Samsung SSD 990 PRO 1TB"  # update (Longhorn data disk)
   grow: true
   maxSize: 1TB
 ```
 
+Render and review before applying; the output contains cluster secrets in plaintext:
+
+```sh
+task talos:render   # inspect talos/output/newnode.yaml
+rm -rf talos/output
+```
+
 #### 5. Apply
 
-`topf` dials nodes in maintenance mode too, so the same task bootstraps a new node:
+`topf` dials nodes in maintenance mode too, so the same task bootstraps a new node. Run it
+from a real terminal: without a TTY the confirmation prompt reads EOF as "no" and exits 0
+having done nothing.
 
 ```sh
 task talos:apply-node HOST=newnode
@@ -329,12 +408,30 @@ task talos:apply-node HOST=newnode
 #### 6. Verify
 
 ```sh
-# Node joins the cluster
-kubectl get node <hostname>
+# Node joins the cluster and is Ready
+kubectl get node <hostname> -o wide
+
+# Cilium agent running on the node
+kubectl -n kube-system get pods -l k8s-app=cilium --field-selector spec.nodeName=<hostname>
 
 # Longhorn volume provisioned
 talosctl -n <IP> get volumestatus
+
+# GPU labelled by NFD and advertised via DRA
+kubectl get node <hostname> -L intel.feature.node.kubernetes.io/gpu
+kubectl get resourceslices --field-selector spec.nodeName=<hostname>
 ```
+
+#### 7. Follow-up edits
+
+- **NFD rule:** if no rule in `kubernetes/apps/kube-system/node-feature-discovery/rules/`
+  matches the GPU's PCI device ID, add one. Without the `xe-igpu`/`arc` label, GPU
+  workloads won't schedule on the node.
+- **Grafana dashboards:** `terraform/grafana/dashboards/longhorn-health.json` and
+  `spegel-health.json` hardcode worker hostnames.
+- **talosconfig:** `task talos:talosconfig` adds the new node to the default `nodes` list,
+  so `talosctl dashboard`, `talosctl health`, etc. include it without `-n`. `topf apply`
+  reads IPs from `topf.yaml` and doesn't need this, so skipping it fails silently.
 
 ### ⬆️ Updating Talos and Kubernetes versions
 

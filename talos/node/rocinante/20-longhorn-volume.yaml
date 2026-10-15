@@ -1,0 +1,8 @@
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: longhorn
+provisioning:
+  diskSelector:
+    match: disk.model == "Samsung SSD 990 PRO 1TB"
+  grow: true
+  maxSize: 1TB

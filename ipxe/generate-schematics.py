@@ -79,9 +79,10 @@ BUILD_CONFIGS = [
     slug="intel-arc-i915",
     arch="amd64",
     extensions=["siderolabs/i915", "siderolabs/intel-ucode", "siderolabs/iscsi-tools", "siderolabs/mei", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
-    use_case="Intel Arc gen1 (Alchemist/DG2) discrete GPUs. xe does not support gen1, so this uses i915; "
+    use_case="Intel GPUs that load HuC through the GSC: Arc gen1 (Alchemist/DG2) discrete GPUs, which xe "
+        "does not support, and Arrow Lake iGPUs, which xe only binds with force_probe. Uses i915; "
         "mei lets the GSC load HuC, which the low-power encoders need for bitrate control",
-    hosts=["pella"],
+    hosts=["pella", "rocinante"],
   ),
   BuildConfig(
     name="AMD iGPU",
@@ -89,7 +90,6 @@ BUILD_CONFIGS = [
     arch="amd64",
     extensions=["siderolabs/amdgpu", "siderolabs/amd-ucode", "siderolabs/iscsi-tools", "siderolabs/nfs-utils", "siderolabs/nvme-cli", "siderolabs/util-linux-tools"],
     use_case="AMD systems with integrated graphics",
-    hosts=["rocinante"],
   ),
   BuildConfig(
     name="Raspberry Pi",

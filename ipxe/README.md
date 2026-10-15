@@ -40,14 +40,14 @@ All builds include common extensions and kernel parameters:
 2. **Intel Arc i915** (amd64)
    - Extensions: siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
    - Kernel Parameters: `net.ifnames=0`
-   - Use case: Intel Arc gen1 (Alchemist/DG2) discrete GPUs. xe does not support gen1, so this uses i915; mei lets the GSC load HuC, which the low-power encoders need for bitrate control
-   - Nodes: pella
+   - Use case: Intel GPUs that load HuC through the GSC: Arc gen1 (Alchemist/DG2) discrete GPUs, which xe does not support, and Arrow Lake iGPUs, which xe only binds with force_probe. Uses i915; mei lets the GSC load HuC, which the low-power encoders need for bitrate control
+   - Nodes: pella, rocinante
 
 3. **AMD iGPU** (amd64)
    - Extensions: siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools
    - Kernel Parameters: `net.ifnames=0`
    - Use case: AMD systems with integrated graphics
-   - Nodes: rocinante
+   - Nodes: none
 
 4. **Raspberry Pi** (arm64)
    - Extensions: siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/util-linux-tools
@@ -68,7 +68,7 @@ All builds include common extensions and kernel parameters:
 | donnager | Intel i915 | `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
 | hammurabi | Intel i915 | `0b6deb91fb651b3885f5f703d894096cbb71e9cd59324a5ea84f9919427995da` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
 | pella | Intel Arc i915 | `92cdade33f77e1c7ec5a581e3415952d107414facf9da5383ad8c9f579064377` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
-| rocinante | AMD iGPU | `f0b77609affe4cdc9b0e8fcf943e5e14eeba33678424860a3a845bb1b10c82d8` | siderolabs/amdgpu, siderolabs/amd-ucode, siderolabs/iscsi-tools, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
+| rocinante | Intel Arc i915 | `92cdade33f77e1c7ec5a581e3415952d107414facf9da5383ad8c9f579064377` | siderolabs/i915, siderolabs/intel-ucode, siderolabs/iscsi-tools, siderolabs/mei, siderolabs/nfs-utils, siderolabs/nvme-cli, siderolabs/util-linux-tools | `net.ifnames=0` |
 <!-- NODES_END -->
 
 *Builds and per-node images are generated from `BUILD_CONFIGS` in `generate-schematics.py`. To change a node's extensions or kernel args, edit that list and run `task ipxe:generate`.*
