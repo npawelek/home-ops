@@ -166,14 +166,24 @@ spec:
         protocol: rfc3164
         location: America/Chicago
         enable_octet_counting: false
-        # UDM-Pro omits appname; UniFi switches/APs send "<mac>,<model>-<fw>"
-        # with hostname = model. Split appname so the MAC (the only per-device
+        # UniFi SIEM sends CEF events (firewall blocks) with no <PRI> header.
+        allow_skip_pri_header: true
+        # UDM-Pro omits appname on kernel lines and sends "CEF" as appname on
+        # SIEM events; UniFi switches/APs send "<mac>,<model>-<fw>" with
+        # hostname = model. Split appname so the MAC (the only per-device
         # identifier) survives as metadata, then fall back to host.name.
         operators: &syslog_operators
           - type: move
             if: attributes.hostname != nil
             from: attributes.hostname
             to: resource["host.name"]
+          - type: add
+            if: attributes.appname == "CEF"
+            field: attributes.log_format
+            value: cef
+          - type: remove
+            if: attributes.appname == "CEF"
+            field: attributes.appname
           - type: regex_parser
             if: attributes.appname != nil and attributes.appname contains ","
             parse_from: attributes.appname
@@ -202,6 +212,7 @@ spec:
         protocol: rfc3164
         location: America/Chicago
         enable_octet_counting: false
+        allow_skip_pri_header: true
         operators: *syslog_operators
 
     processors:
