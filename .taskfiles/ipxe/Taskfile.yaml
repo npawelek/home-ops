@@ -9,6 +9,9 @@ vars:
     sh: sops -d {{.NETBOOT_CONFIG}} | yq '.netboot_path'
   NETBOOT_MENU_PATH:
     sh: sops -d {{.NETBOOT_CONFIG}} | yq '.netboot_menu_path'
+  # NixOS netboot builds on racknas: <path>/<version>/ and latest (nix-build/builder Job).
+  NIX_NFS_BUILD_PATH:
+    sh: sops -d {{.NETBOOT_CONFIG}} | yq '.nix_nfs_build_path'
 
 tasks:
 
@@ -43,3 +46,40 @@ tasks:
       - task: generate
       - task: sync-menu
       - task: download-assets
+
+  deploy-nixos:
+    desc: Publish an in-cluster NixOS netboot build to netboot.xyz and sync its menu
+    vars:
+      VERSION: '{{.VERSION | default "latest"}}'
+      NIXOS_PATH: '{{.NETBOOT_PATH}}/nixos'
+    cmds:
+      # latest only: the Job succeeded and latest is the version it built. VERSION=<x> skips.
+      - cmd: |
+          state=$(kubectl -n nix-build get job nixos-netboot \
+            -o jsonpath='{.status.succeeded}/{.status.active}/{.status.failed}')
+          if [ "${state%%/*}" != 1 ]; then
+            echo "job nix-build/nixos-netboot not succeeded (succeeded/active/failed: $state)" >&2
+            exit 1
+          fi
+          built=$(kubectl -n nix-build logs job/nixos-netboot | sed -n 's/^version: //p' | tail -n 1)
+          latest=$(ssh {{.NETBOOT_HOST}} 'readlink {{.NIX_NFS_BUILD_PATH}}/latest')
+          if [ -z "$built" ] || [ "$built" != "$latest" ]; then
+            echo "latest is '$latest' but the job built '$built'" >&2
+            exit 1
+          fi
+          echo "job built $built = latest"
+        if: '[ "{{.VERSION}}" = latest ]'
+        silent: true
+      - >-
+        ssh {{.NETBOOT_HOST}} 'cd {{.NIX_NFS_BUILD_PATH}}/{{.VERSION}} &&
+        test -f netboot.ipxe && echo "publishing $(basename "$(pwd -P)")" &&
+        mkdir -p {{.NIXOS_PATH}} && cp bzImage initrd netboot.ipxe {{.NIXOS_PATH}}/ &&
+        chown -R 1000:1000 {{.NIXOS_PATH}} && ls -l {{.NIXOS_PATH}}'
+      # dnsmasq runs --tftp-secure: it only serves files owned by its user (nbxyz, 1000).
+      - >-
+        cat {{.IPXE_DIR}}/nixos-custom.ipxe | ssh {{.NETBOOT_HOST}}
+        "cat > {{.NETBOOT_MENU_PATH}}/nixos-custom.ipxe &&
+        chown 1000:1000 {{.NETBOOT_MENU_PATH}}/nixos-custom.ipxe"
+      - ssh {{.NETBOOT_HOST}} sh -s -- {{.NETBOOT_MENU_PATH}} < {{.IPXE_DIR}}/hook-nixos-menu.sh
+    preconditions:
+      - test -f {{.IPXE_DIR}}/nixos-custom.ipxe

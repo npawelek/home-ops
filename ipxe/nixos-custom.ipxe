@@ -1,0 +1,13 @@
+#!ipxe
+# NixOS netboot installer (nixos/hosts/netboot): RAM only, root SSH with nixos/keys.nix.
+# Assets are built in-cluster (kubernetes/apps/nix-build/builder); published with
+# `task ipxe:deploy-nixos`. netboot.ipxe holds the init= store path of its build and loads
+# bzImage/initrd relative to its own URL.
+
+set nixos_base http://192.168.0.9/nixos/
+chain ${nixos_base}netboot.ipxe || goto failed
+
+:failed
+echo NixOS netboot failed: ${nixos_base}netboot.ipxe
+prompt Press any key to return
+exit 0

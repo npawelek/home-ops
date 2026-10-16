@@ -1,0 +1,16 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ./job.yaml
+
+# Build trigger. The Job mounts this ConfigMap, so its hashed name is part of the Job
+# spec: a change to any file below changes the spec and Flux recreates the Job (force).
+configMapGenerator:
+  - name: nixos-netboot-inputs
+    files:
+      - flake.nix=../../../../../nixos/flake.nix
+      - flake.lock=../../../../../nixos/flake.lock
+      - keys.nix=../../../../../nixos/keys.nix
+      - netboot.nix=../../../../../nixos/hosts/netboot/default.nix

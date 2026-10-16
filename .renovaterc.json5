@@ -27,6 +27,14 @@
   kubernetes: {
     managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$/"],
   },
+  nix: {
+    // nixos/flake.lock. A merged bump rebuilds the netboot image (nix-build/builder).
+    enabled: true,
+    lockFileMaintenance: {
+      enabled: true,
+      schedule: ["before 6am on monday"],
+    },
+  },
   kustomize: {
     managerFilePatterns: ["/^kustomization\\.ya?ml(?:\\.j2)?$/"],
   },
