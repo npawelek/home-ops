@@ -1,0 +1,86 @@
+---
+# Builds the NixOS netboot installer (nixos#netboot) and writes bzImage, initrd and
+# netboot.ipxe to racknas over NFS as nixos/<version>/, last 2 kept. The export path is
+# NIX_NFS_BUILD_EXPORT from cluster-secrets.
+# `task ipxe:deploy-nixos` publishes one of them to netboot.xyz.
+# Runs once per change to its inputs (see kustomization.yaml). No ttlSecondsAfterFinished:
+# Flux would re-create the deleted Job as drift and build again.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nixos-netboot
+  annotations:
+    # Job specs are immutable; recreate on change instead of failing the apply.
+    kustomize.toolkit.fluxcd.io/force: Enabled
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+        - name: build
+          image: docker.io/nixos/nix:2.35.3@sha256:ff480dbb23511aa1c10710aa068ceea5b93fed9bfce5f5379f3a6b07282cbc7b
+          env:
+            # Unprivileged pod: no user namespaces, so no Nix sandbox.
+            - name: NIX_CONFIG
+              value: |
+                experimental-features = nix-command flakes
+                sandbox = false
+            # Flux applies this after the commit lands on main, so main holds the inputs.
+            - name: FLAKE
+              value: github:npawelek/home-ops?dir=nixos
+          # No brace expansions in this script: Flux postBuild substitution rewrites them.
+          command: [sh, -euc]
+          args:
+            - |
+              echo "inputs:" && sha256sum /inputs/*
+              # Lock main once so the version and the build come from one commit.
+              # Read-only remote flake: resolve inputs missing from flake.lock without writing it.
+              nix flake metadata --no-write-lock-file --json "$FLAKE" > /tmp/meta.json
+              # --impure: readFile of a local path; this expression only parses the JSON.
+              src=$(nix eval --impure --raw --expr '(builtins.fromJSON (builtins.readFile /tmp/meta.json)).url')
+              v=$(nix eval --no-write-lock-file --raw "$src#nixosConfigurations.netboot.config.system.nixos.version")
+              echo "flake: $src" && echo "version: $v"
+              b="$src#nixosConfigurations.netboot.config.system.build"
+              nix build --no-write-lock-file --print-build-logs --out-link /tmp/result \
+                "$b.kernel" "$b.netbootRamdisk" "$b.netbootIpxeScript"
+              # nixos/<version>/ on the export, staged under a temp name and renamed so a
+              # publish never copies a half-written build. Same version (inputs other than
+              # flake.lock changed) replaces the folder. latest points at the newest.
+              mkdir -p /out/nixos && cd /out/nixos
+              rm -rf ".tmp-$v" && mkdir ".tmp-$v"
+              # Results are read-only symlinks into /nix/store: dereference, make writable.
+              cp -L /tmp/result/bzImage /tmp/result-1/initrd /tmp/result-2/netboot.ipxe ".tmp-$v/"
+              chmod 644 ".tmp-$v"/*
+              rm -rf "$v" && mv ".tmp-$v" "$v"
+              ln -sfn "$v" latest
+              # Keep the 2 newest builds: latest + one rollback. Version folders start
+              # with a digit; latest is a link.
+              ls -1dt [0-9]*/ | tail -n +3 | while read -r d; do
+                echo "prune: $d" && rm -rf "$d"
+              done
+              ls -l . "$v"
+          resources:
+            requests:
+              cpu: "2"
+              memory: 4Gi
+              ephemeral-storage: 20Gi
+            limits:
+              memory: 8Gi
+          volumeMounts:
+            - name: inputs
+              mountPath: /inputs
+              readOnly: true
+            - name: out
+              mountPath: /out
+      volumes:
+        - name: inputs
+          configMap:
+            name: nixos-netboot-inputs
+        - name: out
+          nfs:
+            server: ${RACKNAS_ADDR}
+            path: ${NIX_NFS_BUILD_EXPORT}
