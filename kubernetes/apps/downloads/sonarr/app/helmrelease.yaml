@@ -89,6 +89,27 @@ spec:
             namespace: gateway
             sectionName: https
         rules:
+          - matches:
+              - path:
+                  type: Exact
+                  value: /login
+                queryParams:
+                  - name: ssoFailed
+                    value: "true"
+            backendRefs:
+              - identifier: app
+                port: *port
+          - matches:
+              - path:
+                  type: Exact
+                  value: /login
+            filters:
+              - type: RequestRedirect
+                requestRedirect:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: /login/sso
+                  statusCode: 302
           - backendRefs:
               - identifier: app
                 port: *port
