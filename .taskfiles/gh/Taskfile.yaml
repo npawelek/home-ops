@@ -19,7 +19,7 @@ tasks:
       - which gh column
 
   merge:
-    desc: Merge one or more PRs [task gh:merge -- 1662 1660] [METHOD=rebase]
+    desc: Merge one or more PRs and delete their branches [task gh:merge -- 1662 1660] [METHOD=rebase]
     vars:
       METHOD: '{{.METHOD | default "rebase"}}'
     silent: true
@@ -27,7 +27,7 @@ tasks:
       failed=""
       for pr in {{.CLI_ARGS}}; do
         echo "==> #${pr}: $(gh pr view "${pr}" --json title --jq .title)"
-        gh pr merge "${pr}" --{{.METHOD}} || failed="${failed} ${pr}"
+        gh pr merge "${pr}" --{{.METHOD}} --delete-branch || failed="${failed} ${pr}"
       done
       if [ -n "${failed}" ]; then
         echo "Failed to merge:${failed}"
