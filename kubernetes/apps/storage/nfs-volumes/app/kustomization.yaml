@@ -7,4 +7,5 @@ resources:
   - ./racknas-transcode.yaml
   - ./racknas-photos.yaml
   - ./racknas-rustfs.yaml
+  - ./racknas-services-downloads.yaml
   - ./racknas-services-trek.yaml

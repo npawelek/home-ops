@@ -79,3 +79,8 @@ spec:
         existingClaim: prowlarr-config
         globalMounts:
           - path: /config
+      backups:
+        existingClaim: racknas-services-downloads
+        globalMounts:
+          - path: /config/Backups
+            subPath: prowlarr/backups

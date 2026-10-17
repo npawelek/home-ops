@@ -122,3 +122,8 @@ spec:
         existingClaim: racknas-downloads
         globalMounts:
           - path: /library
+      backups:
+        existingClaim: racknas-services-downloads
+        globalMounts:
+          - path: /config/Backups
+            subPath: sonarr-remux/backups
