@@ -25,10 +25,6 @@ name: Renovate
   issues:
     types: [edited]
 
-concurrency:
-  group: renovate
-  cancel-in-progress: false
-
 env:
   LOG_LEVEL: debug
   RENOVATE_DRY_RUN: false
@@ -51,6 +47,9 @@ jobs:
         (github.event_name == 'issues' &&
           github.event.issue.title == 'Renovate Dashboard 🤖' &&
           contains(github.event.issue.body, '- [x] <!--'))))
+    concurrency:
+      group: renovate
+      cancel-in-progress: false
     steps:
       - name: Generate Token
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0

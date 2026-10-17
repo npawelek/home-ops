@@ -1,0 +1,55 @@
+---
+version: '3'
+
+tasks:
+
+  pr-list:
+    desc: List open PRs as PR# / checks / title, PR# bare for gh:merge
+    silent: true
+    cmd: |
+      gh pr list --limit 200 --json number,title,statusCheckRollup --jq '
+        .[] | [.statusCheckRollup[] | (.conclusion // .state // "") | ascii_upcase] as $c
+        | (if   ($c | any(IN("FAILURE", "ERROR", "CANCELLED", "TIMED_OUT", "ACTION_REQUIRED"))) then "fail"
+           elif ($c | length) == 0 then "none"
+           elif ($c | any(IN("", "PENDING", "EXPECTED"))) then "pending"
+           else "pass" end) as $checks
+        | "\(.number)\t\($checks)\t\(.title)"' \
+        | column -t -s "$(printf '\t')"
+    preconditions:
+      - which gh column
+
+  merge:
+    desc: Merge one or more PRs and delete their branches [task gh:merge -- 1662 1660] [METHOD=rebase]
+    vars:
+      METHOD: '{{.METHOD | default "rebase"}}'
+    silent: true
+    cmd: |
+      failed=""
+      for pr in {{.CLI_ARGS}}; do
+        echo "==> #${pr}: $(gh pr view "${pr}" --json title --jq .title)"
+        gh pr merge "${pr}" --{{.METHOD}} --delete-branch || failed="${failed} ${pr}"
+      done
+      if [ -n "${failed}" ]; then
+        echo "Failed to merge:${failed}"
+        for pr in ${failed}; do
+          body="$(gh pr view "${pr}" --json body --jq .body)"
+          case "${body}" in
+            *'- [ ] <!-- rebase-check -->'*)
+              printf '%s\n' "${body}" \
+                | sed 's/- \[ \] <!-- rebase-check -->/- [x] <!-- rebase-check -->/' \
+                | gh pr edit "${pr}" --body-file - >/dev/null \
+                && echo "#${pr}: ticked Renovate rebase box"
+              ;;
+            *) echo "#${pr}: no Renovate rebase box, fix manually" ;;
+          esac
+        done
+        gh workflow run renovate.yaml && echo "Triggered Renovate"
+        echo "Re-run gh:merge once checks pass"
+        exit 1
+      fi
+    preconditions:
+      - msg: 'Pass PR numbers after --, e.g. task gh:merge -- 1662 1660'
+        sh: test -n "{{.CLI_ARGS}}"
+      - msg: 'METHOD must be rebase, squash or merge'
+        sh: echo "{{.METHOD}}" | grep -qxE 'rebase|squash|merge'
+      - which gh

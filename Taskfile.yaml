@@ -22,6 +22,7 @@ env:
 includes:
   bootstrap: .taskfiles/bootstrap
   cnpg: .taskfiles/cnpg
+  gh: .taskfiles/gh
   ipxe: .taskfiles/ipxe
   longhorn: .taskfiles/longhorn
   nixos: .taskfiles/nixos
