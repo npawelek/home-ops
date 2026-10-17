@@ -103,6 +103,47 @@ tasks:
       - test -f {{.KUBECONFIG}}
       - which topf
 
+  upgrade-safe:
+    desc: Upgrade Talos per-node, gating each step on drain PDBs and Longhorn rebuild [WORKERS=topf order]
+    dir: '{{.TALOS_DIR}}'
+    prompt: Upgrade Talos to {{.TALOS_VERSION}} on every node, one at a time... continue?
+    vars:
+      TALOS_VERSION:
+        sh: yq '.talosVersion' {{.TALOS_DIR}}/topf.yaml
+      CONTROL_PLANES:
+        sh: yq '[.nodes[] | select(.role == "control-plane") | .host] | join(" ")' {{.TALOS_DIR}}/topf.yaml
+      TOPF_WORKERS:
+        sh: yq '[.nodes[] | select(.role != "control-plane") | .host] | join(" ")' {{.TALOS_DIR}}/topf.yaml
+      WORKERS: '{{.WORKERS | default .TOPF_WORKERS}}'
+    cmds:
+      - task: :longhorn:wait-healthy
+      - |
+        set -euo pipefail
+        hosts="{{.CONTROL_PLANES}} {{.WORKERS}}"
+        total=$(echo ${hosts} | wc -w | tr -d ' ')
+        count=0
+        for host in ${hosts}; do
+          count=$((count + 1))
+          echo ""
+          echo "==> [${count}/${total}] Upgrading Talos on ${host} to {{.TALOS_VERSION}}..."
+          topf upgrade --nodes-filter "^${host}$" --confirm=false --drain-timeout=30m
+          echo "    Waiting for Longhorn to finish rebuilding before the next node..."
+          task longhorn:wait-healthy
+          echo "==> [${count}/${total}] ${host} complete."
+        done
+        echo ""
+        echo "==> All nodes upgraded to Talos {{.TALOS_VERSION}}."
+    preconditions:
+      - test -f {{.TALOS_DIR}}/topf.yaml
+      - test -f {{.TALOS_DIR}}/secrets.yaml
+      - test -f {{.SOPS_AGE_KEY_FILE}}
+      - test -f {{.KUBECONFIG}}
+      - which kubectl topf task yq
+      - sh: |
+          topf_workers=$(yq '.nodes[] | select(.role != "control-plane") | .host' {{.TALOS_DIR}}/topf.yaml)
+          [ "$(printf '%s\n' {{.WORKERS}} | sort | tr '\n' ' ')" = "$(echo "${topf_workers}" | sort | tr '\n' ' ')" ]
+        msg: 'WORKERS="{{.WORKERS}}" must list every worker in talos/topf.yaml exactly once'
+
   upgrade-k8s-safe:
     desc: Upgrade Kubernetes per-node, gating each step on drain PDBs and Longhorn rebuild
     dir: '{{.TALOS_DIR}}'
