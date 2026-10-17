@@ -1,17 +1,9 @@
-{ config, lib, ... }:
 let
   # Pin by serial from `ls -l /dev/disk/by-id/`. Never /dev/nvmeXn1: enumeration
-  # order is not stable, and the other two NVMe disks belong to Talos.
+  # order is not stable, and the other disks belong to Talos.
   device = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7KHNU0X718422J";
 in
 {
-  assertions = [
-    {
-      assertion = !lib.hasInfix "PLACEHOLDER" config.disko.devices.disk.nixos.device;
-      message = "Set the NixOS disk by-id path in hosts/pella/disko.nix";
-    }
-  ];
-
   disko.devices.disk.nixos = {
     type = "disk";
     inherit device;

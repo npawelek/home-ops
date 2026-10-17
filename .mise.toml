@@ -1,19 +1,22 @@
 [env]
+# exec lookups are skipped before their tool is installed (first `mise install`) and,
+# for sops, without age.key (e.g. pella): values stay empty, tools still install.
+# Where the key and tools exist, a decrypt or yq error still fails.
 _.python.venv = { path = "{{config_root}}/.venv", create = true }
 KUBECONFIG = "{{config_root}}/kubeconfig"
 SOPS_AGE_KEY_FILE = "{{config_root}}/age.key"
 TALOSCONFIG = "{{config_root}}/talos/talosconfig"
-SECRET_DOMAIN = { value = "{{exec(command='sops -d env.sops.yaml | yq .SECRET_DOMAIN')}}", tools = true, redact = true }
-HOMEASSISTANT_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .HOMEASSISTANT_URL')}}", tools = true, redact = true }
-HOMEASSISTANT_TOKEN = { value = "{{exec(command='sops -d env.sops.yaml | yq .HOMEASSISTANT_TOKEN')}}", tools = true, redact = true }
-GRAFANA_URL = { value = "{{exec(command='sops -d env.sops.yaml | yq .GRAFANA_URL')}}", tools = true, redact = true }
-GRAFANA_SERVICE_ACCOUNT_TOKEN = { value = "{{exec(command='sops -d env.sops.yaml | yq .GRAFANA_SERVICE_ACCOUNT_TOKEN')}}", tools = true, redact = true }
+SECRET_DOMAIN = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .SECRET_DOMAIN; fi')}}", tools = true, redact = true }
+HOMEASSISTANT_URL = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .HOMEASSISTANT_URL; fi')}}", tools = true, redact = true }
+HOMEASSISTANT_TOKEN = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .HOMEASSISTANT_TOKEN; fi')}}", tools = true, redact = true }
+GRAFANA_URL = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .GRAFANA_URL; fi')}}", tools = true, redact = true }
+GRAFANA_SERVICE_ACCOUNT_TOKEN = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .GRAFANA_SERVICE_ACCOUNT_TOKEN; fi')}}", tools = true, redact = true }
 GRAFANA_ORG_ID = "1"
 FLUX_SCHEMA_CONFIG = "{{config_root}}/.fluxschema.yml"
 # Render offline as the live cluster would: Kubernetes version from Talos, and
 # Gateway API in .Capabilities (else app-template emits HTTPRoute v1alpha2).
 # .github/workflows/flate.yaml reads both from the same sources.
-FLATE_KUBE_VERSION = { value = "{{exec(command='yq .kubernetesVersion talos/topf.yaml')}}", tools = true }
+FLATE_KUBE_VERSION = { value = "{{exec(command='if command -v yq >/dev/null; then yq .kubernetesVersion talos/topf.yaml; fi')}}", tools = true }
 FLATE_API_VERSIONS = "gateway.networking.k8s.io/v1/HTTPRoute"
 AWS_PROFILE = "default"
 AWS_REGION = "us-east-1"

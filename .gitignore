@@ -23,3 +23,7 @@ talosconfig
 .ruff_cache/
 .DS_Store
 Thumbs.db
+
+# nixos-rebuild build / nix build output links
+/result
+/nixos/result

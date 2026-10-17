@@ -12,6 +12,7 @@ vars:
   PRIVATE_DIR: '{{.ROOT_DIR}}/.private'
   TALOSCONFIG: '{{.ROOT_DIR}}/talos/talosconfig'
   IPXE_DIR: '{{.ROOT_DIR}}/ipxe'
+  NIXOS_DIR: '{{.ROOT_DIR}}/nixos'
 
 env:
   KUBECONFIG: '{{.ROOT_DIR}}/kubeconfig'
@@ -23,6 +24,7 @@ includes:
   cnpg: .taskfiles/cnpg
   ipxe: .taskfiles/ipxe
   longhorn: .taskfiles/longhorn
+  nixos: .taskfiles/nixos
   talos: .taskfiles/talos
 
 tasks:

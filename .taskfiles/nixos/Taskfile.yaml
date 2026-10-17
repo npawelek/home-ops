@@ -1,0 +1,57 @@
+---
+version: '3'
+
+# Run on a NixOS host (pella). HOST picks the nixosConfigurations entry.
+vars:
+  HOST: '{{.HOST | default "pella"}}'
+  FLAKE: '{{.NIXOS_DIR}}#{{.HOST}}'
+
+tasks:
+
+  build:
+    desc: Build the system without activating it (nixos/result) [HOST=pella]
+    dir: '{{.NIXOS_DIR}}'
+    cmd: nixos-rebuild build --flake {{.FLAKE}}
+
+  diff:
+    desc: Build, then list package changes against the running system [HOST=pella]
+    dir: '{{.NIXOS_DIR}}'
+    cmds:
+      - task: build
+      - nvd diff /run/current-system result
+
+  dry-activate:
+    desc: Build, then list the services a switch would restart or stop [HOST=pella]
+    cmd: sudo nixos-rebuild dry-activate --flake {{.FLAKE}}
+
+  test:
+    desc: Activate now, not as boot default; a reboot reverts it [HOST=pella]
+    cmd: sudo nixos-rebuild test --flake {{.FLAKE}}
+
+  switch:
+    desc: Activate now and make it the boot default [HOST=pella]
+    cmd: sudo nixos-rebuild switch --flake {{.FLAKE}}
+
+  boot:
+    desc: Make it the boot default without activating; applies on next boot [HOST=pella]
+    cmd: sudo nixos-rebuild boot --flake {{.FLAKE}}
+
+  rollback:
+    desc: Switch back to the previous generation
+    cmd: sudo nixos-rebuild switch --rollback
+
+  generations:
+    desc: List system generations (newest last)
+    cmd: nixos-rebuild list-generations
+
+  check:
+    desc: Evaluate every host in the flake (pella, netboot); catches errors before a build
+    dir: '{{.NIXOS_DIR}}'
+    cmd: nix flake check
+
+  update:
+    desc: Update flake inputs (flake.lock); Renovate does this weekly [INPUT=all]
+    dir: '{{.NIXOS_DIR}}'
+    cmd: nix flake update {{.INPUT}}
+    vars:
+      INPUT: '{{.INPUT | default ""}}'

@@ -12,12 +12,19 @@ flake.nix
 keys.nix                 SSH public keys (user + netboot root)
 hosts/pella/             host config, disko layout, generated hardware config
 hosts/netboot/           netboot installer
-modules/                 base, desktop (Plasma 6), gaming (Steam, Lutris, ntsync)
+modules/                 base, desktop (Plasma 6), gaming (Steam, Lutris, ntsync), home
+home/<user>.nix          Home Manager user config (VS Code: extensions + settings)
 ```
 
 ## Dual boot with Talos
 
-Three NVMe disks: Talos OS, Talos data, NixOS. Each OS owns its disk and its own ESP.
+Each OS owns its disk and its own ESP:
+
+| Disk | Owner |
+|---|---|
+| Samsung 870 EVO 500GB (SATA) | Talos OS |
+| Samsung 990 PRO 2TB `S7KHNU0X718422J` | NixOS (`hosts/pella/disko.nix`) |
+| second 2TB NVMe (not installed yet) | Talos Longhorn (`talos/node/pella/20-longhorn-volume.yaml`) |
 
 - NixOS never writes NVRAM (`canTouchEfiVariables = false`). Firmware boots it via the
   fallback `EFI/BOOT/BOOTX64.EFI`. Keep Talos first in boot order so the node returns
@@ -35,8 +42,8 @@ Flakes only see git-tracked files. `git add` new files (staging is enough) befor
 1. Boot the `netboot` image (netboot.xyz main menu → NixOS Netboot Installer) and
    `ssh root@<ip>`. Fallbacks: the stock netboot.xyz NixOS entry or a USB installer (set a
    root password on console).
-2. Find the NixOS disk: `ls -l /dev/disk/by-id/ | grep nvme`. Set it in
-   `hosts/pella/disko.nix`. Double check it is not a Talos disk; disko wipes it.
+2. Check the NixOS disk from `hosts/pella/disko.nix` is present: `ls -l /dev/disk/by-id/`.
+   disko wipes it, so double check it is not a Talos disk.
 3. Install, from a machine with Nix. `extra/nix/persist/sops-nix/key.txt` holds the host
    age key (see Secrets):
    ```sh
@@ -50,7 +57,6 @@ Flakes only see git-tracked files. `git add` new files (staging is enough) befor
    Or on the live installer itself:
    ```sh
    git clone https://github.com/npawelek/home-ops /tmp/home-ops && cd /tmp/home-ops/nixos
-   # edit hosts/pella/disko.nix, then:
    nixos-generate-config --no-filesystems --show-hardware-config > hosts/pella/hardware-configuration.nix
    git add -A
    nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko/latest -- \
@@ -91,9 +97,16 @@ nixos-install --flake .#pella --no-root-passwd
 
 ## Iterate
 
-On the box: `sudo nixos-rebuild switch --flake ~/home-ops/nixos#pella`.
-Update inputs: `nix flake update`, rebuild, commit `flake.lock`. Bad change: pick the
-previous generation in the systemd-boot menu.
+On the box, from `~/github/home-ops` (`task --list | grep nixos:` for all):
+
+```sh
+task nixos:diff     # build, then package changes vs the running system (nvd)
+task nixos:test     # activate now; a reboot reverts it
+task nixos:switch   # activate and make it the boot default
+```
+
+Update inputs: `task nixos:update`, rebuild, commit `flake.lock`. Bad change:
+`task nixos:rollback`, or pick the previous generation in the systemd-boot menu.
 
 ## Netboot image
 

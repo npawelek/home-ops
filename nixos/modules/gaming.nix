@@ -1,7 +1,5 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 {
-  nixpkgs.config.allowUnfreePredicate = pkg: lib.hasPrefix "steam" (lib.getName pkg);
-
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
@@ -21,7 +19,8 @@
   programs.steam = {
     enable = true;
     gamescopeSession.enable = true;
-    extraCompatPackages = [ pkgs.proton-ge-bin ];  };
+    extraCompatPackages = [ pkgs.proton-ge-bin ];
+  };
   programs.gamemode.enable = true;
   programs.gamescope.enable = true;
 
