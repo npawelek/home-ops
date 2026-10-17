@@ -29,6 +29,14 @@ spec:
               http_proxy: ${HTTP_PROXY}
               https_proxy: ${HTTPS_PROXY}
               no_proxy: ${NO_PROXY}
+              SONARR__AUTH__METHOD: Oidc
+              SONARR__AUTH__REQUIRED: Enabled
+              SONARR__AUTH__OIDCAUTHORITY: https://auth.${SECRET_DOMAIN}/application/o/sonarr-remux/
+              SONARR__AUTH__OIDCCLIENTID: sonarr-remux
+              SONARR__SERVER__TRUSTEDNETWORKS: 10.32.0.0/12
+            envFrom:
+              - secretRef:
+                  name: sonarr-remux-secrets
             probes:
               liveness: &probes
                 enabled: true
@@ -81,6 +89,27 @@ spec:
             namespace: gateway
             sectionName: https
         rules:
+          - matches:
+              - path:
+                  type: Exact
+                  value: /login
+                queryParams:
+                  - name: ssoFailed
+                    value: "true"
+            backendRefs:
+              - identifier: app
+                port: *port
+          - matches:
+              - path:
+                  type: Exact
+                  value: /login
+            filters:
+              - type: RequestRedirect
+                requestRedirect:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: /login/sso
+                  statusCode: 302
           - backendRefs:
               - identifier: app
                 port: *port
