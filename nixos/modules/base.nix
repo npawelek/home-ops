@@ -69,5 +69,11 @@
     openssh.authorizedKeys.keys = import ../keys.nix;
   };
 
-  environment.systemPackages = with pkgs; [ git vim htop pciutils usbutils jq mise nvd ];
+  # Installs vim and sets EDITOR=vim system-wide (replaces the nano default).
+  programs.vim = {
+    enable = true;
+    defaultEditor = true;
+  };
+
+  environment.systemPackages = with pkgs; [ git htop pciutils usbutils jq mise nvd ];
 }

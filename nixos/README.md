@@ -80,6 +80,9 @@ activation into `/run/secrets*` (`modules/secrets.nix`). Recipients are set in t
 - User password: `npawelek-password`, a `mkpasswd -m yescrypt` hash. `users.mutableUsers`
   is off, so `passwd` does not persist; edit with `sops nixos/secrets/pella.sops.yaml`
   and rebuild. SSH (keys.nix) works even if decryption fails.
+- NAS: `racknas-addr` (same value as the cluster's `RACKNAS_ADDR`). `modules/nfs.nix`
+  renders it into an autofs map, so the name never reaches the store or `/etc/fstab`.
+  Shares mount on access under `/mnt/racknas/<name>`.
 - New host: `age-keygen -pq`, add its public key to `.sops.yaml`, create
   `secrets/<hostname>.sops.yaml`, then `sops updatekeys` any shared file.
 

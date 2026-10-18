@@ -98,4 +98,22 @@
       };
     };
   };
+
+  # Plasma UI fonts (System Settings > Text & Fonts), at Plasma's default sizes. Only
+  # these keys are managed; other Plasma settings stay editable in the UI.
+  programs.plasma = {
+    enable = true;
+    fonts =
+      let
+        sf = pointSize: { family = "SF Pro Text"; inherit pointSize; };
+      in
+      {
+        general = sf 10;
+        small = sf 8;
+        toolbar = sf 10;
+        menu = sf 10;
+        windowTitle = { family = "SF Pro Display"; pointSize = 10; };
+        fixedWidth = { family = "SF Mono"; pointSize = 10; };
+      };
+  };
 }

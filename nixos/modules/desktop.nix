@@ -1,3 +1,4 @@
+{ inputs, pkgs, ... }:
 {
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm = {
@@ -21,6 +22,15 @@
 
   # Electron apps (VS Code) run native Wayland instead of XWayland: sharp text on Plasma.
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  # Fonts for apps that ask fontconfig; Plasma's own fonts are set in home/npawelek.nix.
+  fonts = {
+    packages = with inputs.apple-fonts.packages.${pkgs.stdenv.hostPlatform.system}; [ sf-pro sf-mono ];
+    fontconfig.defaultFonts = {
+      sansSerif = [ "SF Pro Text" ];
+      monospace = [ "SF Mono" ];
+    };
+  };
 
   # Extensions install from AMO on first start and auto-update; force_installed means
   # they cannot be removed in the UI, only here. Keys are the add-on IDs.

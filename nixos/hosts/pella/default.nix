@@ -7,6 +7,7 @@
     ../../modules/desktop.nix
     ../../modules/gaming.nix
     ../../modules/home.nix
+    ../../modules/nfs.nix
     ../../modules/secrets.nix
   ];
 

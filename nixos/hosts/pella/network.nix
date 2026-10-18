@@ -13,6 +13,11 @@
         autoconnect = true;
       };
       ethernet.mac-address = "6C:92:BF:65:0B:66";
+      # Max rings (x540 driver default 512) so NFS bursts don't drop frames
+      ethtool = {
+        ring-rx = 8192;
+        ring-tx = 8192;
+      };
       ipv4.method = "disabled";
       ipv6.method = "disabled";
     };
