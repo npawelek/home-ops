@@ -7,7 +7,7 @@ herdr = "0.9.5"
 hk = "2.6.0"
 jq = "1.8.2"
 rg = "15.2.0"
-rust = "1.99.0"
+rust = "1.99.1"
 "github:bdellegrazie/git-credential-github-app" = "0.4.5"
 
 [tools."cargo:https://github.com/block/buzz"]
