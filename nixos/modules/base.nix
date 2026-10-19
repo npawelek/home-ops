@@ -4,6 +4,8 @@
     pkg:
     lib.hasPrefix "steam" (lib.getName pkg)
     || builtins.elem (lib.getName pkg) [
+      "discord"
+      "discord-unwrapped"
       "vscode"
       "vscode-extension-anthropic-claude-code"
       "vscode-extension-MS-python-vscode-pylance"
