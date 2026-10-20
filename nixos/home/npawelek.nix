@@ -15,7 +15,7 @@
   '';
 
   # nixd: Nix language server for Nix IDE; nixfmt formats on save.
-  home.packages = with pkgs; [ discord nixd nixfmt ];
+  home.packages = with pkgs; [ discord nixd nixfmt vlc ];
 
   # mise global settings (~/.config/mise/config.toml); the repo's .mise.toml pins tools.
   xdg.configFile."mise/config.toml".source = (pkgs.formats.toml { }).generate "mise-config" {
