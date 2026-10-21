@@ -11,3 +11,30 @@ spec:
   values:
     serviceMonitor:
       create: false
+    web:
+      config:
+        baseURL: https://flux.${SECRET_DOMAIN}
+        authentication:
+          type: OAuth2
+          oauth2:
+            provider: OIDC
+            clientID: flux-web
+            issuerURL: https://auth.${SECRET_DOMAIN}/application/o/flux/
+            scopes:
+              - openid
+              - profile
+              - email
+            autoLogin: true
+      httpRoute:
+        enabled: true
+        hostnames:
+          - flux.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+  valuesFrom:
+    - kind: Secret
+      name: flux-web-client
+      valuesKey: client-secret
+      targetPath: web.config.authentication.oauth2.clientSecret
