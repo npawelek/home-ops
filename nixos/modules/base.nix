@@ -77,5 +77,5 @@
     defaultEditor = true;
   };
 
-  environment.systemPackages = with pkgs; [ git htop pciutils usbutils jq mise nvd ];
+  environment.systemPackages = with pkgs; [ git htop pciutils usbutils jq mise nvd dig ];
 }
