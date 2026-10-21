@@ -1,6 +1,9 @@
 { inputs, pkgs, ... }:
 {
   services.desktopManager.plasma6.enable = true;
+  # Plasma 6 leaves KCalc out of the default set.
+  environment.systemPackages = [ pkgs.kdePackages.kcalc ];
+
   services.displayManager.sddm = {
     enable = true;
     wayland.enable = true;
