@@ -24,6 +24,9 @@
   programs.gamemode.enable = true;
   programs.gamescope.enable = true;
 
+  # Key remapping and macros for the Razer Nostromo (input-remapper-gtk).
+  services.input-remapper.enable = true;
+
   # Battle.net games: Lutris Battle.net installer, runner GE-Proton via umu.
   environment.systemPackages = with pkgs; [ mangohud lutris umu-launcher ];
 }
