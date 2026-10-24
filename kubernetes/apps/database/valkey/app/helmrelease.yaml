@@ -80,7 +80,7 @@ spec:
           metrics:
             image:
               repository: oliver006/redis_exporter
-              tag: v1.95.0-alpine@sha256:19bb5c732f5812d5b60b2e0af3c6d82c5b3e418cd020068d65f588a56df4a118
+              tag: v1.96.0-alpine@sha256:eb537c034777c1925754575676716246ab380e762b8b9aa761634fb6a23a6957
             env:
               REDIS_ADDR: rediss://valkey.database.svc.cluster.local:6380
               REDIS_EXPORTER_TLS_CLIENT_CERT_FILE: /etc/ssl/certs/tls.crt
