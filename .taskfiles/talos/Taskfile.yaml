@@ -39,7 +39,7 @@ tasks:
     silent: true
     cmd: |
       rc=0
-      topf apply --dry-run || rc=$?
+      topf apply --dry-run --skip-problematic-nodes || rc=$?
       if [ "$rc" -eq 2 ]; then
         echo "==> Changes are pending (topf exit 2). Apply with: task talos:apply-node HOST=?"
       elif [ "$rc" -ne 0 ]; then

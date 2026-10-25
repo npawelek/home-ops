@@ -1,0 +1,7 @@
+---
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: enx88aedd73e73d
+rings:
+  rx: 4096
+  tx: 4096

@@ -1,0 +1,7 @@
+---
+apiVersion: v1alpha1
+kind: EthernetConfig
+name: enx54b203f0a654
+rings:
+  rx: 4096
+  tx: 4096
