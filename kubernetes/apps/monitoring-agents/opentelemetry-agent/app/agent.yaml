@@ -53,6 +53,8 @@ spec:
           fieldPath: status.hostIP
     - name: OTEL_RESOURCE_ATTRIBUTES
       value: k8s.cluster.name=home-ops
+    - name: GOMEMLIMIT
+      value: 410MiB
   observability:
     metrics:
       enableMetrics: true
