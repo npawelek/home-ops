@@ -13,7 +13,7 @@
 
   networking.nftables.enable = true;
   networking.firewall.extraInputRules = ''
-    ip saddr 192.168.20.49 tcp dport { 47984, 47989, 48010 } accept
-    ip saddr 192.168.20.49 udp dport { 47998-48000, 48002, 48010 } accept
+    ip saddr { 192.168.20.49, 192.168.30.100 } tcp dport { 47984, 47989, 48010 } accept
+    ip saddr { 192.168.20.49, 192.168.30.100 } udp dport { 47998-48000, 48002, 48010 } accept
   '';
 }
