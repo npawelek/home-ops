@@ -74,6 +74,11 @@ spec:
         endpoint: 0.0.0.0:13133
       file_storage:
         directory: /var/lib/otelcol_agent
+        compaction:
+          directory: /var/lib/otelcol_agent
+          on_start: true
+          on_rebound: true
+          max_transaction_size: 65536
       zpages:
         endpoint: 0.0.0.0:55679
 
