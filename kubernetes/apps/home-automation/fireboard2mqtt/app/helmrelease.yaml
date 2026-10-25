@@ -28,8 +28,8 @@ spec:
         containers:
           app:
             image:
-              repository: gordlea/fireboard2mqtt
-              tag: 3.1.5-beta.0@sha256:b900d906b96399b4567289fe4162e34e823eb2b65a08c9aa2a7e02f070e7431a
+              repository: ghcr.io/gordlea/fireboard2mqtt
+              tag: 3.3.0@sha256:0fba333ce2f7d83026d8177cff563c970ddf3522cbfc982f8a26dec742cc8762
             env:
               TZ: ${TIMEZONE}
               RUST_LOG: fireboard2mqtt=debug
