@@ -54,6 +54,14 @@ spec:
 
     networkPolicies:
       enabled: false
+      restrictInternalTraffic: true
+      metricsScrapeSources:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: opentelemetry-gateway
 
     # Disable built-in ingress - using Envoy Gateway HTTPRoute instead
     ingress:
