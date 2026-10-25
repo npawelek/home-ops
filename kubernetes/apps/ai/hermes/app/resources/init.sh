@@ -29,6 +29,7 @@ EOF
   chown -R hermes:hermes "${DATA_DIR}"/.bashrc "${DATA_DIR}"/.config \
     "${DATA_DIR}"/.local/bin/mise "${DATA_DIR}"/.local/share/mise \
     "${DATA_DIR}"/.local/state/mise "${DATA_DIR}"/.cache "${DATA_DIR}"/.profile
+  su - hermes -c "$MISE_INSTALL_PATH prune --yes && $MISE_INSTALL_PATH cache clear"
   su - hermes -c "$MISE_INSTALL_PATH install"
 }
 
