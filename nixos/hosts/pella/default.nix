@@ -9,6 +9,7 @@
     ../../modules/home.nix
     ../../modules/nfs.nix
     ../../modules/secrets.nix
+    ../../modules/streaming.nix
   ];
 
   networking.hostName = "pella";
