@@ -32,7 +32,6 @@
     enabled: true,
     lockFileMaintenance: {
       enabled: true,
-      schedule: ["before 6am on monday and thursday"],
     },
   },
   kustomize: {
@@ -58,6 +57,18 @@
       matchPackageNames: ["valkey/valkey"],
       matchFileNames: ["kubernetes/apps/immich/redis/**"],
       groupName: "immich-valkey",
+    },
+    {
+      description: "flake.lock maintenance rebuilds netboot (nix-build/builder)",
+      matchManagers: ["nix"],
+      matchUpdateTypes: ["lockFileMaintenance"],
+      schedule: ["before 6am on monday and thursday"],
+    },
+    {
+      description: "nix builder image bump also rebuilds netboot; same schedule as flake.lock so both land together",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/(^|/)nixos/nix$/"],
+      schedule: ["before 6am on monday and thursday"],
     },
     {
       description: "Keep talosVersion (talos/topf.yaml) and the talosctl mise pin on one PR — they must match",
