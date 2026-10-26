@@ -80,7 +80,7 @@ jobs:
         run: echo "version=v$(yq -p toml -oy '.tools["github:fluxcd/flux-schema"]' .mise.toml)" >> "$GITHUB_OUTPUT"
 
       - name: Setup flux-schema
-        uses: fluxcd/flux-schema/actions/setup@5a0846e4358013c06804d249d659cbf3fae59292 # v0.16.0
+        uses: fluxcd/flux-schema/actions/setup@4c71b2098ba84b738d811877463f5a2b2bfe443f # v0.17.0
         with:
           version: ${{ steps.flux-schema.outputs.version }}
 
