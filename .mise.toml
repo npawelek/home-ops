@@ -65,7 +65,7 @@ enter = "mise run check-deps"
 "npm:renovate" = { version = "44.133.0", trust_policy_excludes = ["@yarnpkg/libzip@3.2.2"] }
 "github:fluxcd/flux-schema" = "0.16.0"
 "github:home-operations/flate" = "0.6.5"
-"github:postfinance/topf" = "0.6.1"
+"github:postfinance/topf" = "0.6.2"
 "pipx:asitop" = "0.0.24"
 "pipx:ha-mcp" = "8.7.0"
 "pipx:makejinja" = "2.9.1"
