@@ -8,7 +8,7 @@ hk = "2.8.0"
 jq = "1.8.2"
 rg = "15.2.0"
 rust = "1.99.1"
-"github:bdellegrazie/git-credential-github-app" = "0.4.5"
+"github:bdellegrazie/git-credential-github-app" = "0.4.6"
 
 [tools."cargo:https://github.com/block/buzz"]
 version = "tag:desktop-v0.5.28"
