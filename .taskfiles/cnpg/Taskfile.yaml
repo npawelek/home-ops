@@ -3,6 +3,17 @@ version: '3'
 
 tasks:
 
+  primaries:
+    desc: List the primary instance and node for every CNPG cluster
+    cmd: |
+      kubectl get pods -A -l cnpg.io/instanceRole=primary \
+        -o custom-columns='NAMESPACE:.metadata.namespace,'\
+      'CLUSTER:.metadata.labels.cnpg\.io/cluster,'\
+      'PRIMARY:.metadata.name,NODE:.spec.nodeName'
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+
   status-authentik:
     desc: Show CNPG cluster status for authentik-postgres in the auth namespace
     cmd: kubectl cnpg status authentik-postgres -n auth
