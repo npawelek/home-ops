@@ -93,7 +93,7 @@ spec:
       enabled: true
       labels:
         monitoring: otel
-      interval: 30s
+      interval: 15s
 
     relay:
       requireAuthToken: true

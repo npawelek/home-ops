@@ -140,7 +140,7 @@ spec:
             to: resource["k8s.pod.uid"]
 
       kubelet_stats:
-        collection_interval: 60s
+        collection_interval: 15s
         auth_type: serviceAccount
         endpoint: "https://${env:NODE_IP}:10250"
         insecure_skip_verify: true

@@ -299,5 +299,5 @@ spec:
         enabled: true
         additionalLabels:
           monitoring: otel
-        interval: 30s
+        interval: 15s
         honorLabels: true

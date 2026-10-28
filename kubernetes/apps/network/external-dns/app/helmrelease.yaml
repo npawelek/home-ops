@@ -40,6 +40,6 @@ spec:
       enabled: true
       additionalLabels:
         monitoring: otel
-      interval: 30s
+      interval: 15s
     podAnnotations:
       secret.reloader.stakater.com/reload: *secret

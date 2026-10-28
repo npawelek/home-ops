@@ -118,7 +118,7 @@ spec:
           identifier: app
         endpoints:
           - port: metrics
-            interval: 30s
+            interval: 15s
             path: /metrics
     persistence:
       data:

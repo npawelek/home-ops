@@ -8,7 +8,7 @@ metadata:
 spec:
   podMetricsEndpoints:
     - port: http
-      interval: 30s
+      interval: 15s
       path: /metrics
   selector:
     matchLabels:
