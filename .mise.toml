@@ -58,7 +58,7 @@ enter = "mise run check-deps"
 "go" = "1.27.3"
 "go:github.com/fiatjaf/nak" = "0.21.2"
 "http:adb" = { version = "37.0.1", bin_path = "platform-tools", platforms = { macos-arm64 = { url = "https://dl.google.com/android/repository/platform-tools_r{{ version }}-darwin.zip" }, linux-x64 = { url = "https://dl.google.com/android/repository/platform-tools_r{{ version }}-linux.zip" } } }
-"node" = "24.22.1"
+"node" = "24.22.2"
 "npm:mcp-remote" = "0.15.2"
 # libzip 3.2.2: maintainer (arcanis) manual publish without provenance, 3.2.0 had it; accepted 2026-10-04
 # TODO: verify Renovate tracks this inline-table pin (first bump PR/automerge, or Dependency Dashboard lists npm:renovate)
