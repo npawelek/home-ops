@@ -300,14 +300,14 @@ def classify(film: Film, cfg, model: Model) -> Decision:
     direct_cats.add("kids")
 
   for cat in CATEGORIES:
-    if marker in film.tags:
-      d.verdicts[cat] = Verdict(cat in film.tags, "tag", "Radarr tag" if cat in film.tags else "no Radarr tag")
-      continue
     if film.tmdb in override_ids(cfg, cat, "include"):
       d.verdicts[cat] = Verdict(True, "override", "config include")
       continue
     if film.tmdb in override_ids(cfg, cat, "exclude"):
       d.verdicts[cat] = Verdict(False, "override", "config exclude")
+      continue
+    if marker in film.tags:
+      d.verdicts[cat] = Verdict(cat in film.tags, "tag", "Radarr tag" if cat in film.tags else "no Radarr tag")
       continue
 
     if cat == "kids":
@@ -649,6 +649,20 @@ def report(state: State, decisions, model: Model) -> str:
   return "\n".join(out)
 
 
+def plan_tag_fixes(state):
+  fixes = {}
+  for film in sorted(state.films.values(), key=lambda f: f.label.lower()):
+    for name, rec in film.radarr.items():
+      if state.cfg["marker_tag"] not in rec["_tags"]:
+        continue
+      for cat in CATEGORIES:
+        if film.tmdb in override_ids(state.cfg, cat, "include") and cat not in rec["_tags"]:
+          fixes.setdefault(name, {}).setdefault((cat, "add"), []).append((film, rec))
+        elif film.tmdb in override_ids(state.cfg, cat, "exclude") and cat in rec["_tags"]:
+          fixes.setdefault(name, {}).setdefault((cat, "remove"), []).append((film, rec))
+  return fixes
+
+
 def plan_tag_writes(state, decisions):
   marker = state.cfg["marker_tag"]
   writes, skipped = {}, []
@@ -669,6 +683,7 @@ def plan_tag_writes(state, decisions):
 def seed(state, decisions, dry_run) -> str:
   marker = state.cfg["marker_tag"]
   writes, skipped = plan_tag_writes(state, decisions)
+  fixes = plan_tag_fixes(state)
   out = [f"# Radarr tag seeding — {'preview (DRY_RUN)' if dry_run else 'applied'}", ""]
   for name in sorted(writes):
     groups = writes[name]
@@ -686,13 +701,21 @@ def seed(state, decisions, dry_run) -> str:
       out.append("")
   if not writes:
     out += ["Nothing to write: every movie record already has the marker tag.", ""]
+  out += ["## Tag corrections from config overrides", ""]
+  for name in sorted(fixes):
+    for (cat, action), films in sorted(fixes[name].items()):
+      out += [f"- {name}: {action} `{cat}` — {f.label}" for f, _ in films]
+  if not fixes:
+    out.append("- none")
+  out.append("")
   out += ["## Skipped (unclassified, retried next run)", ""]
   out += [f"- {f.label} — {', '.join(u)}" for f, u in skipped] or ["- none"]
   out.append("")
   if dry_run:
     return "\n".join(out)
 
-  for name, groups in writes.items():
+  for name in sorted(set(writes) | set(fixes)):
+    groups = writes.get(name, {})
     r = state.radarr[name]
     ids = {t["label"]: t["id"] for t in r.get("/api/v3/tag")}
     for label in list(CATEGORIES) + [marker]:
@@ -706,6 +729,10 @@ def seed(state, decisions, dry_run) -> str:
         batch = movie_ids[i:i + 100]
         r.request("PUT", "/api/v3/movie/editor", body={"movieIds": batch, "tags": tag_ids, "applyTags": "add"})
         log(f"{name}: tagged {len(batch)} movies with {', '.join(cats + (marker,))}")
+    for (cat, action), films in fixes.get(name, {}).items():
+      movie_ids = [rec["id"] for _, rec in films]
+      r.request("PUT", "/api/v3/movie/editor", body={"movieIds": movie_ids, "tags": [ids[cat]], "applyTags": action})
+      log(f"{name}: {action} {cat} on {len(movie_ids)} movies to match config overrides")
   return "\n".join(out)
 
 
