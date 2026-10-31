@@ -736,6 +736,130 @@ def seed(state, decisions, dry_run) -> str:
   return "\n".join(out)
 
 
+def update_item(jf, iid, changes):
+  dto = jf.get(f"/Items/{iid}", userId=jf.user_id)
+  dto.update(changes)
+  jf.request("POST", f"/Items/{iid}", body=dto)
+
+
+def edit_members(jf, method, cid, ids):
+  for i in range(0, len(ids), 50):
+    jf.request(method, f"/Collections/{cid}/Items", params={"Ids": ",".join(ids[i:i + 50])})
+
+
+def reconcile(state, decisions, dry_run) -> str:
+  cfg = state.cfg
+  jf = state.jf
+  out = [f"# Jellyfin collections — reconcile {'preview (DRY_RUN)' if dry_run else 'applied'}", "",
+         f"- {time.strftime('%Y-%m-%d %H:%M %Z')}; Jellyfin {state.version}", ""]
+  total = 0
+
+  writes, skipped = plan_tag_writes(state, decisions)
+  fixes = plan_tag_fixes(state)
+  out += ["## Radarr tags", ""]
+  for name in sorted(writes):
+    for cats, films in sorted(writes[name].items()):
+      out += [f"- {name}: tag {film.label} with `{', '.join(cats + (cfg['marker_tag'],))}`" for film, _ in films]
+  for name in sorted(fixes):
+    for (cat, action), films in sorted(fixes[name].items()):
+      out += [f"- {name}: {action} `{cat}` on {film.label} (config override)" for film, _ in films]
+  out += [f"- not tagged yet (unclassified): {film.label} — {', '.join(u)}" for film, u in skipped]
+  n_tags = sum(len(v) for g in writes.values() for v in g.values()) + sum(len(v) for g in fixes.values() for v in g.values())
+  if not n_tags and not skipped:
+    out.append("- no changes")
+  out.append("")
+  total += n_tags
+  if n_tags and not dry_run:
+    seed(state, decisions, False)
+
+  targets = target_membership(state, decisions)
+  out += ["## Collections", ""]
+  for mc in cfg["collections"]:
+    name = mc["name"]
+    box = state.managed[name]
+    t = targets[name]
+    want = list(t["films"]) + list(t["franchises"])
+    cur = {c["Id"]: c for c in state.children[box["Id"]]} if box else {}
+    add = [i for i in want if i not in cur]
+    remove, kept = [], []
+    for iid, c in cur.items():
+      if iid in t["films"] or iid in t["franchises"]:
+        continue
+      film = state.item_film.get(iid)
+      if film and decisions[film.tmdb].verdicts[mc["category"]].value is None:
+        kept.append(iid)
+        continue
+      remove.append(iid)
+    rename = next((b for b, m in state.renames if m is mc), None)
+    changes = len(add) + len(remove) + (1 if rename else 0) + (1 if not box and want else 0)
+    total += changes
+    out.append(f"### {name}: +{len(add)} -{len(remove)}" + ("" if changes else " (no changes)"))
+    if rename:
+      out.append(f"- rename \"{rename['Name']}\" to \"{name}\" (sort title `{mc['sort_title']}`)")
+    if not box:
+      out.append(f"- create collection (sort title `{mc['sort_title']}`, display order {mc['display_order']})" if want else "- missing in Jellyfin; nothing qualifies, so not created")
+    rows = []
+    for iid in add:
+      if iid in t["franchises"]:
+        rows.append(f"- + {state.franchises[iid]['Name']} (collection) — via {', '.join(sorted(f.label for f in t['franchises'][iid]))}")
+      else:
+        film, item = t["films"][iid]
+        rows.append(f"- + {film.label} [{lib_label(state, item)}] — {decisions[film.tmdb].verdicts[mc['category']].text(mc['category'])}")
+    for iid in remove:
+      c = cur[iid]
+      if iid in state.franchises:
+        rows.append(f"- - {c['Name']} (collection) — no qualifying film any more")
+      else:
+        film = state.item_film.get(iid)
+        label = f"{film.label} [{lib_label(state, c)}]" if film else f"{c.get('Name')} [{c.get('Type')}]"
+        rows.append(f"- - {label} — {why_not(state, mc, decisions, c)}")
+    for iid in kept:
+      rows.append(f"- = {state.item_film[iid].label} kept for now — {mc['category']} unclassified")
+    out += sorted(rows, key=lambda r: r[4:].lower())
+    out.append("")
+    if dry_run:
+      continue
+    if rename:
+      update_item(jf, rename["Id"], {"Name": name, "ForcedSortName": mc["sort_title"]})
+      log(f"renamed {rename['Name']!r} to {name!r}")
+    if not box and want:
+      res = jf.request("POST", "/Collections", params={"Name": name, "Ids": ",".join(want[:50])})
+      box = {"Id": res["Id"], "Name": name}
+      update_item(jf, box["Id"], {"ForcedSortName": mc["sort_title"], "DisplayOrder": mc["display_order"]})
+      add = want[50:]
+      log(f"created {name!r}")
+    if add:
+      edit_members(jf, "POST", box["Id"], add)
+      log(f"{name}: added {len(add)}")
+    if remove:
+      edit_members(jf, "DELETE", box["Id"], remove)
+      log(f"{name}: removed {len(remove)}")
+
+  wanted = {state.managed[n]["Id"] for n, t in targets.items() if state.managed[n] and (t["films"] or t["franchises"])}
+  empty = sorted((b for bid, b in state.boxsets.items() if not state.children[bid] and bid not in wanted), key=lambda b: b["Name"])
+  tasks = {x.get("Key"): x.get("State") for x in jf.get("/ScheduledTasks")}
+  running = [k for k in cfg["scan_task_keys"] if tasks.get(k) == "Running"]
+  out += ["## Empty collections", ""]
+  if not empty:
+    out.append("- none")
+  elif len(empty) > cfg["max_deletions_per_run"]:
+    out.append(f"- safety brake: {len(empty)} empty collections exceed max_deletions_per_run={cfg['max_deletions_per_run']}; none deleted: " + ", ".join(b["Name"] for b in empty))
+    empty = []
+  elif running:
+    out.append(f"- library scan running ({', '.join(running)}); skipped: " + ", ".join(b["Name"] for b in empty))
+    empty = []
+  out += [f"- delete {b['Name']}" for b in empty]
+  out.append("")
+  total += len(empty)
+  if not dry_run:
+    for b in empty:
+      jf.request("DELETE", f"/Items/{b['Id']}")
+      log(f"deleted empty collection {b['Name']!r}")
+
+  out.insert(3, f"- {total} change{'s' if total != 1 else ''}{' planned' if dry_run else ' applied'}")
+  return "\n".join(out)
+
+
 def classify_all(state, model):
   decisions = {}
   todo = sorted(state.films.values(), key=lambda f: f.facts["title"] or "")
@@ -744,6 +868,50 @@ def classify_all(state, model):
     if i % 200 == 0:
       log(f"classified {i}/{len(todo)} (model calls so far: {model.calls})")
   return decisions
+
+
+RUN_LOCK = threading.Lock()
+
+
+def run(command, use_model=True) -> str:
+  with RUN_LOCK:
+    cfg = load_config()
+    state = State(cfg)
+    model = Model(enabled=use_model)
+    model.examples = build_examples(state, cfg)
+    log("model examples: " + ", ".join(f"{c}={len(v)}" for c, v in model.examples.items()))
+    decisions = classify_all(state, model)
+    if model.failures:
+      log(f"{model.failures} model calls failed; those films stay unclassified until the next run")
+    if command == "report":
+      return report(state, decisions, model)
+    dry_run = env_bool("DRY_RUN")
+    if command == "seed":
+      if not dry_run and model.failures:
+        raise SystemExit(f"{model.failures} model calls failed; not seeding")
+      return seed(state, decisions, dry_run)
+    return reconcile(state, decisions, dry_run)
+
+
+def next_run_at(hour):
+  now = time.time()
+  lt = time.localtime(now)
+  at = time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, hour, 0, 0, 0, 0, -1))
+  if at <= now:
+    at = time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday + 1, hour, 0, 0, 0, 0, -1))
+  return at
+
+
+def daily():
+  hour = int(os.environ.get("RECONCILE_HOUR", "4"))
+  while True:
+    at = next_run_at(hour)
+    log(f"next reconcile at {time.strftime('%Y-%m-%d %H:%M %Z', time.localtime(at))}")
+    time.sleep(max(0, at - time.time()))
+    try:
+      print(run("reconcile"), flush=True)
+    except BaseException as e:
+      log(f"reconcile failed: {e!r}")
 
 
 def serve():
@@ -774,6 +942,7 @@ def serve():
   server = http.server.ThreadingHTTPServer(("0.0.0.0", int(os.environ.get("PORT", "8080"))), Handler)
   log(f"serving on :{server.server_port} (dry_run={env_bool('DRY_RUN')})")
   threading.Thread(target=server.serve_forever, daemon=True).start()
+  threading.Thread(target=daily, daemon=True).start()
   while True:
     time.sleep(3600)
 
@@ -785,22 +954,8 @@ def main():
   args = p.parse_args()
   if args.command == "serve":
     serve()
-  elif args.command in ("report", "seed"):
-    cfg = load_config()
-    state = State(cfg)
-    model = Model(enabled=not args.no_model)
-    model.examples = build_examples(state, cfg)
-    log("model examples: " + ", ".join(f"{c}={len(v)}" for c, v in model.examples.items()))
-    decisions = classify_all(state, model)
-    if args.command == "report":
-      print(report(state, decisions, model))
-    else:
-      dry_run = env_bool("DRY_RUN")
-      if not dry_run and model.failures:
-        raise SystemExit(f"{model.failures} model calls failed; not seeding")
-      print(seed(state, decisions, dry_run))
   else:
-    raise SystemExit(f"{args.command} is not implemented yet (Milestone 4)")
+    print(run(args.command, use_model=not args.no_model))
 
 
 if __name__ == "__main__":
