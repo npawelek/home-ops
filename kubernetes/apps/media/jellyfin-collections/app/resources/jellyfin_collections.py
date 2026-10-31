@@ -569,11 +569,11 @@ def report(state: State, decisions, model: Model) -> str:
     for iid, (film, item) in t["films"].items():
       mark = "=" if iid in cur_films else "+"
       v = decisions[film.tmdb].verdicts[mc["category"]]
-      rows.append((film.facts["title"] or "", line(mark, f"{film.label} [{lib_label(state, item)}]", v.text(mc["category"]))))
+      rows.append((film.facts["title"] or "", line(mark, f"{film.label} [{lib_label(state, item)}] tmdb={film.tmdb}", v.text(mc["category"]))))
     for iid in f_del:
       c = cur_films[iid]
       film = state.item_film.get(iid)
-      label = f"{film.label} [{lib_label(state, c)}]" if film else f"{c.get('Name')} [{c.get('Type')}]"
+      label = f"{film.label} [{lib_label(state, c)}] tmdb={film.tmdb}" if film else f"{c.get('Name')} [{c.get('Type')}]"
       rows.append((label, line("-", label, why_not(state, mc, decisions, c))))
     s += [r for _, r in sorted(rows, key=lambda x: x[0].lower())]
     s.append("collections")
@@ -991,6 +991,19 @@ def handle_item(iid):
     apply_films(state, decisions, {film.tmdb}, env_bool("DRY_RUN"), {film.tmdb: f"webhook item={iid}"})
 
 
+def reevaluate(tmdb):
+  with RUN_LOCK:
+    cfg = load_config()
+    state = State(cfg)
+    film = state.films.get(tmdb)
+    if not film:
+      raise SystemExit(f"no Jellyfin movie with TMDB id {tmdb}")
+    model = Model(enabled=True)
+    model.examples = build_examples(state, cfg)
+    decisions = {tmdb: classify(film, cfg, model)}
+    apply_films(state, decisions, {tmdb}, env_bool("DRY_RUN"), {tmdb: f"reevaluate tmdb={tmdb}"})
+
+
 def worker():
   while True:
     iid = QUEUE.get()
@@ -1041,20 +1054,22 @@ def serve():
     def do_POST(self):
       if urllib.parse.urlparse(self.path).path != "/webhook":
         return self.reply(404, {"error": "not found"})
+      raw = self.rfile.read(int(self.headers.get("Content-Length") or 0))
       try:
-        body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
+        body = json.loads(raw or b"{}")
       except ValueError:
+        log(f"webhook rejected 400: body is not JSON: {raw[:200]!r}", "WARNING")
         return self.reply(400, {"error": "body is not JSON"})
       iid = str(body.get("ItemId") or "").replace("-", "").lower() if isinstance(body, dict) else ""
       if not re.fullmatch(r"[0-9a-f]{32}", iid):
-        log(f"webhook rejected: no valid ItemId in {str(body)[:200]}", "WARNING")
+        log(f"webhook rejected 400: no valid ItemId in {str(body)[:200]}", "WARNING")
         return self.reply(400, {"error": "ItemId missing or invalid"})
-      log(f'webhook received item={iid} "{body.get("Name", "")}"')
       QUEUE.put(iid)
       self.reply(202, {"queued": iid})
+      log(f'webhook received 202 item={iid} "{body.get("Name", "")}"')
 
     def log_message(self, fmt, *args):
-      if not self.path.startswith("/healthz"):
+      if urllib.parse.urlparse(self.path).path not in ("/healthz", "/webhook"):
         log(fmt % args)
 
   load_config()
@@ -1069,11 +1084,16 @@ def serve():
 
 def main():
   p = argparse.ArgumentParser(description="Keep curated Jellyfin collections in sync with Radarr tags")
-  p.add_argument("command", choices=["serve", "report", "seed", "reconcile"])
+  p.add_argument("command", choices=["serve", "report", "seed", "reconcile", "reevaluate"])
+  p.add_argument("--tmdb", type=lambda v: str(int(v)), help="TMDB id of the film to re-evaluate")
   p.add_argument("--no-model", action="store_true", help="skip Ollama calls; unclear films stay unclassified")
   args = p.parse_args()
   if args.command == "serve":
     serve()
+  elif args.command == "reevaluate":
+    if not args.tmdb:
+      p.error("reevaluate needs --tmdb")
+    reevaluate(args.tmdb)
   else:
     print(run(args.command, use_model=not args.no_model))
 

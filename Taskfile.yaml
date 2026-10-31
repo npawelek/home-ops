@@ -25,6 +25,7 @@ includes:
   gh: .taskfiles/gh
   ipxe: .taskfiles/ipxe
   longhorn: .taskfiles/longhorn
+  media: .taskfiles/media
   nixos: .taskfiles/nixos
   talos: .taskfiles/talos
 
