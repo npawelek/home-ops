@@ -42,17 +42,36 @@ spec:
               PYTHONDONTWRITEBYTECODE: "1"
               PYTHONUNBUFFERED: "1"
             probes:
-              liveness: &probes
+              startup:
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
                     path: /healthz
                     port: &port 8080
+                  periodSeconds: 1
+                  timeoutSeconds: 2
+                  failureThreshold: 30
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
                   periodSeconds: 30
                   timeoutSeconds: 5
                   failureThreshold: 3
-              readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
