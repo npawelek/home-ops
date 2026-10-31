@@ -879,27 +879,15 @@ def skip(iid, why):
   log(f"webhook item={iid}: {why}; skipped, the daily reconcile will handle it", "WARNING")
 
 
-def triage(jf, cfg, iid):
-  found = jf.items(Ids=iid, Fields="Path,ProviderIds")
-  if not found:
-    return skip(iid, "not found in Jellyfin")
-  it = found[0]
-  path = it.get("Path") or ""
-  if it.get("Type") != "Movie" or not any(path.startswith(l["path_prefix"]) for l in cfg["libraries"].values()):
-    log(f'webhook item={iid} "{it.get("Name")}" type={it.get("Type")}: ignored, not a movie in a managed library')
-    return False
-  return True
-
-
 def handle_item(iid):
   cfg = load_config()
-  if not triage(Jellyfin(), cfg, iid):
-    return
   with RUN_LOCK:
     state = State(cfg)
     film = state.item_film.get(iid)
     if not film:
-      return skip(iid, "no TMDB id")
+      if any(m["Id"] == iid for m in state.ignored):
+        return skip(iid, "no TMDB id")
+      return skip(iid, "not found among Jellyfin movies")
     model = Model(enabled=True)
     model.examples = build_examples(state, cfg)
     decisions = {film.tmdb: classify(film, cfg, model)}
@@ -981,7 +969,8 @@ def serve():
         return self.reply(400, {"error": "ItemId missing or invalid"})
       QUEUE.put(iid)
       self.reply(202, {"queued": iid})
-      log(f'webhook received 202 item={iid} "{body.get("Name", "")}"')
+      extra = "".join(f" {k.lower()}={body[k]}" for k in ("ItemType", "Year", "Tmdb") if body.get(k))
+      log(f'webhook received 202 item={iid} "{body.get("Name", "")}"{extra}')
 
     def log_message(self, fmt, *args):
       if urllib.parse.urlparse(self.path).path not in ("/healthz", "/webhook"):
