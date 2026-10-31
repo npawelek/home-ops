@@ -648,6 +648,66 @@ def report(state: State, decisions, model: Model) -> str:
   return "\n".join(out)
 
 
+def plan_tag_writes(state, decisions):
+  marker = state.cfg["marker_tag"]
+  writes, skipped = {}, []
+  for film in sorted(state.films.values(), key=lambda f: f.label.lower()):
+    d = decisions[film.tmdb]
+    unclear = [c for c, v in d.verdicts.items() if v.value is None]
+    if unclear:
+      skipped.append((film, unclear))
+      continue
+    cats = tuple(c for c in CATEGORIES if d.yes(c))
+    for name, rec in film.radarr.items():
+      if marker in rec["_tags"]:
+        continue
+      writes.setdefault(name, {}).setdefault(cats, []).append((film, rec))
+  return writes, skipped
+
+
+def seed(state, decisions, dry_run) -> str:
+  marker = state.cfg["marker_tag"]
+  writes, skipped = plan_tag_writes(state, decisions)
+  out = [f"# Radarr tag seeding — {'preview (DRY_RUN)' if dry_run else 'applied'}", ""]
+  for name in sorted(writes):
+    groups = writes[name]
+    total = sum(len(v) for v in groups.values())
+    out += [f"## {name}: {total} movie records", ""]
+    out += [f"- `{', '.join(cats + (marker,))}`: {len(films)}" for cats, films in sorted(groups.items(), key=lambda x: (-len(x[0]), x[0]))]
+    out.append("")
+    for cats, films in sorted(groups.items()):
+      if not cats:
+        continue
+      out.append(f"### {name}: {', '.join(cats)}")
+      for film, _ in films:
+        why = "; ".join(f"{c}: {decisions[film.tmdb].verdicts[c].source}" for c in cats)
+        out.append(f"- {film.label} — {why}")
+      out.append("")
+  if not writes:
+    out += ["Nothing to write: every movie record already has the marker tag.", ""]
+  out += ["## Skipped (unclassified, retried next run)", ""]
+  out += [f"- {f.label} — {', '.join(u)}" for f, u in skipped] or ["- none"]
+  out.append("")
+  if dry_run:
+    return "\n".join(out)
+
+  for name, groups in writes.items():
+    r = state.radarr[name]
+    ids = {t["label"]: t["id"] for t in r.get("/api/v3/tag")}
+    for label in list(CATEGORIES) + [marker]:
+      if label not in ids:
+        ids[label] = r.request("POST", "/api/v3/tag", body={"label": label})["id"]
+        log(f"{name}: created tag {label}")
+    for cats, films in groups.items():
+      tag_ids = [ids[c] for c in cats + (marker,)]
+      movie_ids = [rec["id"] for _, rec in films]
+      for i in range(0, len(movie_ids), 100):
+        batch = movie_ids[i:i + 100]
+        r.request("PUT", "/api/v3/movie/editor", body={"movieIds": batch, "tags": tag_ids, "applyTags": "add"})
+        log(f"{name}: tagged {len(batch)} movies with {', '.join(cats + (marker,))}")
+  return "\n".join(out)
+
+
 def classify_all(state, model):
   decisions = {}
   todo = sorted(state.films.values(), key=lambda f: f.facts["title"] or "")
@@ -696,16 +756,22 @@ def main():
   args = p.parse_args()
   if args.command == "serve":
     serve()
-  elif args.command == "report":
+  elif args.command in ("report", "seed"):
     cfg = load_config()
     state = State(cfg)
     model = Model(enabled=not args.no_model)
     model.examples = build_examples(state, cfg)
     log("model examples: " + ", ".join(f"{c}={len(v)}" for c, v in model.examples.items()))
     decisions = classify_all(state, model)
-    print(report(state, decisions, model))
+    if args.command == "report":
+      print(report(state, decisions, model))
+    else:
+      dry_run = env_bool("DRY_RUN")
+      if not dry_run and model.failures:
+        raise SystemExit(f"{model.failures} model calls failed; not seeding")
+      print(seed(state, decisions, dry_run))
   else:
-    raise SystemExit(f"{args.command} is not implemented yet (Milestones 3 and 4)")
+    raise SystemExit(f"{args.command} is not implemented yet (Milestone 4)")
 
 
 if __name__ == "__main__":
