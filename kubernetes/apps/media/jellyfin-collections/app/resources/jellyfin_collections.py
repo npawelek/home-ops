@@ -524,28 +524,25 @@ def why_not(state, mc, decisions, item):
   return f"wrong copy; target is the {lib_label(state, want)} copy" if want else "no copy in the target library"
 
 
-def line(mark, text, reason, width=58):
-  return f"    {mark} {text.ljust(width)} {reason}".rstrip()
+def film_ref(state, film, item=None):
+  lib = f" [{lib_label(state, item)}]" if item else ""
+  return f'"{film.label}"{lib} tmdb={film.tmdb}'
 
 
-def report(state: State, decisions, model: Model) -> str:
+def item_ref(state, item):
+  film = state.item_film.get(item["Id"])
+  return film_ref(state, film, item) if film else f'"{item.get("Name")}" [{item.get("Type")}]'
+
+
+def report(state: State, decisions, model: Model):
   cfg = state.cfg
   targets = target_membership(state, decisions)
-  out = ["# Jellyfin collections — dry-run report", ""]
   both = sum(1 for f in state.films.values() if len(f.items) == 2)
-  out += [
-    f"- Generated {time.strftime('%Y-%m-%d %H:%M %Z')}; Jellyfin {state.version}, read as `{state.jf.user_name}`"
-    + ("" if state.jf.all_folders else " (this admin does not have access to all libraries)"),
-    f"- Films: {len(state.films)} ({both} with both HD and UHD copies); Jellyfin movies skipped (no TMDB ID or unexpected path): {len(state.ignored)}",
-    f"- Model: {model.status}; {model.calls} calls, {model.hits} cached, {model.failures} failed",
-    "",
-    "Legend: `+` would be added, `-` would be removed, `=` already there. Reasons: `member` = already in that collection by hand, "
-    "`nested` = in a franchise nested in that collection, `rule` = config rules, `model` = Ollama answered, `override` = config.json, `tag` = Radarr tag.",
-    "",
-  ]
+  log(f"report: {len(state.films)} films ({both} with HD and UHD copies), {len(state.ignored)} Jellyfin movies skipped (no TMDB id or unexpected path)")
+  log(f"report: model {model.status}; {model.calls} calls, {model.hits} cached, {model.failures} failed")
+  if not state.jf.all_folders:
+    log(f"report: {state.jf.user_name} does not have access to all libraries", "WARNING")
 
-  out += ["## Summary", "", "| Collection | Films | + | - | Franchises | + | - |", "|---|---|---|---|---|---|---|"]
-  sections = []
   for mc in cfg["collections"]:
     name = mc["name"]
     box = state.managed[name]
@@ -557,31 +554,28 @@ def report(state: State, decisions, model: Model) -> str:
     f_del = [i for i in cur_films if i not in t["films"]]
     fr_add = [i for i in t["franchises"] if i not in cur_fr]
     fr_del = [i for i in cur_fr if i not in t["franchises"]]
-    out.append(f"| {name} | {len(t['films'])} | {len(f_add)} | {len(f_del)} | {len(t['franchises'])} | {len(fr_add)} | {len(fr_del)} |")
-
-    s = [f"## {name} — films row: {len(t['films'])} (+{len(f_add)}, -{len(f_del)}); collections row: {len(t['franchises'])} (+{len(fr_add)}, -{len(fr_del)})", ""]
+    note = ""
     if not box:
-      s += ["_Collection not found in Jellyfin; it would be created._", ""]
+      note = "; not in Jellyfin, would be created"
     elif any(r[1] is mc for r in state.renames):
-      s += [f"_Existing collection \"{box['Name']}\" would be renamed to \"{name}\" (sort title `{mc['sort_title']}`)._", ""]
-    s.append("films")
+      note = f'; "{box["Name"]}" would be renamed to "{name}" (sort title {mc["sort_title"]})'
+    log(f"{name}: {len(t['films'])} films (+{len(f_add)} -{len(f_del)}), {len(t['franchises'])} franchises (+{len(fr_add)} -{len(fr_del)}){note}")
+
     rows = []
     for iid, (film, item) in t["films"].items():
-      mark = "=" if iid in cur_films else "+"
-      v = decisions[film.tmdb].verdicts[mc["category"]]
-      rows.append((film.facts["title"] or "", line(mark, f"{film.label} [{lib_label(state, item)}] tmdb={film.tmdb}", v.text(mc["category"]))))
+      verb = "in" if iid in cur_films else "would add"
+      rows.append((film.facts["title"] or "", f"{name}: {verb} {film_ref(state, film, item)} — {decisions[film.tmdb].verdicts[mc['category']].text(mc['category'])}"))
     for iid in f_del:
       c = cur_films[iid]
-      film = state.item_film.get(iid)
-      label = f"{film.label} [{lib_label(state, c)}] tmdb={film.tmdb}" if film else f"{c.get('Name')} [{c.get('Type')}]"
-      rows.append((label, line("-", label, why_not(state, mc, decisions, c))))
-    s += [r for _, r in sorted(rows, key=lambda x: x[0].lower())]
-    s.append("collections")
+      rows.append((c.get("Name") or "", f"{name}: would remove {item_ref(state, c)} — {why_not(state, mc, decisions, c)}"))
+    for _, r in sorted(rows, key=lambda x: x[0].lower()):
+      log(r)
+
     frows = []
     for bid, via in t["franchises"].items():
-      mark = "=" if bid in cur_fr else "+"
       b = state.franchises[bid]
-      block = [line(mark, b["Name"], "via " + ", ".join(sorted(f.label for f in via)))]
+      verb = "in" if bid in cur_fr else "would add"
+      block = [f'{name}: {verb} franchise "{b["Name"]}" via {", ".join(sorted(f.label for f in via))}']
       via_ids = {f.tmdb for f in via}
       shown = set()
       for c in sorted(state.children[bid], key=lambda c: c.get("ProductionYear") or 0):
@@ -595,67 +589,45 @@ def report(state: State, decisions, model: Model) -> str:
         if v.value is True and not excl:
           continue
         why = f"is {excl[0]}" if v.value is True else v.text(mc["category"])
-        block.append(line("!", f"  {film.label}", f"not on its own: {why}", 56))
+        block.append(f'{name}: franchise "{b["Name"]}" also shows {film_ref(state, film)}, which does not qualify on its own — {why}')
       frows.append((b["Name"].lower(), block))
     for bid in fr_del:
-      frows.append((state.franchises[bid]["Name"].lower(), [line("-", state.franchises[bid]["Name"], "no qualifying film any more")]))
+      frows.append((state.franchises[bid]["Name"].lower(), [f'{name}: would remove franchise "{state.franchises[bid]["Name"]}" — no qualifying film any more']))
     for _, block in sorted(frows):
-      s += block
-    sections.append("\n".join(s))
-  out.append("")
-  out += [s + "\n" for s in sections]
+      for r in block:
+        log(r)
 
-  flagged = [(f, cat, v) for f in state.films.values() for cat, v in decisions[f.tmdb].verdicts.items() if v.flag]
-  out += ["## Conflicts to review", "", "Hand-made membership disagrees with the rules. Membership wins unless noted.", ""]
-  out += [f"- {f.label} — {cat}: {v.flag}; decided {v.text(cat)}" for f, cat, v in sorted(flagged, key=lambda x: x[0].label)] or ["- none"]
-  out.append("")
+  for f, cat, v in sorted(((f, cat, v) for f in state.films.values() for cat, v in decisions[f.tmdb].verdicts.items() if v.flag), key=lambda x: x[0].label):
+    log(f"conflict {film_ref(state, f)} {cat}: {v.flag}; decided {v.text(cat)}", "WARNING")
 
-  modeled = [(f, cat, v) for f in state.films.values() for cat, v in decisions[f.tmdb].verdicts.items() if v.source == "model"]
-  out += ["## Model decisions", "", "The rules could not decide these; Ollama answered. Override any in config.json.", ""]
   for cat in CATEGORIES:
-    rows = sorted((f.label, f.tmdb, v) for f, c, v in modeled if c == cat)
-    if rows:
-      out.append(f"### {cat}: {sum(1 for r in rows if r[2].value)} yes, {sum(1 for r in rows if not r[2].value)} no")
-      out += [f"- {'yes' if v.value else 'no '} {label} (tmdb {tmdb}) — {v.detail}" for label, tmdb, v in rows]
-      out.append("")
-  if not modeled:
-    out += ["- none", ""]
+    for f, v in sorted(((f, v) for f in state.films.values() for c, v in decisions[f.tmdb].verdicts.items() if c == cat and v.source == "model"), key=lambda x: x[0].label):
+      log(f"model {cat}={'yes' if v.value else 'no'} {film_ref(state, f)} — {v.detail}")
 
-  unclassified = sorted((f.label, f.tmdb, cat, v) for f in state.films.values() for cat, v in decisions[f.tmdb].verdicts.items() if v.value is None)
-  out += ["## Unclassified", "", "No answer yet; these stay out of every collection until a later run decides them.", ""]
-  out += [f"- {label} (tmdb {tmdb}) — {cat}: {v.detail}" for label, tmdb, cat, v in unclassified] or ["- none"]
-  out.append("")
+  for f, cat, v in sorted(((f, cat, v) for f in state.films.values() for cat, v in decisions[f.tmdb].verdicts.items() if v.value is None), key=lambda x: x[0].label):
+    log(f"unclassified {film_ref(state, f)} {cat}: {v.detail}; stays out of {cat} collections until a later run decides", "WARNING")
 
   managed_ids = {b["Id"] for b in state.managed.values() if b}
-  empty = [b for bid, b in state.boxsets.items() if not state.children[bid]]
-  will_empty = [n for n in targets if state.managed[n] and not targets[n]["films"] and not targets[n]["franchises"]]
+  empty = sorted((b for bid, b in state.boxsets.items() if not state.children[bid]), key=lambda b: b["Name"])
   tasks = {t.get("Key"): t.get("State") for t in state.jf.get("/ScheduledTasks")}
   running = [k for k in cfg["scan_task_keys"] if tasks.get(k) == "Running"]
-  out += ["## Empty collections", ""]
   if len(empty) > cfg["max_deletions_per_run"]:
-    out.append(f"_Safety brake: {len(empty)} empty collections exceed max_deletions_per_run={cfg['max_deletions_per_run']}; none would be deleted._")
+    log(f"safety brake: {len(empty)} empty collections exceed max_deletions_per_run={cfg['max_deletions_per_run']}; none would be deleted", "WARNING")
   if running:
-    out.append(f"_Scan running ({', '.join(running)}); deletions would be skipped this run._")
-  out += [f"- would delete: {b['Name']}{' (managed)' if b['Id'] in managed_ids else ''}" for b in sorted(empty, key=lambda b: b["Name"])] or ["- none empty now"]
-  out += [f"- would become empty after membership changes: {n}" for n in will_empty]
-  out.append("")
-
-  out += ["## Posters", ""]
-  for mc in cfg["collections"]:
-    b = state.managed[mc["name"]]
-    has = bool(b and (b.get("ImageTags") or {}).get("Primary"))
-    if mc.get("poster"):
-      out.append(f"- {mc['name']}: {'has a poster; left alone' if has else 'no poster; would upload ' + mc['poster']}")
-    else:
-      out.append(f"- {mc['name']}: {'has a poster' if has else 'no poster, none configured'}; service leaves it alone")
-  out.append("")
+    log(f"library scan running ({', '.join(running)}); deletions would be skipped this run", "WARNING")
+  for b in empty:
+    log(f'empty collection "{b["Name"]}"{" (managed)" if b["Id"] in managed_ids else ""}: would be deleted')
+  for n in targets:
+    if state.managed[n] and not targets[n]["films"] and not targets[n]["franchises"]:
+      log(f"{n}: would become empty after membership changes", "WARNING")
 
   marker = cfg["marker_tag"]
   writes = sum(1 for f in state.films.values() for rec in f.radarr.values() if marker not in rec["_tags"])
-  missing = [f.label for f in state.films.values() if not f.radarr]
-  out += ["## Radarr", "", f"- Seeding would write tags to {writes} Radarr movie records.",
-          f"- Films with no Radarr record (decisions cannot be stored): {len(missing)}" + (": " + ", ".join(sorted(missing)[:20]) if missing else ""), ""]
-  return "\n".join(out)
+  missing = sorted(f.label for f in state.films.values() if not f.radarr)
+  log(f"radarr: {writes} movie records missing the {marker} tag would be tagged")
+  if missing:
+    log(f"radarr: {len(missing)} films have no Radarr record, so their decisions cannot be stored: " + ", ".join(missing[:20]), "WARNING")
+  log("report finished")
 
 
 def plan_tag_fixes(state, only=None):
@@ -689,62 +661,40 @@ def plan_tag_writes(state, decisions, only=None):
   return writes, skipped
 
 
-def seed(state, decisions, dry_run, only=None) -> str:
+def seed(state, decisions, dry_run, only=None):
   marker = state.cfg["marker_tag"]
   writes, skipped = plan_tag_writes(state, decisions, only)
   fixes = plan_tag_fixes(state, only)
-  out = [f"# Radarr tag seeding — {'preview (DRY_RUN)' if dry_run else 'applied'}", ""]
-  for name in sorted(writes):
-    groups = writes[name]
-    total = sum(len(v) for v in groups.values())
-    out += [f"## {name}: {total} movie records", ""]
-    out += [f"- `{', '.join(cats + (marker,))}`: {len(films)}" for cats, films in sorted(groups.items(), key=lambda x: (-len(x[0]), x[0]))]
-    out.append("")
-    for cats, films in sorted(groups.items()):
-      if not cats:
-        continue
-      out.append(f"### {name}: {', '.join(cats)}")
-      for film, _ in films:
-        why = "; ".join(f"{c}: {decisions[film.tmdb].verdicts[c].source}" for c in cats)
-        out.append(f"- {film.label} — {why}")
-      out.append("")
-  if not writes:
-    out += ["Nothing to write: every movie record already has the marker tag.", ""]
-  out += ["## Tag corrections from config overrides", ""]
-  for name in sorted(fixes):
-    for (cat, action), films in sorted(fixes[name].items()):
-      out += [f"- {name}: {action} `{cat}` — {f.label}" for f, _ in films]
-  if not fixes:
-    out.append("- none")
-  out.append("")
-  out += ["## Skipped (unclassified, retried next run)", ""]
-  out += [f"- {f.label} — {', '.join(u)}" for f, u in skipped] or ["- none"]
-  out.append("")
-  if dry_run:
-    return "\n".join(out)
-
+  suffix = " (DRY_RUN)" if dry_run else ""
+  for film, u in skipped:
+    log(f"{film_ref(state, film)}: not tagged, unclassified {', '.join(u)}; retried next run", "WARNING")
+  count = 0
   for name in sorted(set(writes) | set(fixes)):
     groups = writes.get(name, {})
     r = state.radarr[name]
-    ids = {t["label"]: t["id"] for t in r.get("/api/v3/tag")}
-    for label in list(CATEGORIES) + [marker]:
-      if label not in ids:
-        ids[label] = r.request("POST", "/api/v3/tag", body={"label": label})["id"]
-        log(f"{name}: created tag {label}")
-    for cats, films in groups.items():
-      tag_ids = [ids[c] for c in cats + (marker,)]
-      movie_ids = [rec["id"] for _, rec in films]
-      for i in range(0, len(movie_ids), 100):
-        batch = movie_ids[i:i + 100]
-        r.request("PUT", "/api/v3/movie/editor", body={"movieIds": batch, "tags": tag_ids, "applyTags": "add"})
-        for film, _ in films[i:i + 100]:
-          log(f"{name}: tagged {film.label} with {', '.join(cats + (marker,))}")
-    for (cat, action), films in fixes.get(name, {}).items():
-      movie_ids = [rec["id"] for _, rec in films]
-      r.request("PUT", "/api/v3/movie/editor", body={"movieIds": movie_ids, "tags": [ids[cat]], "applyTags": action})
+    ids = {}
+    if not dry_run:
+      ids = {t["label"]: t["id"] for t in r.get("/api/v3/tag")}
+      for label in list(CATEGORIES) + [marker]:
+        if label not in ids:
+          ids[label] = r.request("POST", "/api/v3/tag", body={"label": label})["id"]
+          log(f"{name}: created tag {label}")
+    for cats, films in sorted(groups.items()):
+      for i in range(0, len(films), 100):
+        batch = films[i:i + 100]
+        if not dry_run:
+          r.request("PUT", "/api/v3/movie/editor", body={"movieIds": [rec["id"] for _, rec in batch], "tags": [ids[c] for c in cats + (marker,)], "applyTags": "add"})
+        for film, _ in batch:
+          why = "; ".join(f"{c}: {decisions[film.tmdb].verdicts[c].source}" for c in cats)
+          log(f"{name}: tag {film_ref(state, film)} with {', '.join(cats + (marker,))}" + (f" ({why})" if why else "") + suffix)
+        count += len(batch)
+    for (cat, action), films in sorted(fixes.get(name, {}).items()):
+      if not dry_run:
+        r.request("PUT", "/api/v3/movie/editor", body={"movieIds": [rec["id"] for _, rec in films], "tags": [ids[cat]], "applyTags": action})
       for film, _ in films:
-        log(f"{name}: {action} {cat} on {film.label} to match config overrides")
-  return "\n".join(out)
+        log(f"{name}: {action} {cat} on {film_ref(state, film)} to match config overrides{suffix}")
+      count += len(films)
+  return count
 
 
 def update_item(jf, iid, changes):
@@ -758,33 +708,13 @@ def edit_members(jf, method, cid, ids):
     jf.request(method, f"/Collections/{cid}/Items", params={"Ids": ",".join(ids[i:i + 50])})
 
 
-def reconcile(state, decisions, dry_run) -> str:
+def reconcile(state, decisions, dry_run):
   cfg = state.cfg
   jf = state.jf
-  out = [f"# Jellyfin collections — reconcile {'preview (DRY_RUN)' if dry_run else 'applied'}", "",
-         f"- {time.strftime('%Y-%m-%d %H:%M %Z')}; Jellyfin {state.version}", ""]
-  total = 0
-
-  writes, skipped = plan_tag_writes(state, decisions)
-  fixes = plan_tag_fixes(state)
-  out += ["## Radarr tags", ""]
-  for name in sorted(writes):
-    for cats, films in sorted(writes[name].items()):
-      out += [f"- {name}: tag {film.label} with `{', '.join(cats + (cfg['marker_tag'],))}`" for film, _ in films]
-  for name in sorted(fixes):
-    for (cat, action), films in sorted(fixes[name].items()):
-      out += [f"- {name}: {action} `{cat}` on {film.label} (config override)" for film, _ in films]
-  out += [f"- not tagged yet (unclassified): {film.label} — {', '.join(u)}" for film, u in skipped]
-  n_tags = sum(len(v) for g in writes.values() for v in g.values()) + sum(len(v) for g in fixes.values() for v in g.values())
-  if not n_tags and not skipped:
-    out.append("- no changes")
-  out.append("")
-  total += n_tags
-  if n_tags and not dry_run:
-    seed(state, decisions, False)
+  suffix = " (DRY_RUN)" if dry_run else ""
+  total = seed(state, decisions, dry_run)
 
   targets = target_membership(state, decisions)
-  out += ["## Collections", ""]
   for mc in cfg["collections"]:
     name = mc["name"]
     box = state.managed[name]
@@ -802,76 +732,61 @@ def reconcile(state, decisions, dry_run) -> str:
         continue
       remove.append(iid)
     rename = next((b for b, m in state.renames if m is mc), None)
-    changes = len(add) + len(remove) + (1 if rename else 0) + (1 if not box and want else 0)
-    total += changes
-    out.append(f"### {name}: +{len(add)} -{len(remove)}" + ("" if changes else " (no changes)"))
-    if rename:
-      out.append(f"- rename \"{rename['Name']}\" to \"{name}\" (sort title `{mc['sort_title']}`)")
-    if not box:
-      out.append(f"- create collection (sort title `{mc['sort_title']}`, display order {mc['display_order']})" if want else "- missing in Jellyfin; nothing qualifies, so not created")
     rows = []
     for iid in add:
       if iid in t["franchises"]:
-        rows.append(f"- + {state.franchises[iid]['Name']} (collection) — via {', '.join(sorted(f.label for f in t['franchises'][iid]))}")
+        rows.append((state.franchises[iid]["Name"], f'add franchise "{state.franchises[iid]["Name"]}" — via {", ".join(sorted(f.label for f in t["franchises"][iid]))}'))
       else:
         film, item = t["films"][iid]
-        rows.append(f"- + {film.label} [{lib_label(state, item)}] — {decisions[film.tmdb].verdicts[mc['category']].text(mc['category'])}")
+        rows.append((film.label, f"add {film_ref(state, film, item)} — {decisions[film.tmdb].verdicts[mc['category']].text(mc['category'])}"))
     for iid in remove:
       c = cur[iid]
       if iid in state.franchises:
-        rows.append(f"- - {c['Name']} (collection) — no qualifying film any more")
+        rows.append((c["Name"], f'remove franchise "{c["Name"]}" — no qualifying film any more'))
       else:
-        film = state.item_film.get(iid)
-        label = f"{film.label} [{lib_label(state, c)}]" if film else f"{c.get('Name')} [{c.get('Type')}]"
-        rows.append(f"- - {label} — {why_not(state, mc, decisions, c)}")
-    for iid in kept:
-      rows.append(f"- = {state.item_film[iid].label} kept for now — {mc['category']} unclassified")
-    out += sorted(rows, key=lambda r: r[4:].lower())
-    out.append("")
-    if dry_run:
-      continue
+        rows.append((c.get("Name") or "", f"remove {item_ref(state, c)} — {why_not(state, mc, decisions, c)}"))
+    if not dry_run:
+      if rename:
+        update_item(jf, rename["Id"], {"Name": name, "ForcedSortName": mc["sort_title"]})
+      if not box and want:
+        res = jf.request("POST", "/Collections", params={"Name": name, "Ids": ",".join(want[:50])})
+        box = {"Id": res["Id"], "Name": name}
+        update_item(jf, box["Id"], {"ForcedSortName": mc["sort_title"], "DisplayOrder": mc["display_order"]})
+        add = want[50:]
+      if box and add:
+        edit_members(jf, "POST", box["Id"], add)
+      if remove:
+        edit_members(jf, "DELETE", box["Id"], remove)
     if rename:
-      update_item(jf, rename["Id"], {"Name": name, "ForcedSortName": mc["sort_title"]})
-      log(f"renamed {rename['Name']!r} to {name!r}")
-    if not box and want:
-      res = jf.request("POST", "/Collections", params={"Name": name, "Ids": ",".join(want[:50])})
-      box = {"Id": res["Id"], "Name": name}
-      update_item(jf, box["Id"], {"ForcedSortName": mc["sort_title"], "DisplayOrder": mc["display_order"]})
-      add = want[50:]
-      log(f"created {name!r}")
-    if add:
-      edit_members(jf, "POST", box["Id"], add)
-    if remove:
-      edit_members(jf, "DELETE", box["Id"], remove)
-    for r in rows:
-      if not r.startswith("- = "):
-        log(f"{name}: {r[2:]}")
+      log(f'{name}: rename "{rename["Name"]}" to "{name}" (sort title {mc["sort_title"]}){suffix}')
+    if not state.managed[name]:
+      log(f"{name}: create collection (sort title {mc['sort_title']}, display order {mc['display_order']}){suffix}" if want else f"{name}: missing in Jellyfin; nothing qualifies, so not created")
+    for _, r in sorted(rows, key=lambda x: x[0].lower()):
+      log(f"{name}: {r}{suffix}")
+    for iid in kept:
+      log(f"{name}: keep {film_ref(state, state.item_film[iid])} for now — {mc['category']} unclassified", "WARNING")
+    changes = len(rows) + (1 if rename else 0) + (1 if not state.managed[name] and want else 0)
+    if not changes:
+      log(f"{name}: no changes")
+    total += changes
 
   wanted = {state.managed[n]["Id"] for n, t in targets.items() if state.managed[n] and (t["films"] or t["franchises"])}
   empty = sorted((b for bid, b in state.boxsets.items() if not state.children[bid] and bid not in wanted), key=lambda b: b["Name"])
   tasks = {x.get("Key"): x.get("State") for x in jf.get("/ScheduledTasks")}
   running = [k for k in cfg["scan_task_keys"] if tasks.get(k) == "Running"]
-  out += ["## Empty collections", ""]
-  if not empty:
-    out.append("- none")
-  elif len(empty) > cfg["max_deletions_per_run"]:
-    out.append(f"- safety brake: {len(empty)} empty collections exceed max_deletions_per_run={cfg['max_deletions_per_run']}; none deleted: " + ", ".join(b["Name"] for b in empty))
+  if empty and len(empty) > cfg["max_deletions_per_run"]:
+    log(f"safety brake: {len(empty)} empty collections exceed max_deletions_per_run={cfg['max_deletions_per_run']}; none deleted: " + ", ".join(b["Name"] for b in empty), "WARNING")
     empty = []
-  elif running:
-    out.append(f"- library scan running ({', '.join(running)}); skipped: " + ", ".join(b["Name"] for b in empty))
+  elif empty and running:
+    log(f"library scan running ({', '.join(running)}); empty collections not deleted: " + ", ".join(b["Name"] for b in empty), "WARNING")
     empty = []
-  out += [f"- delete {b['Name']}" for b in empty]
-  out.append("")
-  total += len(empty)
-  if not dry_run:
-    for b in empty:
+  for b in empty:
+    if not dry_run:
       jf.request("DELETE", f"/Items/{b['Id']}")
-      log(f"deleted empty collection {b['Name']!r}")
+    log(f'delete empty collection "{b["Name"]}"{suffix}')
+  total += len(empty)
 
-  summary = f"{total} change{'s' if total != 1 else ''}{' planned' if dry_run else ' applied'}"
-  out.insert(3, f"- {summary}")
-  log(f"reconcile finished: {summary}")
-  return "\n".join(out)
+  log(f"reconcile finished: {total} change{'s' if total != 1 else ''}{' planned (DRY_RUN)' if dry_run else ' applied'}")
 
 
 def classify_all(state, model):
@@ -887,7 +802,7 @@ def classify_all(state, model):
 RUN_LOCK = threading.Lock()
 
 
-def run(command, use_model=True) -> str:
+def run(command, use_model=True):
   with RUN_LOCK:
     cfg = load_config()
     state = State(cfg)
@@ -1095,7 +1010,7 @@ def main():
       p.error("reevaluate needs --tmdb")
     reevaluate(args.tmdb)
   else:
-    print(run(args.command, use_model=not args.no_model))
+    run(args.command, use_model=not args.no_model)
 
 
 if __name__ == "__main__":
