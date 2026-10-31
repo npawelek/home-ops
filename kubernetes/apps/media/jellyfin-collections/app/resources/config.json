@@ -1,0 +1,228 @@
+{
+  "collections": [
+    {
+      "name": "Kid Collection",
+      "sort_title": "0_ Kid Collection",
+      "display_order": "PremiereDate",
+      "category": "kids",
+      "exclude": [
+        "shorts",
+        "christmas",
+        "halloween"
+      ],
+      "copy": "hd",
+      "poster": ""
+    },
+    {
+      "name": "Kid 4K Collection",
+      "sort_title": "0_Kid Collection",
+      "display_order": "SortName",
+      "category": "kids",
+      "exclude": [
+        "shorts",
+        "christmas",
+        "halloween"
+      ],
+      "copy": "uhd",
+      "poster": ""
+    },
+    {
+      "name": "Shorts Collection",
+      "sort_title": "0_Shorts Collection",
+      "display_order": "PremiereDate",
+      "category": "shorts",
+      "exclude": [],
+      "copy": "preferred",
+      "poster": ""
+    },
+    {
+      "name": "Christmas Picks",
+      "sort_title": "1_Christmas Picks",
+      "adopt_name": "Christmas Collection",
+      "adopt_sort_prefix": "1_",
+      "display_order": "PremiereDate",
+      "category": "christmas",
+      "exclude": [
+        "shorts"
+      ],
+      "copy": "preferred",
+      "poster": "christmas.jpg"
+    },
+    {
+      "name": "Halloween Picks",
+      "sort_title": "1_Halloween Picks",
+      "adopt_name": "Halloween Collection",
+      "adopt_sort_prefix": "1_",
+      "display_order": "PremiereDate",
+      "category": "halloween",
+      "exclude": [
+        "shorts"
+      ],
+      "copy": "preferred",
+      "poster": ""
+    }
+  ],
+  "libraries": {
+    "hd": {
+      "name": "Movies",
+      "label": "HD",
+      "path_prefix": "/library/Movies/",
+      "radarr": "radarr"
+    },
+    "uhd": {
+      "name": "Movies-UHD",
+      "label": "UHD",
+      "path_prefix": "/library/Movies-Remux/",
+      "radarr": "radarr-remux"
+    }
+  },
+  "single_copy_prefers": "uhd",
+  "marker_tag": "auto-classified",
+  "kids": {
+    "genres": [
+      "Animation"
+    ],
+    "keywords": [
+      "live action remake"
+    ],
+    "certifications": [
+      "G",
+      "PG",
+      "TV-Y",
+      "TV-Y7",
+      "TV-G"
+    ],
+    "no_certifications": [
+      "PG-13",
+      "R",
+      "NC-17",
+      "TV-14",
+      "TV-MA"
+    ]
+  },
+  "shorts_max_minutes": 15,
+  "christmas": {
+    "no_certifications": [
+      "R",
+      "NC-17",
+      "TV-MA"
+    ],
+    "no_genres": [],
+    "no_keywords": [],
+    "strong_keywords": [],
+    "keywords": [
+      "christmas",
+      "christmas eve",
+      "santa claus",
+      "xmas"
+    ],
+    "title_words": [
+      "Christmas",
+      "Xmas",
+      "Santa",
+      "Grinch",
+      "Noel",
+      "Holiday",
+      "Holidays",
+      "Scrooge",
+      "Nutcracker",
+      "Elf",
+      "Jingle",
+      "Frosty"
+    ]
+  },
+  "halloween": {
+    "no_certifications": [
+      "R",
+      "NC-17",
+      "TV-MA"
+    ],
+    "no_genres": [
+      "Horror"
+    ],
+    "no_keywords": [
+      "gore",
+      "slasher",
+      "splatter"
+    ],
+    "strong_keywords": [],
+    "keywords": [
+      "halloween",
+      "trick or treating"
+    ],
+    "title_words": [
+      "Halloween",
+      "Hocus",
+      "Trick or Treat",
+      "Trick or Treats",
+      "Spooky",
+      "Boo"
+    ]
+  },
+  "model_questions": {
+    "kids": "Is this a movie made for young children (roughly ages 3 to 10), the kind a family would put on for their kids?",
+    "christmas": "Is this a family-friendly Christmas movie, meaning its story is centred on Christmas and it suits the whole family watching together?",
+    "halloween": "Is this a family-friendly Halloween movie, meaning its story is centred on Halloween and it suits the whole family watching together, with no horror or gore?"
+  },
+  "overrides": {
+    "kids": {
+      "include": [],
+      "exclude": []
+    },
+    "shorts": {
+      "include": [
+        256835,
+        460793
+      ],
+      "exclude": []
+    },
+    "christmas": {
+      "include": [
+        {
+          "tmdb": 771,
+          "note": "family comedy set over Christmas; the holiday drives the story"
+        },
+        {
+          "tmdb": 5825,
+          "note": "family Christmas comedy; PG-13 is fine when the film is about Christmas"
+        },
+        13187,
+        13675,
+        13377
+      ],
+      "exclude": [
+        {
+          "tmdb": 562,
+          "note": "action thriller that merely takes place at Christmas"
+        },
+        {
+          "tmdb": 9587,
+          "note": "period drama with Christmas scenes; not a Christmas movie"
+        }
+      ]
+    },
+    "halloween": {
+      "include": [
+        1166714,
+        14885,
+        {
+          "tmdb": 620,
+          "note": "spooky ghost comedy, not horror; fits a family Halloween night"
+        },
+        2978,
+        425909,
+        967847,
+        {
+          "tmdb": 2907,
+          "note": "macabre family comedy; Halloween mood without horror or gore"
+        }
+      ],
+      "exclude": []
+    }
+  },
+  "max_deletions_per_run": 10,
+  "scan_task_keys": [
+    "RefreshLibrary",
+    "TMDbBoxSetsRefreshLibraryTask"
+  ]
+}

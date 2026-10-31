@@ -1,14 +1,14 @@
 model:
-  default: qwen3.5:35b-a3b
+  default: ${OLLAMA_MODEL}
   provider: custom:ollama-local
 providers:
   custom:ollama-local:
     api: http://ollama.network.svc.cluster.local:11434/v1
     name: ollama-local
     api_key: ollama
-    default_model: qwen3.5:35b-a3b
+    default_model: ${OLLAMA_MODEL}
     models:
-      qwen3.5:35b-a3b:
+      ${OLLAMA_MODEL}:
         context_length: 65536
 toolsets:
   - hermes-cli

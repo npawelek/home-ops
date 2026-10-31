@@ -5,6 +5,7 @@ namespace: ai
 
 components:
   - ../../components/sops
+  - ../../components/cluster-settings
 
 resources:
   - namespace.yaml

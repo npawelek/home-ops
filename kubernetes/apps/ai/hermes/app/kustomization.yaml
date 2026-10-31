@@ -12,11 +12,14 @@ resources:
 configMapGenerator:
   - name: hermes-configmap
     files:
-      - config.yaml=./resources/config.yaml
       - mise.toml=./resources/mise.toml
       - init.sh=./resources/init.sh
       - git-init.sh=./resources/git-init.sh
+    options:
+      annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
+  - name: hermes-config
+    files:
+      - config.yaml=./resources/config.yaml
 generatorOptions:
   disableNameSuffixHash: true
-  annotations:
-    kustomize.toolkit.fluxcd.io/substitute: disabled

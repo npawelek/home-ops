@@ -93,14 +93,21 @@ spec:
         advancedMounts:
           hermes:
             init:
-              - path: /run/config/config.yaml
-                subPath: config.yaml
               - path: /run/config/mise.toml
                 subPath: mise.toml
               - path: /run/config/init.sh
                 subPath: init.sh
               - path: /run/config/git-init.sh
                 subPath: git-init.sh
+      hermes-config:
+        type: configMap
+        name: hermes-config
+        defaultMode: 0644
+        advancedMounts:
+          hermes:
+            init:
+              - path: /run/config/config.yaml
+                subPath: config.yaml
       profiles-env:
         type: secret
         name: hermes-env-profile
