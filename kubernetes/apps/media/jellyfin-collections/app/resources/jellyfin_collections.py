@@ -4,6 +4,7 @@ import hashlib
 import http.server
 import json
 import os
+import queue
 import re
 import signal
 import sys
@@ -26,8 +27,8 @@ SYSTEM_PROMPT = (
 )
 
 
-def log(msg):
-  print(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} {msg}", file=sys.stderr, flush=True)
+def log(msg, level="INFO"):
+  print(f"{time.strftime('%Y-%m-%dT%H:%M:%S%z')} {level} {msg}", flush=True)
 
 
 def load_config() -> dict:
@@ -224,7 +225,7 @@ class Model:
       answer = word == "yes"
     except Exception as e:
       self.failures += 1
-      log(f"model call failed for {f['title']} ({cat}): {e}")
+      log(f"model call failed for {f['title']} ({cat}): {e}", "WARNING")
       return None
     self.cache[key] = answer
     try:
@@ -388,7 +389,7 @@ class State:
         continue
       film = self.films.setdefault(tmdb, Film(tmdb))
       if lib in film.items:
-        log(f"two {lib} items for tmdb {tmdb}; keeping {film.items[lib]['Id']}")
+        log(f"two {lib} items for tmdb {tmdb}; keeping {film.items[lib]['Id']}", "WARNING")
         continue
       film.items[lib] = m
       self.item_film[m["Id"]] = film
@@ -479,11 +480,16 @@ class State:
     return film.items.get(copy)
 
 
-def target_membership(state: State, decisions) -> dict:
+def scoped(state, only=None):
+  films = state.films.values() if only is None else (state.films[t] for t in only)
+  return sorted(films, key=lambda f: f.label.lower())
+
+
+def target_membership(state: State, decisions, only=None) -> dict:
   targets = {}
   for mc in state.cfg["collections"]:
     films, franchises = {}, {}
-    for film in state.films.values():
+    for film in scoped(state, only):
       d = decisions[film.tmdb]
       if not d.yes(mc["category"]) or any(d.yes(x) for x in mc["exclude"]):
         continue
@@ -652,9 +658,9 @@ def report(state: State, decisions, model: Model) -> str:
   return "\n".join(out)
 
 
-def plan_tag_fixes(state):
+def plan_tag_fixes(state, only=None):
   fixes = {}
-  for film in sorted(state.films.values(), key=lambda f: f.label.lower()):
+  for film in scoped(state, only):
     for name, rec in film.radarr.items():
       if state.cfg["marker_tag"] not in rec["_tags"]:
         continue
@@ -666,10 +672,10 @@ def plan_tag_fixes(state):
   return fixes
 
 
-def plan_tag_writes(state, decisions):
+def plan_tag_writes(state, decisions, only=None):
   marker = state.cfg["marker_tag"]
   writes, skipped = {}, []
-  for film in sorted(state.films.values(), key=lambda f: f.label.lower()):
+  for film in scoped(state, only):
     d = decisions[film.tmdb]
     unclear = [c for c, v in d.verdicts.items() if v.value is None]
     if unclear:
@@ -683,10 +689,10 @@ def plan_tag_writes(state, decisions):
   return writes, skipped
 
 
-def seed(state, decisions, dry_run) -> str:
+def seed(state, decisions, dry_run, only=None) -> str:
   marker = state.cfg["marker_tag"]
-  writes, skipped = plan_tag_writes(state, decisions)
-  fixes = plan_tag_fixes(state)
+  writes, skipped = plan_tag_writes(state, decisions, only)
+  fixes = plan_tag_fixes(state, only)
   out = [f"# Radarr tag seeding — {'preview (DRY_RUN)' if dry_run else 'applied'}", ""]
   for name in sorted(writes):
     groups = writes[name]
@@ -731,11 +737,13 @@ def seed(state, decisions, dry_run) -> str:
       for i in range(0, len(movie_ids), 100):
         batch = movie_ids[i:i + 100]
         r.request("PUT", "/api/v3/movie/editor", body={"movieIds": batch, "tags": tag_ids, "applyTags": "add"})
-        log(f"{name}: tagged {len(batch)} movies with {', '.join(cats + (marker,))}")
+        for film, _ in films[i:i + 100]:
+          log(f"{name}: tagged {film.label} with {', '.join(cats + (marker,))}")
     for (cat, action), films in fixes.get(name, {}).items():
       movie_ids = [rec["id"] for _, rec in films]
       r.request("PUT", "/api/v3/movie/editor", body={"movieIds": movie_ids, "tags": [ids[cat]], "applyTags": action})
-      log(f"{name}: {action} {cat} on {len(movie_ids)} movies to match config overrides")
+      for film, _ in films:
+        log(f"{name}: {action} {cat} on {film.label} to match config overrides")
   return "\n".join(out)
 
 
@@ -833,10 +841,11 @@ def reconcile(state, decisions, dry_run) -> str:
       log(f"created {name!r}")
     if add:
       edit_members(jf, "POST", box["Id"], add)
-      log(f"{name}: added {len(add)}")
     if remove:
       edit_members(jf, "DELETE", box["Id"], remove)
-      log(f"{name}: removed {len(remove)}")
+    for r in rows:
+      if not r.startswith("- = "):
+        log(f"{name}: {r[2:]}")
 
   wanted = {state.managed[n]["Id"] for n, t in targets.items() if state.managed[n] and (t["films"] or t["franchises"])}
   empty = sorted((b for bid, b in state.boxsets.items() if not state.children[bid] and bid not in wanted), key=lambda b: b["Name"])
@@ -859,7 +868,9 @@ def reconcile(state, decisions, dry_run) -> str:
       jf.request("DELETE", f"/Items/{b['Id']}")
       log(f"deleted empty collection {b['Name']!r}")
 
-  out.insert(3, f"- {total} change{'s' if total != 1 else ''}{' planned' if dry_run else ' applied'}")
+  summary = f"{total} change{'s' if total != 1 else ''}{' planned' if dry_run else ' applied'}"
+  out.insert(3, f"- {summary}")
+  log(f"reconcile finished: {summary}")
   return "\n".join(out)
 
 
@@ -885,7 +896,7 @@ def run(command, use_model=True) -> str:
     log("model examples: " + ", ".join(f"{c}={len(v)}" for c, v in model.examples.items()))
     decisions = classify_all(state, model)
     if model.failures:
-      log(f"{model.failures} model calls failed; those films stay unclassified until the next run")
+      log(f"{model.failures} model calls failed; those films stay unclassified until the next run", "WARNING")
     if command == "report":
       return report(state, decisions, model)
     dry_run = env_bool("DRY_RUN")
@@ -894,6 +905,99 @@ def run(command, use_model=True) -> str:
         raise SystemExit(f"{model.failures} model calls failed; not seeding")
       return seed(state, decisions, dry_run)
     return reconcile(state, decisions, dry_run)
+
+
+def apply_films(state, decisions, only, dry_run, sources):
+  cfg, jf = state.cfg, state.jf
+  writes, _ = plan_tag_writes(state, decisions, only)
+  fixes = plan_tag_fixes(state, only)
+  if (writes or fixes) and not dry_run:
+    seed(state, decisions, False, only)
+  targets = target_membership(state, decisions, only)
+  changes = {t: [] for t in only}
+  for mc in cfg["collections"]:
+    name, box, t = mc["name"], state.managed[mc["name"]], targets[mc["name"]]
+    if not box:
+      continue
+    children = state.children[box["Id"]]
+    cur = {c["Id"] for c in children}
+    add, remove = [], []
+    for iid, (film, item) in t["films"].items():
+      if iid not in cur:
+        add.append(iid)
+        changes[film.tmdb].append(f"+{name} [{lib_label(state, item)}]")
+    for fid, films in t["franchises"].items():
+      if fid not in cur:
+        add.append(fid)
+        for f in films:
+          changes[f.tmdb].append(f"+{name} via {state.franchises[fid]['Name']}")
+    for c in children:
+      film = state.item_film.get(c["Id"])
+      if not film or film.tmdb not in only or c["Id"] in t["films"]:
+        continue
+      if decisions[film.tmdb].verdicts[mc["category"]].value is None:
+        continue
+      remove.append(c["Id"])
+      changes[film.tmdb].append(f"-{name} [{lib_label(state, c)}]")
+    if dry_run:
+      continue
+    if add:
+      edit_members(jf, "POST", box["Id"], add)
+    if remove:
+      edit_members(jf, "DELETE", box["Id"], remove)
+  for film in scoped(state, only):
+    d = decisions[film.tmdb]
+    cats = ",".join(f"{c}({d.verdicts[c].source})" for c in CATEGORIES if d.yes(c)) or "none"
+    unclear = [c for c, v in d.verdicts.items() if v.value is None]
+    libs = ",".join(cfg["libraries"][k]["name"] for k in film.items)
+    msg = f'{sources[film.tmdb]} "{film.label}" library={libs} tags={cats}'
+    if unclear:
+      msg += f" unclassified={','.join(unclear)} (daily reconcile retries)"
+    msg += " → " + (", ".join(changes[film.tmdb]) or "no changes") + (" (DRY_RUN)" if dry_run else "")
+    log(msg, "WARNING" if unclear else "INFO")
+
+
+QUEUE = queue.Queue()
+
+
+def skip(iid, why):
+  log(f"webhook item={iid}: {why}; skipped, the daily reconcile will handle it", "WARNING")
+
+
+def triage(jf, cfg, iid):
+  found = jf.items(Ids=iid, Fields="Path,ProviderIds")
+  if not found:
+    return skip(iid, "not found in Jellyfin")
+  it = found[0]
+  path = it.get("Path") or ""
+  if it.get("Type") != "Movie" or not any(path.startswith(l["path_prefix"]) for l in cfg["libraries"].values()):
+    log(f'webhook item={iid} "{it.get("Name")}" type={it.get("Type")}: ignored, not a movie in a managed library')
+    return False
+  return True
+
+
+def handle_item(iid):
+  cfg = load_config()
+  if not triage(Jellyfin(), cfg, iid):
+    return
+  with RUN_LOCK:
+    state = State(cfg)
+    film = state.item_film.get(iid)
+    if not film:
+      return skip(iid, "no TMDB id")
+    model = Model(enabled=True)
+    model.examples = build_examples(state, cfg)
+    decisions = {film.tmdb: classify(film, cfg, model)}
+    apply_films(state, decisions, {film.tmdb}, env_bool("DRY_RUN"), {film.tmdb: f"webhook item={iid}"})
+
+
+def worker():
+  while True:
+    iid = QUEUE.get()
+    try:
+      handle_item(iid)
+    except BaseException as e:
+      log(f"webhook item={iid} failed: {e!r}", "ERROR")
 
 
 def next_run_at(hour):
@@ -911,10 +1015,11 @@ def daily():
     at = next_run_at(hour)
     log(f"next reconcile at {time.strftime('%Y-%m-%d %H:%M %Z', time.localtime(at))}")
     time.sleep(max(0, at - time.time()))
+    log("daily reconcile started")
     try:
-      print(run("reconcile"), flush=True)
+      run("reconcile")
     except BaseException as e:
-      log(f"reconcile failed: {e!r}")
+      log(f"reconcile failed: {e!r}", "ERROR")
 
 
 def serve():
@@ -934,7 +1039,19 @@ def serve():
         self.reply(404, {"error": "not found"})
 
     def do_POST(self):
-      self.reply(501, {"error": "webhook and re-evaluate are not enabled yet"})
+      if urllib.parse.urlparse(self.path).path != "/webhook":
+        return self.reply(404, {"error": "not found"})
+      try:
+        body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
+      except ValueError:
+        return self.reply(400, {"error": "body is not JSON"})
+      iid = str(body.get("ItemId") or "").replace("-", "").lower() if isinstance(body, dict) else ""
+      if not re.fullmatch(r"[0-9a-f]{32}", iid):
+        log(f"webhook rejected: no valid ItemId in {str(body)[:200]}", "WARNING")
+        return self.reply(400, {"error": "ItemId missing or invalid"})
+      log(f'webhook received item={iid} "{body.get("Name", "")}"')
+      QUEUE.put(iid)
+      self.reply(202, {"queued": iid})
 
     def log_message(self, fmt, *args):
       if not self.path.startswith("/healthz"):
@@ -945,6 +1062,7 @@ def serve():
   log(f"serving on :{server.server_port} (dry_run={env_bool('DRY_RUN')})")
   threading.Thread(target=server.serve_forever, daemon=True).start()
   threading.Thread(target=daily, daemon=True).start()
+  threading.Thread(target=worker, daemon=True).start()
   while True:
     time.sleep(3600)
 
