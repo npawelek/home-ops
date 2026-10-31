@@ -1,0 +1,33 @@
+---
+version: '3'
+
+tasks:
+
+  collections-report:
+    desc: Print the jellyfin-collections Markdown report (read-only)
+    cmd: kubectl -n media exec deploy/jellyfin-collections -- python3 /app/jellyfin_collections.py report
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+
+  collections-reconcile:
+    desc: Run the full jellyfin-collections reconcile now [DRY_RUN=true to preview]
+    cmd: >-
+      kubectl -n media exec deploy/jellyfin-collections --
+      {{if .DRY_RUN}}env DRY_RUN={{.DRY_RUN}}{{end}}
+      python3 /app/jellyfin_collections.py reconcile
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
+
+  collections-reevaluate:
+    desc: Re-classify one film and fix its tags and collections [TMDB=required] [DRY_RUN=true to preview]
+    cmd: >-
+      kubectl -n media exec deploy/jellyfin-collections --
+      {{if .DRY_RUN}}env DRY_RUN={{.DRY_RUN}}{{end}}
+      python3 /app/jellyfin_collections.py reevaluate --tmdb {{.TMDB}}
+    requires:
+      vars: [TMDB]
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl
