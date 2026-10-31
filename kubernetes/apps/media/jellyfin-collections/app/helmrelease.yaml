@@ -83,8 +83,9 @@ spec:
                 cpu: 10m
                 memory: 64Mi
               limits:
-                memory: 512Mi
+                memory: 384Mi
     defaultPodOptions:
+      terminationGracePeriodSeconds: 5
       securityContext:
         runAsNonRoot: true
         runAsUser: 568

@@ -7,6 +7,9 @@ import os
 import re
 import signal
 import sys
+
+signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
+
 import threading
 import time
 import urllib.error
@@ -937,7 +940,6 @@ def serve():
       if not self.path.startswith("/healthz"):
         log(fmt % args)
 
-  signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
   load_config()
   server = http.server.ThreadingHTTPServer(("0.0.0.0", int(os.environ.get("PORT", "8080"))), Handler)
   log(f"serving on :{server.server_port} (dry_run={env_bool('DRY_RUN')})")
