@@ -13,4 +13,5 @@ resources:
   - ./dispatcharr/ks.yaml
   - ./epg/ks.yaml
   - ./jellyfin/ks.yaml
+  - ./jellyfin-collections/ks.yaml
   - ./tracearr/ks.yaml
