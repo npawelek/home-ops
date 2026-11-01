@@ -794,7 +794,7 @@ def classify_all(state, model):
   todo = sorted(state.films.values(), key=lambda f: f.facts["title"] or "")
   for i, film in enumerate(todo, 1):
     decisions[film.tmdb] = classify(film, state.cfg, model)
-    if i % 200 == 0:
+    if i % 200 == 0 or i == len(todo):
       log(f"classified {i}/{len(todo)} (model calls so far: {model.calls})")
   return decisions
 
