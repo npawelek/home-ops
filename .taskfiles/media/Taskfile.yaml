@@ -35,9 +35,15 @@ tasks:
       URL: https://jellyfin-collections.$SECRET_DOMAIN{{.REQ}}
       LOGS: kubectl -n media logs deploy/jellyfin-collections --since-time={{.START}}
     cmd: |
-      resp=$(curl -sS -X POST -u "jellyfin-collections-cli:$JELLYFIN_COLLECTIONS_TOKEN" "{{.URL}}")
+      resp=$(curl -sS -w '\n%{http_code}' -X POST -u "jellyfin-collections-cli:$JELLYFIN_COLLECTIONS_TOKEN" "{{.URL}}")
+      code=$(echo "$resp" | tail -n 1)
+      resp=$(echo "$resp" | sed '$d')
       job=$(echo "$resp" | jq -r '.job // empty' 2>/dev/null || true)
-      if [ -z "$job" ]; then echo "request not accepted: $resp" >&2; exit 1; fi
+      if [ "$code" = 302 ] || [ "$code" = 401 ]; then
+        echo "HTTP $code: Authentik refused the login; check JELLYFIN_COLLECTIONS_TOKEN" >&2
+        exit 1
+      fi
+      if [ -z "$job" ]; then echo "request not accepted (HTTP $code): $resp" >&2; exit 1; fi
       echo "queued job=$job"
       seen=0
       for i in $(seq 600); do
