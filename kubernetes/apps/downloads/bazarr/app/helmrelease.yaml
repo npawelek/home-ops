@@ -29,6 +29,9 @@ spec:
               http_proxy: ${HTTP_PROXY}
               https_proxy: ${HTTPS_PROXY}
               no_proxy: ${NO_PROXY}
+            envFrom:
+              - secretRef:
+                  name: bazarr-autopulse-secrets
             probes:
               liveness: &probes
                 enabled: true
