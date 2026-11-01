@@ -33,7 +33,7 @@ enter = "mise run check-deps"
 "aqua:astral-sh/uv" = "0.13.6"
 "aqua:awscli" = "2.39.0"
 "aqua:BurntSushi/ripgrep" = "15.2.0"
-"aqua:cilium/cilium-cli" = "0.20.1"
+"aqua:cilium/cilium-cli" = "0.20.2"
 "aqua:cli/cli" = "2.103.3"
 # TODO: verify Renovate tracks this inline-table pin (first bump PR, or Dependency Dashboard lists aqua:controlplaneio-fluxcd/flux-operator)
 "aqua:controlplaneio-fluxcd/flux-operator" = { version = "0.62.1", postinstall = "flux-operator skills install ghcr.io/fluxcd/agent-skills --agent claude-code" }
