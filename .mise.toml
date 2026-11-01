@@ -57,7 +57,7 @@ enter = "mise run check-deps"
 "aqua:pre-commit" = "4.7.0"
 "aqua:siderolabs/talos" = "1.14.2"
 "go" = "1.27.3"
-"go:github.com/fiatjaf/nak" = "0.21.2"
+"go:github.com/fiatjaf/nak" = "0.22.0"
 "http:adb" = { version = "37.0.1", bin_path = "platform-tools", platforms = { macos-arm64 = { url = "https://dl.google.com/android/repository/platform-tools_r{{ version }}-darwin.zip" }, linux-x64 = { url = "https://dl.google.com/android/repository/platform-tools_r{{ version }}-linux.zip" } } }
 "node" = "24.22.2"
 "npm:mcp-remote" = "0.15.2"
