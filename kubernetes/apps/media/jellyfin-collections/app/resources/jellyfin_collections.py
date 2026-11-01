@@ -874,21 +874,29 @@ def apply_films(state, decisions, only, dry_run, sources):
 
 
 QUEUE = queue.Queue()
+WEBHOOK_RETRIES = 5
+WEBHOOK_RETRY_SECONDS = 30
 
 
-def skip(iid, why):
-  log(f"webhook item={iid}: {why}; skipped, the daily reconcile will handle it", "WARNING")
+def skip(iid, why, attempt):
+  if attempt < WEBHOOK_RETRIES:
+    log(f"webhook item={iid}: {why}; retry {attempt + 1}/{WEBHOOK_RETRIES} in {WEBHOOK_RETRY_SECONDS}s")
+    t = threading.Timer(WEBHOOK_RETRY_SECONDS, QUEUE.put, args=((iid, attempt + 1),))
+    t.daemon = True
+    t.start()
+    return
+  log(f"webhook item={iid}: {why} after {WEBHOOK_RETRIES} retries; skipped, the daily reconcile will handle it", "WARNING")
 
 
-def handle_item(iid):
+def handle_item(iid, attempt=0):
   cfg = load_config()
   with RUN_LOCK:
     state = State(cfg)
     film = state.item_film.get(iid)
     if not film:
       if any(m["Id"] == iid for m in state.ignored):
-        return skip(iid, "no TMDB id")
-      return skip(iid, "not found among Jellyfin movies")
+        return skip(iid, "no TMDB id", attempt)
+      return skip(iid, "not found among Jellyfin movies", attempt)
     model = Model(enabled=True)
     model.examples = build_examples(state, cfg)
     decisions = {film.tmdb: classify(film, cfg, model)}
@@ -929,10 +937,11 @@ def worker():
     if isinstance(item, dict):
       run_job(item)
       continue
+    iid, attempt = item if isinstance(item, tuple) else (item, 0)
     try:
-      handle_item(item)
+      handle_item(iid, attempt)
     except BaseException as e:
-      log(f"webhook item={item} failed: {e!r}", "ERROR")
+      log(f"webhook item={iid} failed: {e!r}", "ERROR")
 
 
 def next_run_at(hour):
