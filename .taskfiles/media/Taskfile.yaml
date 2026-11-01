@@ -11,23 +11,47 @@ tasks:
       - which kubectl
 
   collections-reconcile:
-    desc: Run the full jellyfin-collections reconcile now [DRY_RUN=true to preview]
-    cmd: >-
-      kubectl -n media exec deploy/jellyfin-collections --
-      {{if .DRY_RUN}}env DRY_RUN={{.DRY_RUN}}{{end}}
-      python3 /app/jellyfin_collections.py reconcile
-    preconditions:
-      - test -f {{.KUBECONFIG}}
-      - which kubectl
+    desc: Queue a full jellyfin-collections reconcile in the running service [DRY_RUN=true to preview]
+    cmds:
+      - task: _collections-job
+        vars:
+          REQ: '/reconcile{{if .DRY_RUN}}?dry_run={{.DRY_RUN}}{{end}}'
 
   collections-reevaluate:
-    desc: Re-classify one film and fix its tags and collections [TMDB=required] [DRY_RUN=true to preview]
-    cmd: >-
-      kubectl -n media exec deploy/jellyfin-collections --
-      {{if .DRY_RUN}}env DRY_RUN={{.DRY_RUN}}{{end}}
-      python3 /app/jellyfin_collections.py reevaluate --tmdb {{.TMDB}}
+    desc: Queue a re-classify of one film in the running service [TMDB=required] [DRY_RUN=true to preview]
     requires:
       vars: [TMDB]
+    cmds:
+      - task: _collections-job
+        vars:
+          REQ: '/reevaluate?tmdb={{.TMDB}}{{if .DRY_RUN}}&dry_run={{.DRY_RUN}}{{end}}'
+
+  _collections-job:
+    internal: true
+    silent: true
+    vars:
+      START:
+        sh: date -u +%Y-%m-%dT%H:%M:%SZ
+      URL: https://jellyfin-collections.$SECRET_DOMAIN{{.REQ}}
+      LOGS: kubectl -n media logs deploy/jellyfin-collections --since-time={{.START}}
+    cmd: |
+      resp=$(curl -sS -X POST -u "jellyfin-collections-cli:$JELLYFIN_COLLECTIONS_TOKEN" "{{.URL}}")
+      job=$(echo "$resp" | jq -r '.job // empty' 2>/dev/null || true)
+      if [ -z "$job" ]; then echo "request not accepted: $resp" >&2; exit 1; fi
+      echo "queued job=$job"
+      seen=0
+      for i in $(seq 600); do
+        out=$({{.LOGS}})
+        echo "$out" | tail -n +$((seen + 1))
+        seen=$(echo "$out" | wc -l)
+        if echo "$out" | grep -q "job=$job failed"; then exit 1; fi
+        if echo "$out" | grep -q "job=$job done"; then exit 0; fi
+        sleep 2
+      done
+      echo "gave up waiting for job=$job" >&2
+      exit 1
     preconditions:
       - test -f {{.KUBECONFIG}}
-      - which kubectl
+      - which kubectl curl jq
+      - sh: test -n "$JELLYFIN_COLLECTIONS_TOKEN" && test "$JELLYFIN_COLLECTIONS_TOKEN" != null
+        msg: JELLYFIN_COLLECTIONS_TOKEN is not set; add it to env.sops.yaml

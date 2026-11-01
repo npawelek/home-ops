@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import hashlib
+import html
 import http.server
 import json
 import os
@@ -802,7 +803,7 @@ def classify_all(state, model):
 RUN_LOCK = threading.Lock()
 
 
-def run(command, use_model=True):
+def run(command, use_model=True, dry_run=False):
   with RUN_LOCK:
     cfg = load_config()
     state = State(cfg)
@@ -814,7 +815,7 @@ def run(command, use_model=True):
       log(f"{model.failures} model calls failed; those films stay unclassified until the next run", "WARNING")
     if command == "report":
       return report(state, decisions, model)
-    dry_run = env_bool("DRY_RUN")
+    dry_run = env_bool("DRY_RUN") or dry_run
     if command == "seed":
       if not dry_run and model.failures:
         raise SystemExit(f"{model.failures} model calls failed; not seeding")
@@ -894,7 +895,7 @@ def handle_item(iid):
     apply_films(state, decisions, {film.tmdb}, env_bool("DRY_RUN"), {film.tmdb: f"webhook item={iid}"})
 
 
-def reevaluate(tmdb):
+def reevaluate(tmdb, dry_run=False):
   with RUN_LOCK:
     cfg = load_config()
     state = State(cfg)
@@ -904,16 +905,34 @@ def reevaluate(tmdb):
     model = Model(enabled=True)
     model.examples = build_examples(state, cfg)
     decisions = {tmdb: classify(film, cfg, model)}
-    apply_films(state, decisions, {tmdb}, env_bool("DRY_RUN"), {tmdb: f"reevaluate tmdb={tmdb}"})
+    apply_films(state, decisions, {tmdb}, env_bool("DRY_RUN") or dry_run, {tmdb: f"reevaluate tmdb={tmdb}"})
+
+
+def run_job(job):
+  jid, kind, by, dry_run, tmdb = job["id"], job["kind"], job["by"], job["dry_run"], job.get("tmdb")
+  log(f"job={jid} {kind} started by={by}" + (f" tmdb={tmdb}" if tmdb else "") + (" (DRY_RUN)" if dry_run else ""))
+  try:
+    if kind == "reconcile":
+      run("reconcile", dry_run=dry_run)
+    else:
+      reevaluate(tmdb, dry_run=dry_run)
+  except SystemExit as e:
+    return log(f"job={jid} failed: {e}", "WARNING")
+  except BaseException as e:
+    return log(f"job={jid} failed: {e!r}", "ERROR")
+  log(f"job={jid} done")
 
 
 def worker():
   while True:
-    iid = QUEUE.get()
+    item = QUEUE.get()
+    if isinstance(item, dict):
+      run_job(item)
+      continue
     try:
-      handle_item(iid)
+      handle_item(item)
     except BaseException as e:
-      log(f"webhook item={iid} failed: {e!r}", "ERROR")
+      log(f"webhook item={item} failed: {e!r}", "ERROR")
 
 
 def next_run_at(hour):
@@ -955,7 +974,10 @@ def serve():
         self.reply(404, {"error": "not found"})
 
     def do_POST(self):
-      if urllib.parse.urlparse(self.path).path != "/webhook":
+      url = urllib.parse.urlparse(self.path)
+      if url.path in ("/reconcile", "/reevaluate"):
+        return self.admin(url)
+      if url.path != "/webhook":
         return self.reply(404, {"error": "not found"})
       raw = self.rfile.read(int(self.headers.get("Content-Length") or 0))
       try:
@@ -970,10 +992,29 @@ def serve():
       QUEUE.put(iid)
       self.reply(202, {"queued": iid})
       extra = "".join(f" {k.lower()}={body[k]}" for k in ("ItemType", "Year", "Tmdb") if body.get(k))
-      log(f'webhook received 202 item={iid} "{body.get("Name", "")}"{extra}')
+      log(f'webhook received 202 item={iid} "{html.unescape(str(body.get("Name", "")))}"{extra}')
+
+    def admin(self, url):
+      kind = url.path.lstrip("/")
+      by = self.headers.get("X-authentik-username", "")
+      if not by:
+        log(f"{kind} rejected 403: no X-authentik-username header", "WARNING")
+        return self.reply(403, {"error": "requests must come through the Authentik proxy"})
+      q = {k: v[-1] for k, v in urllib.parse.parse_qs(url.query).items()}
+      if q.get("dry_run", "false") not in ("true", "false"):
+        return self.reply(400, {"error": "dry_run must be true or false"})
+      job = {"id": os.urandom(4).hex(), "kind": kind, "by": by, "dry_run": q.get("dry_run") == "true" or env_bool("DRY_RUN")}
+      if kind == "reevaluate":
+        if not re.fullmatch(r"[0-9]+", q.get("tmdb", "")):
+          log(f"reevaluate rejected 400 by={by}: tmdb missing or not numeric", "WARNING")
+          return self.reply(400, {"error": "tmdb missing or not numeric"})
+        job["tmdb"] = str(int(q["tmdb"]))
+      log(f"{kind} received 202 job={job['id']} by={by}" + (f" tmdb={job['tmdb']}" if "tmdb" in job else "") + (" (DRY_RUN)" if job["dry_run"] else ""))
+      QUEUE.put(job)
+      self.reply(202, {"job": job["id"], "queued": kind, "dry_run": job["dry_run"]})
 
     def log_message(self, fmt, *args):
-      if urllib.parse.urlparse(self.path).path not in ("/healthz", "/webhook"):
+      if urllib.parse.urlparse(self.path).path not in ("/healthz", "/webhook", "/reconcile", "/reevaluate"):
         log(fmt % args)
 
   load_config()

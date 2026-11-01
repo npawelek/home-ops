@@ -11,6 +11,7 @@ HOMEASSISTANT_URL = { value = "{{exec(command='if [ -f age.key ] && command -v s
 HOMEASSISTANT_TOKEN = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .HOMEASSISTANT_TOKEN; fi')}}", tools = true, redact = true }
 GRAFANA_URL = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .GRAFANA_URL; fi')}}", tools = true, redact = true }
 GRAFANA_SERVICE_ACCOUNT_TOKEN = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .GRAFANA_SERVICE_ACCOUNT_TOKEN; fi')}}", tools = true, redact = true }
+JELLYFIN_COLLECTIONS_TOKEN = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .JELLYFIN_COLLECTIONS_TOKEN; fi')}}", tools = true, redact = true }
 GRAFANA_ORG_ID = "1"
 FLUX_SCHEMA_CONFIG = "{{config_root}}/.fluxschema.yml"
 # Render offline as the live cluster would: Kubernetes version from Talos, and

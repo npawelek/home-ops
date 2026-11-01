@@ -98,6 +98,26 @@ spec:
         ports:
           http:
             port: *port
+    route:
+      app:
+        hostnames: ["{{.Release.Name}}.${SECRET_DOMAIN}"]
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - matches:
+              - method: POST
+                path:
+                  type: Exact
+                  value: /reconcile
+              - method: POST
+                path:
+                  type: Exact
+                  value: /reevaluate
+            backendRefs:
+              - identifier: app
+                port: *port
     persistence:
       app:
         type: configMap
