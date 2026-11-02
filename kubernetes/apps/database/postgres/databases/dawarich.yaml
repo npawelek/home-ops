@@ -15,6 +15,6 @@ spec:
       # CNPG runs ALTER EXTENSION ... UPDATE TO when this changes; Renovate bumps it with the image in app/cluster.yaml
       # yamllint disable-line rule:line-length
       # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgis-extension extractVersion=^(?<version>\d+\.\d+\.\d+)-18-trixie$
-      version: 3.6.4
+      version: 3.7.0
     - name: pgcrypto
       ensure: present
