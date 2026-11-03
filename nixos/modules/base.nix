@@ -22,7 +22,9 @@
     options = "--delete-older-than 14d";
   };
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # Pinned to 7.2: 7.3 amdgpu repeatedly drops the DP link on the secondary
+  # monitor, causing 1-2s pageflip stalls. Revert to _latest once fixed.
+  boot.kernelPackages = pkgs.linuxPackages_7_2;
   boot.loader.systemd-boot = {
     enable = true;
     configurationLimit = 10;
