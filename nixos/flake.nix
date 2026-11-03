@@ -26,6 +26,9 @@
       url = "github:Lyndeno/apple-fonts.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # linux-firmware 20260916 (DMUB 0x0A004B00). 20261019 causes pageflip
+    # stalls on the RX 9070 XT with two displays. Drop once a newer one is fixed.
+    nixpkgs-firmware.url = "github:NixOS/nixpkgs/fe13242281a67641c0102cdb1087f0ebe586c7df";
   };
 
   outputs = inputs@{ nixpkgs, disko, sops-nix, home-manager, ... }: {

@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, inputs, ... }:
 {
   nixpkgs.config.allowUnfreePredicate =
     pkg:
@@ -22,9 +22,7 @@
     options = "--delete-older-than 14d";
   };
 
-  # Pinned to 7.2: 7.3 amdgpu repeatedly drops the DP link on the secondary
-  # monitor, causing 1-2s pageflip stalls. Revert to _latest once fixed.
-  boot.kernelPackages = pkgs.linuxPackages_7_2;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot = {
     enable = true;
     configurationLimit = 10;
@@ -35,6 +33,12 @@
 
   hardware.cpu.intel.updateMicrocode = true;
   hardware.enableRedistributableFirmware = true;
+  # See the nixpkgs-firmware input in flake.nix.
+  nixpkgs.overlays = [
+    (final: prev: {
+      linux-firmware = inputs.nixpkgs-firmware.legacyPackages.${prev.stdenv.hostPlatform.system}.linux-firmware;
+    })
+  ];
   zramSwap.enable = true;
 
   networking.networkmanager.enable = true;
