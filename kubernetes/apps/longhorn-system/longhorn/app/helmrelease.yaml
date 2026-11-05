@@ -23,7 +23,8 @@ spec:
       createDefaultDiskLabeledNodes: true
       defaultDataLocality: best-effort
       nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
-      nodeDrainPolicy: block-if-contains-last-replica
+      # CNPG replicas use 1-replica volumes; allow drain once their pods have moved off
+      nodeDrainPolicy: allow-if-replica-is-stopped
       concurrentAutomaticEngineUpgradePerNodeLimit: 1
       defaultDataPath: /var/mnt/longhorn
       defaultReplicaCount: 2
