@@ -23,6 +23,19 @@
     pulse.enable = true;
   };
 
+  # Alt+C / Alt+V copy and paste in every app (sent as Ctrl+C / Ctrl+V). Ctrl+C/V still
+  # work. In a terminal Alt+C is Ctrl+C, so it interrupts instead of copying.
+  services.keyd = {
+    enable = true;
+    keyboards.default = {
+      ids = [ "*" ];
+      settings.alt = {
+        c = "C-c";
+        v = "C-v";
+      };
+    };
+  };
+
   # Electron apps (VS Code) run native Wayland instead of XWayland: sharp text on Plasma.
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
