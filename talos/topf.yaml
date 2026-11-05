@@ -29,12 +29,13 @@ nodes:
     role: control-plane
     data:
       mac: "e0:51:d8:1f:36:3f"
-  - host: pella
-    ip: 192.168.0.35
-    role: worker
-    schematicId: 92cdade33f77e1c7ec5a581e3415952d107414facf9da5383ad8c9f579064377
-    data:
-      mac: "6c:92:bf:65:0b:66"
+  # pella removed from cluster for now; uncomment to re-add
+  # - host: pella
+  #   ip: 192.168.0.35
+  #   role: worker
+  #   schematicId: 92cdade33f77e1c7ec5a581e3415952d107414facf9da5383ad8c9f579064377
+  #   data:
+  #     mac: "6c:92:bf:65:0b:66"
   - host: donnager
     ip: 192.168.0.33
     role: worker
