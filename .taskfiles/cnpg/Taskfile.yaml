@@ -4,15 +4,33 @@ version: '3'
 tasks:
 
   primaries:
-    desc: List the primary instance and node for every CNPG cluster
+    desc: List primary and replica instances (with nodes) for every CNPG cluster
+    silent: true
     cmd: |
-      kubectl get pods -A -l cnpg.io/instanceRole=primary \
-        -o custom-columns='NAMESPACE:.metadata.namespace,'\
-      'CLUSTER:.metadata.labels.cnpg\.io/cluster,'\
-      'PRIMARY:.metadata.name,NODE:.spec.nodeName'
+      kubectl get pods -A -l cnpg.io/podRole=instance -o json | jq -r '
+        [.items[] | {
+          ns: .metadata.namespace,
+          cluster: .metadata.labels["cnpg.io/cluster"],
+          role: .metadata.labels["cnpg.io/instanceRole"],
+          cell: (.metadata.name + " (" + (.spec.nodeName // "?") + ")"
+            + (if any(.status.conditions[]?; .type == "Ready" and .status == "True") then "" else " NOT-READY" end))
+        }]
+        | group_by([.ns, .cluster])
+        | map({
+            ns: .[0].ns,
+            cluster: .[0].cluster,
+            primary: ([.[] | select(.role == "primary") | .cell] | first // "-"),
+            replicas: ([.[] | select(.role != "primary") | .cell] | sort)
+          })
+        | (map(.replicas | length) | max // 0) as $n
+        | (["NAMESPACE", "CLUSTER", "PRIMARY"] + [range($n) | "REPLICA_\(. + 1)"]),
+          (.[] | [.ns, .cluster, .primary] + [range($n) as $i | .replicas[$i] // "-"])
+        | @tsv
+      ' | column -t -s $'\t'
     preconditions:
       - test -f {{.KUBECONFIG}}
       - which kubectl
+      - which jq
 
   status-authentik:
     desc: Show CNPG cluster status for authentik-postgres in the auth namespace
