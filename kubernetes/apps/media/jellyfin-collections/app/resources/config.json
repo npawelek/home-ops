@@ -172,7 +172,11 @@
     "shorts": {
       "include": [
         256835,
-        460793
+        460793,
+        {
+          "tmdb": 148607,
+          "note": "Heavy Metal Mater; Cars Toon short not picked up by the runtime check"
+        }
       ],
       "exclude": []
     },
