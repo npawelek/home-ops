@@ -28,7 +28,8 @@
   services.keyd = {
     enable = true;
     keyboards.default = {
-      ids = [ "*" ];
+      # Skip the Razer Nostromo so input-remapper can grab it.
+      ids = [ "*" "-1532:0111" ];
       settings.alt = {
         c = "C-c";
         v = "C-v";
