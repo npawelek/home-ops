@@ -51,7 +51,7 @@ spec:
   initContainers:
     - name: fix-storage-permissions
       # yamllint disable-line rule:line-length
-      image: public.ecr.aws/docker/library/alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a
+      image: public.ecr.aws/docker/library/alpine:3.24.4@sha256:93b41ef40b1677fce8fcc64ff4af09daddfacf5040afde618bc46c1e2d1cc7d4
       command: ["sh", "-c", "chown -R 10001:10001 /var/lib/otelcol_gateway"]
       volumeMounts:
         - name: storage
