@@ -3,3 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./pvc-rustfs.yaml
+  - ./pvc-longhorn-backupstore.yaml
+  - ./pvc-photos-offsite.yaml
+  - ./pvc-offsite-backup.yaml
+  - ./pvc-services-offsite.yaml

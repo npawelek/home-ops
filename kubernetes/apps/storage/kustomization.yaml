@@ -12,3 +12,4 @@ resources:
   - ./nfs-pvc/ks.yaml
   - ./rustfs/ks.yaml
   - ./rustfs/terraform-ks.yaml
+  - ./offsite-backup/ks.yaml

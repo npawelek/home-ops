@@ -1,0 +1,20 @@
+---
+version: '3'
+
+tasks:
+
+  login:
+    desc: Sign the offsite backup job in to Proton Drive (prints a sign-in URL to open in a browser)
+    cmd: '{{.SCRIPTS_DIR}}/offsite/offsite-exec.sh proton auth login'
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl jq
+
+  logs:
+    desc: Follow the logs of the most recent offsite backup Job
+    cmd: >-
+      kubectl -n storage logs -f --tail=200
+      "$(kubectl -n storage get pods -l app=offsite-backup --sort-by=.metadata.creationTimestamp -o name | tail -1)"
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl

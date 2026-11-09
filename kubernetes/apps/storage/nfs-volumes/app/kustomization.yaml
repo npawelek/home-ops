@@ -9,3 +9,7 @@ resources:
   - ./racknas-rustfs.yaml
   - ./racknas-services-downloads.yaml
   - ./racknas-services-trek.yaml
+  - ./racknas-longhorn-backupstore.yaml
+  - ./racknas-photos-offsite.yaml
+  - ./racknas-offsite-backup.yaml
+  - ./racknas-services-offsite.yaml

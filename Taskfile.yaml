@@ -27,6 +27,7 @@ includes:
   longhorn: .taskfiles/longhorn
   media: .taskfiles/media
   nixos: .taskfiles/nixos
+  offsite: .taskfiles/offsite
   talos: .taskfiles/talos
 
 tasks:

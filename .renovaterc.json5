@@ -101,6 +101,12 @@
       versioning: "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(-\\d+)?$",
     },
     {
+      description: "rclone tracked on its vX.Y-stable tags (moving tag per minor line, digest-pinned)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["docker.io/rclone/rclone", "rclone/rclone"],
+      versioning: "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)-stable$",
+    },
+    {
       description: "SearXNG date-based tag versioning",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/searxng/searxng"],

@@ -100,3 +100,13 @@ tasks:
     preconditions:
       - test -f {{.KUBECONFIG}}
       - which kubectl yq
+
+  backup-gc:
+    desc: Delete backups of Longhorn volumes deleted more than GRACE_DAYS ago [DRY_RUN=true GRACE_DAYS=28]
+    cmd: '{{.SCRIPTS_DIR}}/longhorn/backup-gc.sh'
+    env:
+      DRY_RUN: '{{.DRY_RUN | default "true"}}'
+      GRACE_DAYS: '{{.GRACE_DAYS | default "28"}}'
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl jq

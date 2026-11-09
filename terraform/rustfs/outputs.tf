@@ -33,3 +33,12 @@ output "cnpg_database_timescale_secret_key" {
   value     = minio_iam_service_account.cnpg_database_timescale.secret_key
   sensitive = true
 }
+
+output "offsite_backup_access_key" {
+  value = minio_iam_service_account.offsite_backup.access_key
+}
+
+output "offsite_backup_secret_key" {
+  value     = minio_iam_service_account.offsite_backup.secret_key
+  sensitive = true
+}

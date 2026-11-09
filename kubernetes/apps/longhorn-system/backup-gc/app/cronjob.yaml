@@ -1,0 +1,68 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: longhorn-backup-gc
+spec:
+  schedule: "0 12 * * *"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 600
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: longhorn-backup-gc
+        spec:
+          serviceAccountName: longhorn-backup-gc
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: backup-gc
+              # yamllint disable-line rule:line-length
+              image: docker.io/alpine/k8s:1.36.5@sha256:094adf64cdc4827377cdbe7ea5747472ce115f9fbc64a4e35970ec66777f9a00
+              command: ["bash", "/scripts/longhorn/backup-gc.sh"]
+              env:
+                - name: HOME
+                  value: /tmp
+                - name: DRY_RUN
+                  value: "false"
+                - name: GRACE_DAYS
+                  value: "28"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: [ALL]
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: scripts
+              configMap:
+                name: longhorn-backup-gc-scripts
+                defaultMode: 0755
+                items:
+                  - key: backup-gc.sh
+                    path: longhorn/backup-gc.sh
+                  - key: common.sh
+                    path: lib/common.sh
+            - name: tmp
+              emptyDir: {}

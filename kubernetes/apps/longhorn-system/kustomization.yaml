@@ -11,3 +11,4 @@ resources:
   - ./longhorn/ks.yaml
   - ./longhorn/jobs-ks.yaml
   - ./longhorn/storageclasses-ks.yaml
+  - ./backup-gc/ks.yaml

@@ -1,0 +1,161 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: offsite-backup
+spec:
+  schedule: "30 20 * * *"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 259200
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: offsite-backup
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1024
+            runAsGroup: 100
+            fsGroup: 100
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          initContainers:
+            - name: tools-restic
+              # yamllint disable-line rule:line-length
+              image: docker.io/restic/restic:0.19.1@sha256:136600b6ff6843d61d355f7f71f460a166429f35de6fd11b568fece3c9a4d510
+              command: ["sh", "-c", "cp \"$(command -v restic)\" /tools/restic"]
+              securityContext: &toolsSecurity
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: [ALL]
+              volumeMounts:
+                - name: tools
+                  mountPath: /tools
+            - name: tools-rclone
+              # yamllint disable-line rule:line-length
+              image: docker.io/rclone/rclone:v1.75-stable@sha256:75be7eeb88109b89fd05c91c2001b130723878c33b272238a75e1fd49555bbbd
+              command: ["sh", "-c", "cp \"$(command -v rclone)\" /tools/rclone"]
+              securityContext: *toolsSecurity
+              volumeMounts:
+                - name: tools
+                  mountPath: /tools
+          containers:
+            - name: offsite-backup
+              # yamllint disable-line rule:line-length
+              image: docker.io/python:3.14.10-slim-trixie@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+              command: ["python3", "/scripts/offsite-backup.py", "run"]
+              env:
+                - name: HOME
+                  value: /tmp
+                - name: RUSTFS_BUCKETS
+                  value: buzz-media cnpg-authentik-postgres cnpg-database-postgres cnpg-database-timescale
+                - name: RCLONE_CONFIG_RUSTFS_TYPE
+                  value: s3
+                - name: RCLONE_CONFIG_RUSTFS_PROVIDER
+                  value: Other
+                - name: RCLONE_CONFIG_RUSTFS_ENDPOINT
+                  value: http://rustfs.storage.svc.cluster.local:9000
+                - name: RCLONE_CONFIG_RUSTFS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: rustfs-terraform-outputs
+                      key: offsite_backup_access_key
+                - name: RCLONE_CONFIG_RUSTFS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: rustfs-terraform-outputs
+                      key: offsite_backup_secret_key
+                - name: RESTIC_PACK_SIZE
+                  value: "128"
+                - name: RESTIC_KEEP
+                  value: --keep-daily 7
+                - name: RESTIC_KEEP_IMMICH
+                  value: --keep-daily 7 --keep-weekly 4 --keep-monthly 6
+                - name: PRUNE_WEEKDAY
+                  value: "*"
+                - name: MIRROR_MAX_GB
+                  value: "480"
+                - name: PROTON_ROOT
+                  value: /my-files/offsite-backups/home-ops
+                - name: PROTON_CLI_VERSION
+                  value: 0.9.0
+                - name: PROTON_CLI_SHA512
+                  # yamllint disable-line rule:line-length
+                  value: 3533025ba69ae112b64e3e01fbcc1ad0688136a4043f6cf6a72886967d85fdcd9ec235479c2e113171614be5225bfba93427509a05ca5aa6071d924fa7e91ca8
+                - name: PROTON_DRIVE_CREDENTIALS_STORE
+                  value: unsafe_file
+                - name: PROTON_DRIVE_CACHE_DIR
+                  value: /state/proton
+                - name: PROTON_DRIVE_LOG_LEVEL
+                  value: WARNING
+              envFrom:
+                - secretRef:
+                    name: offsite-backup-secret
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 512Mi
+                limits:
+                  cpu: "2"
+                  memory: 3Gi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: [ALL]
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+                - name: tools
+                  mountPath: /tools
+                  readOnly: true
+                - name: tmp
+                  mountPath: /tmp
+                - name: state
+                  mountPath: /state
+                - name: offsite
+                  mountPath: /offsite
+                - name: longhorn-backupstore
+                  mountPath: /sources/longhorn-backupstore
+                  readOnly: true
+                - name: immich
+                  mountPath: /sources/immich
+                  readOnly: true
+                - name: services
+                  mountPath: /sources/services
+                  readOnly: true
+          volumes:
+            - name: scripts
+              configMap:
+                name: offsite-backup-scripts
+            - name: tools
+              emptyDir: {}
+            - name: tmp
+              emptyDir: {}
+            - name: state
+              persistentVolumeClaim:
+                claimName: offsite-backup-state
+            - name: offsite
+              persistentVolumeClaim:
+                claimName: racknas-offsite-backup
+            - name: longhorn-backupstore
+              persistentVolumeClaim:
+                claimName: racknas-longhorn-backupstore
+                readOnly: true
+            - name: immich
+              persistentVolumeClaim:
+                claimName: racknas-photos-offsite
+                readOnly: true
+            - name: services
+              persistentVolumeClaim:
+                claimName: racknas-services-offsite
+                readOnly: true

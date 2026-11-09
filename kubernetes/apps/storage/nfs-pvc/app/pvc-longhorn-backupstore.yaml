@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: racknas-longhorn-backupstore
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadOnlyMany
+  volumeName: racknas-longhorn-backupstore
+  resources:
+    requests:
+      storage: 1Ti
