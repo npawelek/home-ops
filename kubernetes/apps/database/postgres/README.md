@@ -21,8 +21,9 @@ Barman Cloud plugin to RustFS bucket `cnpg-database-postgres` (`ObjectStore/post
 `destinationPath: ${BACKUP_DESTINATION_PATH_MAIN}`, credentials `credentials-backup-s3`, created by
 `terraform/rustfs/cnpg-database-postgres.tf`).
 
-- WAL archived continuously (`ContinuousArchiving` condition).
-- Base backups at 05:00 and 17:00 UTC (`ScheduledBackup/postgres`, `0 0 5/12 * * *`).
+- WAL archived continuously (`ContinuousArchiving` condition). `archive_timeout: 1h` forces a
+  segment switch at most hourly, so an archive-only restore can lose up to 1 hour of writes.
+- Base backups daily at 05:00 UTC (`ScheduledBackup/postgres`, `0 0 5 * * *`).
 - Retention: 21 days (`ObjectStore.spec.retentionPolicy`). The `spec.backup.retentionPolicy: 14d`
   in `app/cluster.yaml` is a leftover from in-tree barman and doesn't apply to plugin backups.
 

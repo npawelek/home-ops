@@ -51,6 +51,7 @@ spec:
       wal_compression: "on"
       min_wal_size: "1GB"
       max_wal_size: "5GB"
+      archive_timeout: "1h"
       # Query planning
       default_statistics_target: "100"
       random_page_cost: "1.0"
