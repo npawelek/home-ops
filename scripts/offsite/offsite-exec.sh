@@ -10,7 +10,9 @@ if [[ $# -eq 0 ]]; then
   exit 2
 fi
 
-active=$(kubectl -n "${NS}" get cronjob "${CRONJOB}" -o jsonpath='{.status.active[*].name}')
+active=$(kubectl -n "${NS}" get jobs -o json | jq -r --arg cj "${CRONJOB}" '.items[]
+  | select(any(.metadata.ownerReferences[]?; .kind == "CronJob" and .name == $cj))
+  | select((.status.active // 0) > 0) | .metadata.name' | xargs)
 if [[ -n "${active}" ]]; then
   echo "Job ${active} is running and holds the state volume and restic lock; wait for it or delete it first" >&2
   exit 1

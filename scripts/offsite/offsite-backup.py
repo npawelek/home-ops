@@ -9,6 +9,7 @@ Usage:
 """
 
 import datetime
+import fcntl
 import hashlib
 import itertools
 import json
@@ -75,7 +76,7 @@ def run(cmd, ok=(0,), capture=False):
 
 def rclone(*args):
   return run([TOOLS / "rclone", *args, "--config=", "--stats=60s", "--stats-one-line", "--stats-log-level=NOTICE",
-              "--transfers=4", "--checkers=8", "--retries=5", "--retries-sleep=30s"])
+              "--transfers=8", "--checkers=16", "--retries=5", "--retries-sleep=30s"])
 
 
 def restic(*args, ok=(0,)):
@@ -323,8 +324,24 @@ def run_steps():
   return 0
 
 
+def acquire_lock():
+  STATE_DIR.mkdir(parents=True, exist_ok=True)
+  f = open(STATE_DIR / "run.lock", "w")
+  try:
+    fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+  except BlockingIOError:
+    f.close()
+    return None
+  return f
+
+
 def main(argv):
   cmd = argv[1] if len(argv) > 1 else "run"
+  if cmd in ("run", "mirror"):
+    held = acquire_lock()
+    if held is None:
+      log(f"another run holds {STATE_DIR / 'run.lock'}; not starting")
+      return 0 if cmd == "run" else 1
   if cmd == "run":
     return run_steps()
   if cmd == "mirror":
