@@ -74,7 +74,8 @@ def run(cmd, ok=(0,), capture=False):
 
 
 def rclone(*args):
-  return run([TOOLS / "rclone", *args, "--stats=60s", "--stats-one-line", "--transfers=8", "--checkers=16"])
+  return run([TOOLS / "rclone", *args, "--config=", "--stats=60s", "--stats-one-line", "--stats-log-level=NOTICE",
+              "--transfers=4", "--checkers=8", "--retries=5", "--retries-sleep=30s"])
 
 
 def restic(*args, ok=(0,)):
