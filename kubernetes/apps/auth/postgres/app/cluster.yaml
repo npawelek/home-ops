@@ -27,6 +27,7 @@ spec:
       work_mem: "8MB"
       min_wal_size: "1GB"
       max_wal_size: "4GB"
+      archive_timeout: "1h"
       log_statement: "none"
       log_min_duration_statement: "500"
       password_encryption: "scram-sha-256"

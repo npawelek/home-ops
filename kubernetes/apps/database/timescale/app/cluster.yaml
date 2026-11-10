@@ -43,6 +43,7 @@ spec:
       max_wal_size: "512MB"
       max_slot_wal_keep_size: "1GB"
       wal_compression: "on"
+      archive_timeout: "1h"
       checkpoint_completion_target: "0.9"
       random_page_cost: "1.0"
       effective_io_concurrency: "200"

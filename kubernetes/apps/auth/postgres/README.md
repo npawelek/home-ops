@@ -4,8 +4,10 @@ Dedicated CNPG PostgreSQL cluster for Authentik. Backups go to Garage S3.
 
 ## Backups
 
-Scheduled every 12h at 03:30 and 15:30 UTC (9:30 PM / 9:30 AM CST). WAL is archived continuously.
-Retention: 14 days.
+Base backups daily at 04:00 UTC (`ScheduledBackup/authentik-postgres`, `0 0 4 * * *`). WAL is
+archived continuously; `archive_timeout: 1h` forces a segment switch at most hourly, so an
+archive-only restore can lose up to 1 hour of writes. Retention: 21 days
+(`ObjectStore.spec.retentionPolicy`).
 
 To trigger a manual backup:
 

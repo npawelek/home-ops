@@ -4,7 +4,7 @@ kind: ScheduledBackup
 metadata:
   name: authentik-postgres
 spec:
-  schedule: "0 0 4/12 * * *"
+  schedule: "0 0 4 * * *"
   backupOwnerReference: self
   method: plugin
   pluginConfiguration:

@@ -18,8 +18,9 @@ Status: `task cnpg:status-timescale`. Promote: `task cnpg:promote-timescale NODE
 Barman Cloud plugin to RustFS bucket `cnpg-database-timescale` (`ObjectStore/timescale-backup`,
 credentials `credentials-timescale-backup-s3`, created by `terraform/rustfs/cnpg-database-timescale.tf`).
 
-- WAL archived continuously (`ContinuousArchiving` condition).
-- Base backups at 05:30 and 17:30 UTC (`ScheduledBackup/timescale`, `0 30 5/12 * * *`).
+- WAL archived continuously (`ContinuousArchiving` condition). `archive_timeout: 1h` forces a
+  segment switch at most hourly, so an archive-only restore can lose up to 1 hour of writes.
+- Base backups daily at 04:30 UTC (`ScheduledBackup/timescale`, `0 30 4 * * *`).
 - Retention: 21 days.
 
 Tracearr also writes its own zip backups (Settings → Backup) to the `tracearr-data` PVC, which
