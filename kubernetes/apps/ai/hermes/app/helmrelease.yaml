@@ -29,7 +29,7 @@ spec:
             image: &app_image
               repository: nousresearch/hermes-agent
               # renovate: datasource=docker depName=nousresearch/hermes-agent
-              tag: v0.21.6@sha256:55e192fba0cd4fde61142abbff5adeacff40efdb482ccd0ff877924bd274f909
+              tag: v0.23.1@sha256:276d44685c65c0cb2a25f190b63c65c8906f9dc76486fb1c05ae71b5826bda08
             env:
               HOME: /opt/data
               HERMES_HOME: /opt/data
