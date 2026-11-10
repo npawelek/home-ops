@@ -135,17 +135,17 @@
     },
     "nixpkgs-firmware": {
       "locked": {
-        "lastModified": 1794350519,
-        "narHash": "sha256-dYTbpQ/+Nc9ajMleQ+zag8FNI+ed0NcoXi0GxtsmytM=",
+        "lastModified": 1794351515,
+        "narHash": "sha256-Me4suAk5+wo0K36ElHSO6DQHQJQWb4pfGN6m4fB/bD4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b3d1c28c320c4759bc03f5fd319dc03c318e4122",
+        "rev": "a1e65891fadc372a582a5351d8ccaa848b570d24",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b3d1c28c320c4759bc03f5fd319dc03c318e4122",
+        "rev": "a1e65891fadc372a582a5351d8ccaa848b570d24",
         "type": "github"
       }
     },
