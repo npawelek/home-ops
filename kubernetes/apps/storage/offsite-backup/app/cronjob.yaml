@@ -85,13 +85,11 @@ spec:
                 - name: RESTIC_PACK_SIZE
                   value: "128"
                 - name: RESTIC_KEEP
-                  value: --keep-daily 7
+                  value: --keep-daily 7 --keep-weekly 4
                 - name: RESTIC_KEEP_IMMICH
                   value: --keep-daily 7 --keep-weekly 4 --keep-monthly 6
-                - name: PRUNE_WEEKDAY
-                  value: "*"
                 - name: MIRROR_MAX_GB
-                  value: "480"
+                  value: "1200"
                 - name: PROTON_ROOT
                   value: /my-files/offsite-backups/home-ops
                 - name: PROTON_CLI_VERSION

@@ -14,6 +14,7 @@ import hashlib
 import itertools
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.request
@@ -53,6 +54,7 @@ MAX_DELETE_FRACTION = float(env("MIRROR_MAX_DELETE_FRACTION", "0.25"))
 ALLOW_MASS_DELETE = env("MIRROR_ALLOW_MASS_DELETE", "") == "1"
 MAX_BYTES = int(float(env("MIRROR_MAX_GB", "0")) * 1e9)
 UPLOAD_ORDER = {"data": 0, "index": 1, "snapshots": 2, "keys": 3, "config": 4}
+RESTIC_NAME = re.compile(r"[0-9a-f]{64}")
 
 NOTIFY_URL = env("OFFSITE_NOTIFY_URL", "")
 
@@ -266,25 +268,67 @@ def upload_remote(uploads, local, state):
     ensure_folder(target, known)
     state["folders"] = sorted(known)
     for batch in batches(group, UPLOAD_BATCH):
-      proton("filesystem", "upload", "--json", "-f", "replace", "-d", "merge", "-t",
-             *(RESTIC_REPO / r for r in batch), target, capture=True)
+      res = proton_json("filesystem", "upload", "--json", "-f", "replace", "-d", "merge", "-t",
+                        *(RESTIC_REPO / r for r in batch), target)
+      if res.get("failedItems") or res.get("transferredItems", 0) + res.get("skippedItems", 0) != len(batch):
+        raise StepError(f"upload of {len(batch)} files to {target} reported {json.dumps(res)[-500:]}")
       for r in batch:
         remote[r] = local[r]
       save_state(state)
   log(f"mirror: uploads complete, {len(remote)} files mirrored")
 
 
+def proton_json(*args):
+  p = proton(*args, capture=True)
+  try:
+    return json.loads(p.stdout)
+  except ValueError as e:
+    raise StepError(f"proton {' '.join(args[:2])} printed unexpected output: {p.stdout.strip()[-300:]!r}") from e
+
+
+def expect_all_ok(results, what):
+  failed = [r for r in results if not r.get("ok")]
+  if failed:
+    raise StepError(f"{what}: {len(failed)} items failed: {json.dumps(failed)[-500:]}")
+
+
+def trash_paths(paths):
+  while paths:
+    p = proton("filesystem", "trash", "--json", *paths, ok=range(256), capture=True)
+    if p.returncode == 0:
+      expect_all_ok(json.loads(p.stdout), "trash")
+      return
+    missing = re.search(r"Node not found: (\S+)", p.stdout + p.stderr)
+    rest = [x for x in paths if missing and x.rpartition("/")[2] != missing.group(1)]
+    if not missing or len(rest) == len(paths):
+      raise StepError(f"trash exited {p.returncode}: {(p.stderr or p.stdout).strip()[-300:]}")
+    log(f"mirror: {missing.group(1)} is already gone from its folder")
+    paths = rest
+
+
 def delete_remote(deletes, state):
   remote, trashed = state["files"], state["trashed"]
   for batch in batches(deletes, DELETE_BATCH):
-    proton("filesystem", "trash", "--json", *(f"{PROTON_REPO}/{r}" for r in batch), capture=True)
+    trash_paths([f"{PROTON_REPO}/{r}" for r in batch])
     for r in batch:
       trashed[r.rpartition("/")[2]] = remote.pop(r)
     save_state(state)
-  for batch in batches(list(trashed), DELETE_BATCH):
-    proton("filesystem", "delete", "--json", *(f"/trash/{n}" for n in batch), capture=True)
+  in_trash = {}
+  for n in proton_json("filesystem", "list", "--json", "/trash"):
+    if n.get("type") == "file" and n.get("name", {}).get("ok"):
+      in_trash[n["name"]["value"]] = n.get("totalStorageSize", 0)
+  gone = [n for n in trashed if n not in in_trash]
+  for n in gone:
+    del trashed[n]
+  if gone:
+    save_state(state)
+  stray = sorted(n for n in in_trash if RESTIC_NAME.fullmatch(n) and n not in trashed)
+  if stray:
+    log(f"mirror: purging {len(stray)} replaced copies from the trash ({gb(sum(in_trash[n] for n in stray))})")
+  for batch in batches(sorted(trashed) + stray, DELETE_BATCH):
+    expect_all_ok(proton_json("filesystem", "delete", "--json", *(f"/trash/{n}" for n in batch)), "delete")
     for n in batch:
-      del trashed[n]
+      trashed.pop(n, None)
     save_state(state)
 
 
