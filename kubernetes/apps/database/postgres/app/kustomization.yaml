@@ -10,6 +10,7 @@ resources:
   - ./credentials-firefly.sops.yaml
   - ./credentials-hass.sops.yaml
   - ./credentials-immich.sops.yaml
+  - ./credentials-kept.sops.yaml
   - ./credentials-lubelogger.sops.yaml
   - ./objectstore.yaml
   - ./scheduledbackup.yaml

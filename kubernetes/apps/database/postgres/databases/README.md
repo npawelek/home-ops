@@ -8,6 +8,7 @@ This directory contains Database CRDs for creating databases in the main postgre
 - **firefly**: Firefly III finance manager database
 - **immich**: Immich photo management database (requires vector extensions)
 - **dawarich**: Dawarich location history (PostGIS, declared in CR)
+- **kept**: Kept home inventory (pg_trgm, unaccent, vector declared in CR; four roles `kept_owner`/`kept_app`/`kept_auth`/`kept_system`; `kept_app` timeouts set by `../role-settings/kept.yaml`)
 
 ## Immich Setup
 

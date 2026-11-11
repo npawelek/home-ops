@@ -163,6 +163,46 @@ spec:
         createrole: false
         replication: false
         bypassrls: false
+      - name: kept_owner
+        ensure: present
+        passwordSecret:
+          name: credentials-kept-owner
+        login: true
+        createdb: false
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
+      - name: kept_app
+        ensure: present
+        passwordSecret:
+          name: credentials-kept-app
+        login: true
+        createdb: false
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
+      - name: kept_auth
+        ensure: present
+        passwordSecret:
+          name: credentials-kept-auth
+        login: true
+        createdb: false
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
+      - name: kept_system
+        ensure: present
+        passwordSecret:
+          name: credentials-kept-system
+        login: true
+        createdb: false
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
 
     services:
       disabledDefaultServices: ["ro", "r"]

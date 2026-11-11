@@ -1,0 +1,26 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: kept
+spec:
+  cluster:
+    name: postgres
+  name: kept
+  owner: kept_owner
+  extensions:
+    - name: pg_trgm
+      ensure: present
+      schema: public
+    - name: unaccent
+      ensure: present
+      schema: public
+    - name: vector
+      ensure: present
+      schema: public
+      # yamllint disable-line rule:line-length
+      # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/pgvector extractVersion=^(?<version>\d+\.\d+\.\d+)-18-trixie$
+      version: 0.8.7
+  schemas:
+    - name: public
+      owner: kept_owner

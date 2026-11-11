@@ -8,3 +8,4 @@ resources:
   - ./lubelogger.yaml
   - ./buzz.yaml
   - ./dawarich.yaml
+  - ./kept.yaml

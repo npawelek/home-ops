@@ -1,0 +1,52 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kept
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: kept
+  interval: 1h
+  values:
+    podAnnotations:
+      reloader.stakater.com/auto: "true"
+    publicUrl: https://kept.${SECRET_DOMAIN}
+    postgres:
+      bundled: false
+      database: kept
+      external:
+        host: postgres-rw.database.svc.cluster.local
+        port: 5432
+        sslMode: require
+    roles:
+      existingSecret: kept-secrets
+      create: false
+    keys:
+      existingSecret: kept-secrets
+    storage:
+      mode: local
+      persistence:
+        size: 5Gi
+        storageClass: longhorn
+        accessMode: ReadWriteOnce
+    backup:
+      enabled: true
+      existingSecret: kept-secrets
+      persistence:
+        enabled: true
+        existingClaim: racknas-services-kept
+    trustedProxies: 10.32.0.0/12
+    extraEnv:
+      - name: KEPT_OIDC_ISSUER
+        value: https://auth.${SECRET_DOMAIN}/application/o/kept/
+      - name: KEPT_OIDC_CLIENT_ID
+        value: kept
+      - name: KEPT_OIDC_NAME
+        value: Authentik
+      - name: KEPT_OIDC_AUTOPROVISION_GROUPS
+        value: kept-users
+      - name: KEPT_SIGNUP_OPEN
+        value: "false"
+      - name: KEPT_UPDATE_CHECK
+        value: "false"

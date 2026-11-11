@@ -10,6 +10,7 @@ resources:
   - ./namespace.yaml
   - ./postgres/ks.yaml
   - ./postgres/databases-ks.yaml
+  - ./postgres/role-settings-ks.yaml
   - ./timescale/ks.yaml
   - ./timescale/databases-ks.yaml
   - ./pgadmin/ks.yaml
