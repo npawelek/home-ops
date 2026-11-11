@@ -18,7 +18,6 @@ spec:
       external:
         host: postgres-rw.database.svc.cluster.local
         port: 5432
-        sslMode: require
     roles:
       existingSecret: kept-secrets
       create: false
