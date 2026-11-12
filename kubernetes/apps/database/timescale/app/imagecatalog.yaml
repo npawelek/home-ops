@@ -9,4 +9,4 @@ spec:
   images:
     - major: 18
       # yamllint disable-line rule:line-length
-      image: timescale/timescaledb-ha:pg18.6-ts2.31.0@sha256:ad8b5095c9e9f19b3c97794133f1dd80f09da9566a5687f79b6208324b98a388
+      image: timescale/timescaledb-ha:pg18.6-ts2.31.0@sha256:b548f0d2afa7bbce9ab4f51268e095c6bd9725ab19f9df5792e62d0bbaad8d34
