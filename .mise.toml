@@ -66,7 +66,7 @@ enter = "mise run check-deps"
 # TODO: verify Renovate tracks this inline-table pin (first bump PR/automerge, or Dependency Dashboard lists npm:renovate)
 "npm:renovate" = { version = "44.133.0", trust_policy_excludes = ["@yarnpkg/libzip@3.2.2"] }
 "github:fluxcd/flux-schema" = "0.17.0"
-"github:home-operations/flate" = "0.6.5"
+"github:home-operations/flate" = "0.7.3"
 "github:postfinance/topf" = "0.6.2"
 "pipx:asitop" = "0.0.24"
 "pipx:ha-mcp" = "9.1.1"
