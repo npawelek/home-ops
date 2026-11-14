@@ -174,7 +174,16 @@ spec:
         # SIEM events; UniFi switches/APs send "<mac>,<model>-<fw>" with
         # hostname = model. Split appname so the MAC (the only per-device
         # identifier) survives as metadata, then fall back to host.name.
+        # UniFi devices on ESP-based firmware (e.g. USW-Flex-2.5G) omit the
+        # timestamp, so rfc3164 parsing fails and the raw line lands in body;
+        # re-parse it and name the device by model.
         operators: &syslog_operators
+          - type: regex_parser
+            if: 'attributes.hostname == nil and body matches "^<[0-9]+>[^ ]+ [0-9a-fA-F]{12},"'
+            parse_from: body
+            parse_to: attributes
+            regex: '^<(?P<priority>\d+)>\S+ (?P<appname>[0-9a-fA-F]{12},[^:]+): (?P<message>.*)$'
+            on_error: send_quiet
           - type: move
             if: attributes.hostname != nil
             from: attributes.hostname
@@ -199,6 +208,10 @@ spec:
             if: attributes.appname != nil and not (attributes.appname contains ",")
             from: attributes.appname
             to: resource["service.name"]
+          - type: copy
+            if: resource["host.name"] == nil and attributes.unifi_model != nil
+            from: attributes.unifi_model
+            to: resource["host.name"]
           - type: copy
             if: resource["service.name"] == nil and resource["host.name"] != nil
             from: resource["host.name"]
