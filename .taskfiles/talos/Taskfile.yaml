@@ -52,7 +52,7 @@ tasks:
       - which topf
 
   apply:
-    desc: Apply Talos config to every node [MODE=auto]
+    desc: Apply Talos config to every node [MODE=auto (or reboot, no-reboot, staged, try)]
     dir: '{{.TALOS_DIR}}'
     cmd: topf apply --mode={{.MODE}}
     vars:
@@ -64,7 +64,7 @@ tasks:
       - which topf
 
   apply-node:
-    desc: Apply Talos config to a single node [HOST=required, MODE=auto]
+    desc: Apply Talos config to a single node [HOST=required (e.g. m1), MODE=auto (or reboot, no-reboot, staged, try)]
     dir: '{{.TALOS_DIR}}'
     # topf dials nodes in maintenance mode too, so this also bootstraps a new node.
     cmd: topf apply --nodes-filter '^{{.HOST}}$' --mode={{.MODE}}
@@ -90,7 +90,7 @@ tasks:
       - which topf
 
   upgrade-node:
-    desc: Upgrade Talos on a single node [HOST=required]
+    desc: Upgrade Talos on a single node [HOST=required (e.g. m1)]
     dir: '{{.TALOS_DIR}}'
     # --drain defaults to true, so Longhorn PDBs gate the reboot.
     cmd: topf upgrade --nodes-filter '^{{.HOST}}$'
@@ -104,7 +104,9 @@ tasks:
       - which topf
 
   upgrade-safe:
-    desc: Upgrade Talos per-node, gating each step on drain PDBs and Longhorn rebuild [WORKERS=topf order]
+    desc: >-
+      Upgrade Talos per-node, gating each step on drain PDBs and Longhorn rebuild
+      [WORKERS=topf order (e.g. "rocinante donnager hammurabi")]
     dir: '{{.TALOS_DIR}}'
     prompt: Upgrade Talos to {{.TALOS_VERSION}} on every node, one at a time... continue?
     vars:
@@ -145,7 +147,9 @@ tasks:
         msg: 'WORKERS="{{.WORKERS}}" must list every worker in talos/topf.yaml exactly once'
 
   upgrade-k8s-safe:
-    desc: Upgrade Kubernetes per-node, gating each step on drain PDBs and Longhorn rebuild
+    desc: >-
+      Upgrade Kubernetes per-node, gating each step on drain PDBs and Longhorn rebuild
+      [WORKERS=topf order (e.g. "rocinante donnager hammurabi")]
     dir: '{{.TALOS_DIR}}'
     vars:
       KUBERNETES_VERSION:
@@ -153,7 +157,7 @@ tasks:
       CONTROL_PLANE_IP:
         sh: yq '[.nodes[] | select(.role == "control-plane")][0].ip' {{.TALOS_DIR}}/topf.yaml
       # Worker kubelet order, space-separated hostnames. Control-plane nodes always go
-      # first, in topf.yaml order. Override with e.g. WORKERS="hammurabi pella donnager".
+      # first, in topf.yaml order.
       TOPF_WORKERS:
         sh: yq '[.nodes[] | select(.role != "control-plane") | .host] | join(" ")' {{.TALOS_DIR}}/topf.yaml
       WORKERS: '{{.WORKERS | default .TOPF_WORKERS}}'
