@@ -3,6 +3,9 @@ apiVersion: v1alpha1
 kind: KubeletConfig
 config:
   serializeImagePulls: false
+  imageGCHighThresholdPercent: 70
+  imageGCLowThresholdPercent: 55
+  imageMaximumGCAge: 168h
 ---
 apiVersion: v1alpha1
 kind: KubeNodeConfig
