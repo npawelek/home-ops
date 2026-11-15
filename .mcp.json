@@ -43,6 +43,25 @@
         "-c",
         "exec mcp-remote \"https://trek.${SECRET_DOMAIN}/mcp\""
       ]
+    },
+    "unifi-network": {
+      "type": "stdio",
+      "command": "mise",
+      "args": [
+        "x",
+        "--",
+        "sh",
+        "-c",
+        "UNIFI_NETWORK_HOST=\"udmp.${SECRET_DOMAIN}\" exec unifi-network-mcp"
+      ],
+      "env": {
+        "UNIFI_NETWORK_CONTROLLER_TYPE": "proxy",
+        "UNIFI_NETWORK_VERIFY_SSL": "true",
+        "UNIFI_POLICY_NETWORK_CREATE": "false",
+        "UNIFI_POLICY_NETWORK_UPDATE": "false",
+        "UNIFI_POLICY_NETWORK_DELETE": "false",
+        "UNIFI_TOOL_REGISTRATION_MODE": "eager"
+      }
     }
   }
 }
