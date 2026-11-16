@@ -35,8 +35,22 @@ spec:
       persistence:
         enabled: true
         existingClaim: racknas-services-kept
+    smtp:
+      from: Kept <${EMAIL_FROM}>
     trustedProxies: 10.32.0.0/12
     extraEnv:
+      - name: SMTP_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: cluster-secrets
+            key: EMAIL_USERNAME
+      - name: SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: cluster-secrets
+            key: EMAIL_PASSWORD
+      - name: KEPT_SMTP_URL
+        value: smtp://$(SMTP_USERNAME):$(SMTP_PASSWORD)@${EMAIL_HOST}:587?requireTLS=true
       - name: KEPT_OIDC_ISSUER
         value: https://auth.${SECRET_DOMAIN}/application/o/kept/
       - name: KEPT_OIDC_CLIENT_ID
