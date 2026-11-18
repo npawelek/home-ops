@@ -7,10 +7,6 @@ set -Eeuo pipefail
 
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 
-# flate wipes SOPS values to ..PLACEHOLDER_<KEY>.. (also after ${VAR/./-}),
-# which fails hostname patterns. Swap in a DNS-safe label.
-PLACEHOLDER_SED='s/[.-]\.PLACEHOLDER_[A-Za-z0-9_]+\.\./placeholder/g'
-
 # The API server accepts numeric quantities (resources.limits.cpu: 1, divisor: 1),
 # but flux-schema types Quantity as string only, and its skipJSONPath cannot
 # descend into arrays. Quote them so upstream charts (cilium, spegel) pass.
@@ -20,7 +16,7 @@ QUANTITY_YQ='(.. | select((tag == "!!int" or tag == "!!float") and (path | lengt
   |= (tostring | . style="double")'
 
 # FLATE_KUBE_VERSION and FLATE_API_VERSIONS come from mise (local) or the workflow (CI).
-flate build all --path "${ROOT_DIR}/kubernetes/flux/cluster" --no-progress "$@" \
-  | sed -E "${PLACEHOLDER_SED}" \
+"${ROOT_DIR}/scripts/flate-supply.sh" \
+  | flate build all --path "${ROOT_DIR}/kubernetes/flux/cluster" --supply - --disable-chart-digest-tracking --no-progress "$@" \
   | yq "${QUANTITY_YQ}" \
   | flux-schema validate --config "${ROOT_DIR}/.fluxschema.yml"

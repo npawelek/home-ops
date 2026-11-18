@@ -37,7 +37,7 @@ tasks:
   validate:
     desc: Validate Kubernetes manifests with flate and flux-schema
     cmds:
-      - flate test all --path {{.KUBERNETES_DIR}}/flux/cluster
+      - "{{.SCRIPTS_DIR}}/flate-supply.sh | flate test all --path {{.KUBERNETES_DIR}}/flux/cluster --supply -"
       - "{{.SCRIPTS_DIR}}/flux-schema-validate.sh"
     preconditions:
       - which flate

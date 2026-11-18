@@ -37,10 +37,14 @@ jobs:
           cache: true
 
       - name: Run flate test
-        run: flate test all --path kubernetes/flux/cluster --no-progress
+        shell: bash
+        run: scripts/flate-supply.sh | flate test all --path kubernetes/flux/cluster --supply - --no-progress
 
       - name: Run flate diff
-        run: flate diff all --path kubernetes/flux/cluster --no-progress -o github > diff.patch
+        shell: bash
+        run: |
+          scripts/flate-supply.sh \
+            | flate diff all --path kubernetes/flux/cluster --supply - --no-progress -o github > diff.patch
 
       - name: Generate Diff
         id: diff
