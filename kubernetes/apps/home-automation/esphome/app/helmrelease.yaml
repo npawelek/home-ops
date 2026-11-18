@@ -43,14 +43,6 @@ spec:
                   - ALL
       code-server:
         type: statefulset
-        pod:
-          affinity:
-            podAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchLabels:
-                      app.kubernetes.io/name: esphome
-                  topologyKey: kubernetes.io/hostname
         containers:
           code-server:
             image:
@@ -79,6 +71,13 @@ spec:
               limits:
                 memory: 2Gi
     defaultPodOptions:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: esphome
+              topologyKey: kubernetes.io/hostname
       securityContext:
         runAsUser: 2000
         runAsGroup: 2000
