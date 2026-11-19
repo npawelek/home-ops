@@ -23,7 +23,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/esphome
-              tag: 2026.10.2@sha256:6b9ca8fd3777f4fbe7ad2717bf4de77f916442bd94270a4cd74ac9f4b4157ec8
+              tag: 2026.11.0@sha256:64fe15dc9336041289e6ef1ca8f45359568ae84dea84f319627cbab6738c611f
             env:
               TZ: ${TIMEZONE}
               PLATFORMIO_CORE_DIR: /cache/platformio
