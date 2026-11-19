@@ -12,4 +12,4 @@ spec:
   ref:
     tag: 2026.8.5
     # upstream re-pushes tags without version bumps; pin digest
-    digest: sha256:9683518d02b5e41f69d045b59a779c40260608b5631d18273407ea2cfe708712
+    digest: sha256:1ddb1f44b3a6d322dcc26cf6181d0765c28f256f97a813b825511a567b36c766
