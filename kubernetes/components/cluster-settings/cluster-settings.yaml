@@ -4,4 +4,4 @@ kind: ConfigMap
 metadata:
   name: cluster-settings
 data:
-  OLLAMA_MODEL: qwen3.5:35b-a3b
+  OLLAMA_MODEL: nemotron-3.5-lightning:30b-a3b-nvfp4

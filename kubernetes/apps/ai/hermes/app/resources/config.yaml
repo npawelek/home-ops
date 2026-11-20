@@ -9,7 +9,7 @@ providers:
     default_model: ${OLLAMA_MODEL}
     models:
       ${OLLAMA_MODEL}:
-        context_length: 65536
+        context_length: 131072
 toolsets:
   - hermes-cli
 platform_toolsets:
