@@ -11,6 +11,6 @@ spec:
   values:
     modelCache:
       mode: perService
-      size: 10Gi
+      size: 1Gi
       storageClass: longhorn-local
       prep: never
