@@ -8,6 +8,9 @@ spec:
     # Allows SecurityPolicy resources from associated namespaces to reference the authentik outpost service
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
+      namespace: ai
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
       namespace: budget
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy

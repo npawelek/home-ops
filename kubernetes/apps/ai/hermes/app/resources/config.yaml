@@ -10,8 +10,6 @@ providers:
     models:
       ${OLLAMA_MODEL}:
         context_length: 131072
-toolsets:
-  - hermes-cli
 platform_toolsets:
   buzz:
     - clarify
@@ -21,17 +19,31 @@ platform_toolsets:
     - skills
     - terminal
     - todo
+    - web
+known_plugin_toolsets:
+  buzz:
+    - camofox
+  webhook:
+    - camofox
+plugins:
+  disabled: []
+  enabled:
+    - camofox
+  auto_update_check_hours: 0
+skills:
+  external_dirs:
+    - /opt/data/.agents/skills
 agent:
   max_turns: 90
-  gateway_timeout: 1800
-  restart_drain_timeout: 180
-  api_max_retries: 3
-  tool_use_enforcement: auto
+  run_budget_seconds: 3600
+  restart_drain_timeout: 60
   reasoning_effort: medium
   disabled_toolsets:
     - browser
+    - camofox
     - code_execution
     - computer_use
+    - connections
     - cronjob
     - delegation
     - homeassistant
@@ -46,34 +58,54 @@ browser:
 terminal:
   backend: local
   cwd: /opt/data/workspace
-  timeout: 180
-  persistent_shell: true
   home_mode: real
 compression:
-  enabled: true
-  threshold: 0.5
-  target_ratio: 0.2
-  protect_last_n: 20
+  threshold_tokens: 275000
 display:
   platforms:
     buzz:
       interim_assistant_messages: false
       tool_progress: 'off'
 memory:
-  memory_enabled: true
-  user_profile_enabled: false
-  write_approval: false
-  memory_char_limit: 2200
-  user_char_limit: 1375
+  user_profile_enabled: true
+auxiliary:
+  title_generation:
+    model_upgrade_enabled: false
 security:
   allow_private_urls: true
   redact_secrets: true
-streaming:
-  enabled: false
 approvals:
   mode: smart
-  timeout: 60
-  cron_mode: deny
+web:
+  search_backend: searxng
+  keyless_fallback: false
+  keyless_rescue: false
+kanban:
+  max_in_progress: 4
+nous:
+  guest: false
+tools:
+  connectors:
+    enabled: false
+auth:
+  adopt_external_logins: false
+privacy:
+  redact_pii: true
+telemetry:
+  shared_metrics:
+    enabled: false
+    send: false
+updates:
+  check: false
+model_catalog:
+  enabled: false
+dashboard:
+  public_url: https://hermes.${SECRET_DOMAIN}
+  oauth:
+    provider: self-hosted
+    self_hosted:
+      issuer: https://auth.${SECRET_DOMAIN}/application/o/hermes-dashboard/
+      client_id: hermes-dashboard
 gateway:
   message_timestamps:
     enabled: true
@@ -81,10 +113,12 @@ gateway:
     buzz:
       enabled: true
       extra:
-        transport: auto
         require_mention: true
-        poll_interval: 4
         allow_all_users: false
-web:
-  search_backend: searxng
-_config_version: 39
+_config_version: 54
+_left_core_installed:
+  - camofox
+_left_core_scoped:
+  - camofox
+_left_core_used:
+  - camofox
