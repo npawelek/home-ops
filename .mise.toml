@@ -37,7 +37,7 @@ enter = "mise run check-deps"
 "aqua:awscli" = "2.41.0"
 "aqua:BurntSushi/ripgrep" = "15.2.0"
 "aqua:cilium/cilium-cli" = "0.20.3"
-"aqua:cli/cli" = "2.104.0"
+"aqua:cli/cli" = "2.105.0"
 "aqua:cloudnative-pg/cloudnative-pg/kubectl-cnpg" = "1.30.2"
 # TODO: verify Renovate tracks this inline-table pin (first bump PR, or Dependency Dashboard lists aqua:controlplaneio-fluxcd/flux-operator)
 "aqua:controlplaneio-fluxcd/flux-operator" = { version = "0.62.1", postinstall = "flux-operator skills install ghcr.io/fluxcd/agent-skills --agent claude-code" }
