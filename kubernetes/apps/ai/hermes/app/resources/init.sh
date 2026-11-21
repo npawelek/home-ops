@@ -5,6 +5,8 @@ set -euo pipefail
 readonly CONFIG_DIR=/run/config
 readonly DATA_DIR=/opt/data
 readonly PROXY_ENV=HTTP_PROXY,HTTPS_PROXY,NO_PROXY,http_proxy,https_proxy,no_proxy
+readonly REPO_URL=https://github.com/npawelek/home-ops.git
+readonly REPO_DIR=${DATA_DIR}/repos/home-ops
 
 install_config() {
   install -m 0644 -o hermes -g hermes "${CONFIG_DIR}/config.yaml" "${DATA_DIR}/config.yaml"
@@ -40,18 +42,22 @@ install_env() {
   install -m 0600 -o hermes -g hermes "${src}" "${DATA_DIR}/.env"
 }
 
-opt_out_bundled_skills() {
-  [[ -e ${DATA_DIR}/.no-bundled-skills ]] && return 0
-  su - hermes -c "HERMES_HOME=${DATA_DIR} /opt/hermes/.venv/bin/hermes skills opt-out --remove --yes" \
-    || echo "warning: skills opt-out failed" >&2
-}
+# root-owned sparse checkout of the repo's skills; the agent can read but not edit it
+sync_skills() (
+  export GIT_CONFIG_GLOBAL=/dev/null
+  [[ -d ${REPO_DIR}/.git ]] \
+    || git clone --quiet --depth 1 --filter=blob:none --sparse "${REPO_URL}" "${REPO_DIR}"
+  git -C "${REPO_DIR}" sparse-checkout set --no-cone /.agents/skills/ \
+    && git -C "${REPO_DIR}" fetch --quiet --depth 1 origin main \
+    && git -C "${REPO_DIR}" reset --quiet --hard FETCH_HEAD
+)
 
 main() {
   install_config
   install_mise
   bash "${CONFIG_DIR}/git-init.sh"
   install_env
-  opt_out_bundled_skills
+  sync_skills || echo "warning: skills sync failed; keeping the previous checkout" >&2
 }
 
 main "$@"

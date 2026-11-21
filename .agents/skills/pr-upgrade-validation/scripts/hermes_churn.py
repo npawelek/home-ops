@@ -17,6 +17,7 @@ import urllib.parse
 import yaml
 
 REPO = "NousResearch/hermes-agent"
+IMAGE_ROOT = "/opt/hermes"
 DEFAULTS_FILES = ("hermes_cli/config_defaults.py", "hermes_cli/config.py")
 PRIVACY_RE = re.compile(r"telemetry|metric|analytic|update|catalog|share|report|remote|cloud|sync|upload|phone|track", re.I)
 GATING_RE = re.compile(r"platform_toolsets|known_builtin_toolsets|known_plugin_toolsets|disabled_toolsets|skills|plugins|toolset", re.I)
@@ -43,11 +44,20 @@ def tree(ref):
   data = json.loads(out)
   if data.get("truncated"):
     sys.exit(f"tree for {ref} is truncated; fall back to a blobless clone")
-  return {e["path"] for e in data["tree"] if e["type"] == "blob"}
+  return {e["path"]: e["sha"] for e in data["tree"] if e["type"] == "blob"}
 
 
 def skill_dirs(paths, root):
   return {p[: -len("/SKILL.md")] for p in paths if p.startswith(root + "/") and p.endswith("/SKILL.md")}
+
+
+def differs(d, old_t, new_t):
+  files = lambda t: {p: s for p, s in t.items() if p.startswith(d + "/")}
+  return files(old_t) != files(new_t)
+
+
+def name_of(p):
+  return p.rsplit("/", 1)[1]
 
 
 def plugin_dirs(paths):
@@ -151,6 +161,9 @@ def main():
   cfg = yaml.safe_load(open(a.config)) or {}
   plat = a.platform
   disabled_skills = set((cfg.get("skills") or {}).get("disabled") or [])
+  external = (cfg.get("skills") or {}).get("external_dirs") or []
+  opt_prefix = f"{IMAGE_ROOT}/optional-skills/"
+  picked = {e[len(IMAGE_ROOT) + 1:] for e in external if e.startswith(opt_prefix)}
   allowed = set((cfg.get("platform_toolsets") or {}).get(plat) or [])
   disabled_ts = set((cfg.get("agent") or {}).get("disabled_toolsets") or [])
   known_builtin = set((cfg.get("known_builtin_toolsets") or {}).get(plat) or [])
@@ -176,13 +189,20 @@ def main():
     print(f"- `_migrate_to_{v}`{flag}: {doc or comments or '(no description; read the source)'}")
   print()
 
-  print("## Bundled skills (seeded ENABLED on upgrade unless in skills.disabled)")
+  print("## Skills (served read-only from the image via skills.external_dirs)")
+  if f"{IMAGE_ROOT}/skills" not in external:
+    print(f"- **`{IMAGE_ROOT}/skills` is not in skills.external_dirs**: bundled skills get copied to the PVC"
+          " and leave stale copies behind; add it back")
+  dockerfile = raw("Dockerfile", a.new)
+  if dockerfile is not None and IMAGE_ROOT not in dockerfile:
+    print(f"- **Dockerfile at {a.new} no longer mentions `{IMAGE_ROOT}`**: every image skill path in"
+          " skills.external_dirs may be dead; check where the image installs skills/")
   ob, nb = skill_dirs(old_t, "skills"), skill_dirs(new_t, "skills")
   oo, no = skill_dirs(old_t, "optional-skills"), skill_dirs(new_t, "optional-skills")
-  base = lambda s: {p.rsplit("/", 1)[1] for p in s}
-  added = sorted(nb - ob, key=lambda p: p.rsplit("/", 1)[1])
+  base = lambda s: {name_of(p) for p in s}
+  added = sorted(nb - ob, key=name_of)
   if not added:
-    print("- none added")
+    print("- no bundled skills added")
   for p in added:
     fm = frontmatter(raw(p + "/SKILL.md", a.new))
     name = fm.get("name") or p.rsplit("/", 1)[1]
@@ -193,15 +213,35 @@ def main():
     extra = [f"{k}={v}" for k, v in (("platforms", fm.get("platforms")), ("requires_toolsets", req), ("prerequisites", pre)) if v]
     print(f"- `{name}` ({p}) — {state}: {str(fm.get('description', '')).strip()}"
           + "".join(f" | {e}" for e in extra))
-  for p in sorted(ob - nb):
-    n = p.rsplit("/", 1)[1]
-    where = "moved to optional-skills" if n in base(no) else "removed upstream"
-    state = "disabled in config" if n in disabled_skills else "**orphan PVC copy stays enabled and stops updating**"
-    print(f"- removed from bundled: `{n}` — {where}; {state}")
-  print(f"- optional-skills: +{len(no - oo)} / -{len(oo - no)} (hub-installable only; matters if installed)")
-  stale = sorted(n for n in disabled_skills if n not in base(nb) | base(no))
+  for p in sorted(ob - nb, key=name_of):
+    n = name_of(p)
+    if n in disabled_skills:
+      state = "was disabled; drop it from skills.disabled"
+    elif n in base(no):
+      dest = next(q for q in no if name_of(q) == n)
+      state = (f"moved to optional; picked in skills.external_dirs" if dest in picked else
+               f"**moved to optional; gone unless `{IMAGE_ROOT}/{dest}` is added to skills.external_dirs**")
+    else:
+      state = "**removed upstream; gone**"
+    print(f"- removed from bundled: `{n}` — {state}")
+  for p in sorted(picked, key=name_of):
+    n = name_of(p)
+    if p in no:
+      if p in oo and differs(p, old_t, new_t):
+        print(f"- picked optional `{n}`: updated in {a.new}")
+    elif n in base(nb):
+      print(f"- picked optional `{n}`: promoted to bundled; drop `{IMAGE_ROOT}/{p}` from skills.external_dirs")
+    elif n in base(no):
+      dest = next(q for q in no if name_of(q) == n)
+      print(f"- picked optional `{n}`: **moved; change its external_dirs entry to `{IMAGE_ROOT}/{dest}`**")
+    else:
+      print(f"- picked optional `{n}`: **removed upstream; its external_dirs entry is now a silent no-op**")
+  upd = sorted(name_of(p) for p in nb & ob if name_of(p) not in disabled_skills and differs(p, old_t, new_t))
+  print(f"- enabled bundled skills updated in {a.new} ({len(upd)}): {', '.join(upd) or 'none'}")
+  print(f"- optional-skills: +{len(no - oo)} / -{len(oo - no)} (invisible unless listed in skills.external_dirs)")
+  stale = sorted(n for n in disabled_skills if n not in base(nb))
   if stale:
-    print(f"- `skills.disabled` names absent from {a.new} bundled+optional: {stale} (may be local/hub-only or stale)")
+    print(f"- `skills.disabled` names not bundled in {a.new} (no-op entries; drop them): {stale}")
   print()
 
   print(f"## Built-in toolsets ({plat} uses an explicit platform_toolsets list)")

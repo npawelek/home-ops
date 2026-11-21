@@ -8,7 +8,7 @@ hk = "2.13.0"
 jq = "1.8.2"
 rg = "15.2.0"
 rust = "1.100.0"
-"aqua:controlplaneio-fluxcd/flux-operator" = { version = "0.62.1", postinstall = "flux-operator skills install ghcr.io/fluxcd/agent-skills" }
+"aqua:controlplaneio-fluxcd/flux-operator" = "0.62.1"
 "github:bdellegrazie/git-credential-github-app" = "0.4.6"
 
 [tools."cargo:https://github.com/block/buzz"]

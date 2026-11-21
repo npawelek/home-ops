@@ -32,9 +32,41 @@ plugins:
   auto_update_check_hours: 0
 skills:
   external_dirs:
-    - /opt/data/.agents/skills
+    - /opt/hermes/skills
+    - /opt/hermes/optional-skills/media/gif-search
+    - /opt/hermes/optional-skills/software-development/hermes-agent-skill-authoring
+    - /opt/hermes/optional-skills/software-development/inspecting-hermes-desktop-dom
+    - /opt/hermes/optional-skills/software-development/node-inspect-debugger
+    - /opt/hermes/optional-skills/software-development/python-debugpy
+    - /opt/data/repos/home-ops/.agents/skills
+  disabled:
+    - apple-notes
+    - apple-reminders
+    - arxiv
+    - ascii-video
+    - baoyu-infographic
+    - claude-code
+    - claude-design
+    - codebase-inspection
+    - codex
+    - computer-use
+    - dogfood
+    - email-inbox-triage
+    - findmy
+    - google-workspace
+    - himalaya
+    - imessage
+    - manim-video
+    - meeting-action-items
+    - obsidian
+    - p5js
+    - popular-web-designs
+    - teams-meeting-pipeline
+    - test-driven-development
+    - weekly-review-planning
+    - xurl
 agent:
-  max_turns: 90
+  max_turns: 60
   run_budget_seconds: 3600
   restart_drain_timeout: 60
   reasoning_effort: medium
