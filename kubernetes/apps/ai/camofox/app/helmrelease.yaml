@@ -15,11 +15,9 @@ spec:
     defaultPodOptions:
       terminationGracePeriodSeconds: 60
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
-        fsGroupChangePolicy: OnRootMismatch
+        # The published image (Dockerfile.ci) bakes the browser into /root/.cache/camoufox (mode 0700).
+        runAsUser: 0
+        runAsGroup: 0
         seccompProfile:
           type: RuntimeDefault
     controllers:
