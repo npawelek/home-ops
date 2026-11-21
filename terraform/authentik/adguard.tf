@@ -13,7 +13,7 @@ resource "authentik_application" "adguard_primary" {
   name               = "AdGuard Home (Primary)"
   slug               = "adguard-primary"
   protocol_provider  = authentik_provider_proxy.adguard_primary.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/adguardhome.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/adguard.svg"
   meta_launch_url    = "https://adguard-primary.${var.domain}"
   policy_engine_mode = "any"
 }

@@ -13,7 +13,7 @@ resource "authentik_application" "pinchflat" {
   name               = "Pinchflat"
   slug               = "pinchflat"
   protocol_provider  = authentik_provider_proxy.pinchflat.id
-  meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/pinchflat.png"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/pinchflat.png"
   meta_launch_url    = "https://pinchflat.${var.domain}"
   policy_engine_mode = "any"
 }

@@ -44,7 +44,7 @@ resource "authentik_application" "rustfs" {
   name               = "RustFS"
   slug               = "rustfs"
   protocol_provider  = authentik_provider_oauth2.rustfs.id
-  meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/rustfs.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/rustfs.svg"
   meta_launch_url    = "https://rustfs.${var.domain}"
   policy_engine_mode = "any"
 }

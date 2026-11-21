@@ -30,7 +30,7 @@ resource "authentik_application" "tracearr" {
   name               = "Tracearr"
   slug               = "tracearr"
   protocol_provider  = authentik_provider_oauth2.tracearr.id
-  meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/tracearr.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/tracearr.svg"
   meta_launch_url    = "https://tracearr.${var.domain}"
   policy_engine_mode = "any"
 }

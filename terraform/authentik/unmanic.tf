@@ -13,7 +13,7 @@ resource "authentik_application" "unmanic" {
   name               = "Unmanic"
   slug               = "unmanic"
   protocol_provider  = authentik_provider_proxy.unmanic.id
-  meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/png/unmanic.png"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/unmanic.png"
   meta_launch_url    = "https://unmanic.${var.domain}"
   policy_engine_mode = "any"
 }

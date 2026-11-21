@@ -1,7 +1,7 @@
 resource "authentik_application" "jellyseerr" {
   name               = "Requests"
   slug               = "jellyseerr"
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/jellyseerr.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/jellyseerr.svg"
   meta_launch_url    = "https://requests.${var.domain}"
   open_in_new_tab    = true
   policy_engine_mode = "any"

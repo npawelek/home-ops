@@ -43,7 +43,7 @@ resource "authentik_application" "dawarich" {
   name               = "Dawarich"
   slug               = "dawarich"
   protocol_provider  = authentik_provider_oauth2.dawarich.id
-  meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/dawarich.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/dawarich.svg"
   meta_launch_url    = "https://dawarich.${var.domain}"
   policy_engine_mode = "any"
 }

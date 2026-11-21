@@ -13,7 +13,7 @@ resource "authentik_application" "esphome" {
   name               = "ESPHome"
   slug               = "esphome"
   protocol_provider  = authentik_provider_proxy.esphome.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/esphome.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/esphome.svg"
   meta_launch_url    = "https://esphome.${var.domain}"
   policy_engine_mode = "any"
 }

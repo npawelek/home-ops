@@ -35,7 +35,7 @@ resource "authentik_application" "audiobookshelf" {
   name               = "Audiobookshelf"
   slug               = "audiobookshelf"
   protocol_provider  = authentik_provider_oauth2.audiobookshelf.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/audiobookshelf.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/audiobookshelf.svg"
   meta_launch_url    = "https://audiobookshelf.${var.domain}/login?autoLaunch=1"
   policy_engine_mode = "any"
 }

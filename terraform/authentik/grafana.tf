@@ -33,7 +33,7 @@ resource "authentik_application" "grafana" {
   name               = "Grafana"
   slug               = "grafana"
   protocol_provider  = authentik_provider_oauth2.grafana.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/grafana.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/grafana.svg"
   meta_launch_url    = "https://grafana.${var.domain}"
   policy_engine_mode = "any"
 }

@@ -13,7 +13,7 @@ resource "authentik_application" "victoriametrics" {
   name               = "VictoriaMetrics"
   slug               = "victoriametrics"
   protocol_provider  = authentik_provider_proxy.victoriametrics.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/victoriametrics-white.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/victoriametrics.svg"
   meta_launch_url    = "https://victoriametrics.${var.domain}/vmui"
   policy_engine_mode = "any"
 }

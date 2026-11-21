@@ -13,7 +13,7 @@ resource "authentik_application" "firefly_importer" {
   name               = "Firefly Importer"
   slug               = "firefly-importer"
   protocol_provider  = authentik_provider_proxy.firefly_importer.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/firefly-iii.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/firefly.svg"
   meta_launch_url    = "https://firefly-importer.${var.domain}"
   policy_engine_mode = "any"
 }

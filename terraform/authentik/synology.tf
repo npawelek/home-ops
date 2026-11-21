@@ -31,7 +31,7 @@ resource "authentik_application" "synology" {
   name               = "Synology DSM"
   slug               = "synology-dsm"
   protocol_provider  = authentik_provider_oauth2.synology.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/synology-white.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/synology.svg"
   meta_launch_url    = "https://racknas.${var.domain}"
   policy_engine_mode = "any"
 }

@@ -13,7 +13,7 @@ resource "authentik_application" "node_red" {
   name               = "Node-RED"
   slug               = "node-red"
   protocol_provider  = authentik_provider_proxy.node_red.id
-  meta_icon          = "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/refs/heads/main/assets/nodered.svg"
+  meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/node-red.svg"
   meta_launch_url    = "https://nodered.${var.domain}"
   policy_engine_mode = "any"
 }
