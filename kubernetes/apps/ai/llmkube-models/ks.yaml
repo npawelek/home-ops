@@ -8,11 +8,15 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/gpu
   dependsOn:
     - name: llmkube
       namespace: llmkube-system
     - name: longhorn
       namespace: longhorn-system
+    - name: intel-gpu-resource-driver
+      namespace: kube-system
   path: ./kubernetes/apps/ai/llmkube-models/app
   prune: true
   sourceRef:
@@ -23,3 +27,6 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 15m
+  postBuild:
+    substitute:
+      APP: *app

@@ -9,6 +9,15 @@ spec:
   # yamllint disable-line rule:line-length
   source: https://huggingface.co/ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF/resolve/a02f48bb4f057028298c21fa033da2b30d7742d5/qwen3-reranker-0.6b-q8_0.gguf
   sha256: 22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48
+  hardware:
+    accelerator: vulkan
+    gpu:
+      enabled: true
+      count: 1
+      layers: -1
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: llmkube-models-gpu
 ---
 apiVersion: inference.llmkube.dev/v1alpha1
 kind: InferenceService
@@ -19,7 +28,7 @@ spec:
   mode: rerank
   runtime: llamacpp
   # yamllint disable-line rule:line-length
-  image: ghcr.io/ggml-org/llama.cpp:server-b12602@sha256:ae28f5c2046de51dfd00c9116a36fe44b5e8703ef730d0aea69082781eecb1f7
+  image: ghcr.io/ggml-org/llama.cpp:server-vulkan-b12602@sha256:7e40bc3d631ec7f071aa2e320d8b12ea83a9405871df7a3984b3f71f196e59f3
   replicas: 1
   priority: batch
   podSecurityContext:
@@ -29,7 +38,6 @@ spec:
   batchSize: 8192
   uBatchSize: 4096
   resources:
-    gpu: 0
     cpu: 100m
     memory: 2Gi
   extraArgs:

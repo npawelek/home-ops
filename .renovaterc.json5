@@ -107,10 +107,10 @@
       versioning: "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)-stable$",
     },
     {
-      description: "llama.cpp CPU server images are tagged server-bNNNNN (build number) and ship several builds a day; track that line, settled builds only",
+      description: "llama.cpp server images are tagged server[-vulkan]-bNNNNN (build number) and ship several builds a day; track each variant's line, settled builds only",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/ggml-org/llama.cpp"],
-      versioning: "regex:^server-b(?<major>\\d+)$",
+      versioning: "regex:^(?<compatibility>server(?:-vulkan)?)-b(?<major>\\d+)$",
       separateMultipleMajor: false,
       minimumReleaseAge: "3 days",
     },

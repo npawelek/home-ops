@@ -9,6 +9,15 @@ spec:
   # yamllint disable-line rule:line-length
   source: https://huggingface.co/ggml-org/bge-m3-Q8_0-GGUF/resolve/9eba04c5d75ba5a1595e45de734d36bef4e5cb98/bge-m3-q8_0.gguf
   sha256: aa473d51f451a22f0fcf39ba3330c14bed38a385712b1113440f69df4047a173
+  hardware:
+    accelerator: vulkan
+    gpu:
+      enabled: true
+      count: 1
+      layers: -1
+      resourceClaims:
+        - name: gpu
+          resourceClaimTemplateName: llmkube-models-gpu
 ---
 apiVersion: inference.llmkube.dev/v1alpha1
 kind: InferenceService
@@ -19,7 +28,7 @@ spec:
   mode: embedding
   runtime: llamacpp
   # yamllint disable-line rule:line-length
-  image: ghcr.io/ggml-org/llama.cpp:server-b12602@sha256:ae28f5c2046de51dfd00c9116a36fe44b5e8703ef730d0aea69082781eecb1f7
+  image: ghcr.io/ggml-org/llama.cpp:server-vulkan-b12602@sha256:7e40bc3d631ec7f071aa2e320d8b12ea83a9405871df7a3984b3f71f196e59f3
   replicas: 1
   priority: batch
   podSecurityContext:
@@ -29,7 +38,6 @@ spec:
   batchSize: 8192
   uBatchSize: 4096
   resources:
-    gpu: 0
     cpu: 100m
     memory: 2Gi
   extraArgs:
