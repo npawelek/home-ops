@@ -1,5 +1,6 @@
 ---
 fail_fast: false
+exclude: ^\.agents/skills/(gitops-[^/]+/|catalog(-lock)?\.yaml$)
 repos:
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.38.0

@@ -27,3 +27,4 @@ Thumbs.db
 # nixos-rebuild build / nix build output links
 /result
 /nixos/result
+.claude/settings.local.json

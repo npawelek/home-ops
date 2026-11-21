@@ -19,3 +19,5 @@ ignore: |
   *.sops.yaml
   *.sops.yml
   talos/secrets.yaml
+  .agents/skills/catalog.yaml
+  .agents/skills/catalog-lock.yaml
