@@ -41,6 +41,7 @@ resource "authentik_application" "kept" {
   name               = "Kept"
   slug               = "kept"
   protocol_provider  = authentik_provider_oauth2.kept.id
+  meta_icon          = "https://cdn.jsdelivr.net/gh/selfhst/icons/svg/kept-inventory.svg"
   meta_launch_url    = "https://kept.${var.domain}"
   policy_engine_mode = "any"
 }
