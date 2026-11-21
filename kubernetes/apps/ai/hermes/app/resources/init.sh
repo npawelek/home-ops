@@ -52,12 +52,19 @@ sync_skills() (
     && git -C "${REPO_DIR}" reset --quiet --hard FETCH_HEAD
 )
 
+install_plugins() {
+  [[ -d ${DATA_DIR}/plugins/claude-subscription-directsdk-experimental ]] && return 0
+  su - hermes -w "${PROXY_ENV}" -c "HERMES_HOME=${DATA_DIR} /opt/hermes/.venv/bin/hermes plugins install claude-subscription-directsdk </dev/null" \
+    || echo "warning: claude-subscription-directsdk install failed" >&2
+}
+
 main() {
   install_config
   install_mise
   bash "${CONFIG_DIR}/git-init.sh"
   install_env
   sync_skills || echo "warning: skills sync failed; keeping the previous checkout" >&2
+  install_plugins
 }
 
 main "$@"

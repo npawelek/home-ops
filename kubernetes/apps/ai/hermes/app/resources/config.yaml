@@ -1,6 +1,9 @@
 model:
-  default: ${OLLAMA_MODEL}
-  provider: custom:ollama-local
+  default: claude-opus-5-5
+  provider: claude-subscription-directsdk-experimental
+fallback_providers:
+  - provider: custom:ollama-local
+    model: ${OLLAMA_MODEL}
 providers:
   custom:ollama-local:
     api: http://ollama.network.svc.cluster.local:11434/v1
@@ -31,6 +34,12 @@ plugins:
   enabled:
     - camofox
   auto_update_check_hours: 0
+  entries:
+    claude-subscription-directsdk-experimental:
+      settings:
+        extra_usage: notify
+        max_concurrent: 6
+        claude_code_telemetry: false
 skills:
   external_dirs:
     - /opt/hermes/skills
@@ -138,6 +147,7 @@ dashboard:
     self_hosted:
       issuer: https://auth.${SECRET_DOMAIN}/application/o/hermes-dashboard/
       client_id: hermes-dashboard
+  theme: mono
 gateway:
   message_timestamps:
     enabled: true
