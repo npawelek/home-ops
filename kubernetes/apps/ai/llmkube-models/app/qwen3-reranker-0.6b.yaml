@@ -39,7 +39,8 @@ spec:
   uBatchSize: 4096
   resources:
     cpu: 100m
-    memory: 2Gi
+    memory: 3Gi
+    memoryLimit: 4Gi
   extraArgs:
     - --cache-ram
     - "0"
