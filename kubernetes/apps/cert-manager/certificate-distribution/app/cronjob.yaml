@@ -46,7 +46,7 @@ spec:
 
             - name: install-deps
               # yamllint disable-line rule:line-length
-              image: alpine/ansible:2.21.0@sha256:9ea5ea913f904c9cb2488fc1c88e24e12fa6822d6a4acb6b0fd17a4a53f0f5c6
+              image: alpine/ansible:2.21.0@sha256:e0e3a29e8086ddab81bddd1550c74e417e838b5dfe4e94135f24ab9624fb96c5
               command:
                 - sh
                 - -c
@@ -72,7 +72,7 @@ spec:
           containers:
             - name: ansible-runner
               # yamllint disable-line rule:line-length
-              image: alpine/ansible:2.21.0@sha256:9ea5ea913f904c9cb2488fc1c88e24e12fa6822d6a4acb6b0fd17a4a53f0f5c6
+              image: alpine/ansible:2.21.0@sha256:e0e3a29e8086ddab81bddd1550c74e417e838b5dfe4e94135f24ab9624fb96c5
               workingDir: /runner
               env:
                 - name: PATH
