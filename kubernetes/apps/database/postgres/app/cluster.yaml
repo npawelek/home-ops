@@ -203,6 +203,16 @@ spec:
         createrole: false
         replication: false
         bypassrls: false
+      - name: memini
+        ensure: present
+        passwordSecret:
+          name: credentials-memini
+        login: true
+        createdb: false
+        superuser: false
+        createrole: false
+        replication: false
+        bypassrls: false
 
     services:
       disabledDefaultServices: ["ro", "r"]

@@ -1,0 +1,72 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: memini
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: memini
+  interval: 1h
+  values:
+    controllers:
+      main:
+        type: deployment
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+        containers:
+          main:
+            env:
+              MEMINI_BACKEND: postgres
+              MEMINI_POSTGRES_DSN:
+                valueFrom:
+                  secretKeyRef:
+                    name: memini-secret
+                    key: MEMINI_POSTGRES_DSN
+              MEMINI_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: memini-secret
+                    key: MEMINI_API_KEY
+              MEMINI_API_KEYS_FILE: /etc/memini/api-keys.yaml
+              MEMINI_EMBED_BASE_URL: http://bge-m3.ai.svc.cluster.local:8080/v1
+              MEMINI_EMBED_MODEL: bge-m3
+              MEMINI_EMBED_DIMS: "1024"
+              MEMINI_REEMBED_ON_MODEL_CHANGE: "true"
+              MEMINI_RECALL_EMBED_TIMEOUT: 5s
+              MEMINI_RERANK: http://qwen3-reranker-0-6b.ai.svc.cluster.local:8080/v1
+              MEMINI_RERANK_MODEL: qwen3-reranker-0.6b
+              MEMINI_RERANK_POOL: "20"
+              MEMINI_RERANK_MAX_BATCH_CHARS: "60000"
+              MEMINI_DEMOTE_AFTER: 1440h
+              MEMINI_TOMBSTONE_TTL: 720h
+            resources:
+              requests:
+                cpu: 25m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+    persistence:
+      data:
+        enabled: false
+      api-keys:
+        enabled: true
+        name: memini-secret
+    serviceMonitor:
+      main:
+        enabled: true
+        labels:
+          monitoring: otel
+    route:
+      ui:
+        enabled: true
+        hostnames:
+          - memini.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https

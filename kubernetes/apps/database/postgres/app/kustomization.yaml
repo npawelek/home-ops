@@ -12,6 +12,7 @@ resources:
   - ./credentials-immich.sops.yaml
   - ./credentials-kept.sops.yaml
   - ./credentials-lubelogger.sops.yaml
+  - ./credentials-memini.sops.yaml
   - ./objectstore.yaml
   - ./scheduledbackup.yaml
   - ./podmonitor.yaml

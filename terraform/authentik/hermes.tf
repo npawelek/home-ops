@@ -13,7 +13,7 @@ resource "authentik_application" "hermes" {
   name               = "Hermes"
   slug               = "hermes"
   protocol_provider  = authentik_provider_proxy.hermes.id
-  meta_icon          = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main/svg/hermes.svg"
+  meta_icon          = "https://cdn.jsdelivr.net/gh/selfhst/icons/svg/hermes-agent-light.svg"
   meta_launch_url    = "https://hermes.${var.domain}"
   policy_engine_mode = "any"
 }

@@ -9,6 +9,7 @@ This directory contains Database CRDs for creating databases in the main postgre
 - **immich**: Immich photo management database (requires vector extensions)
 - **dawarich**: Dawarich location history (PostGIS, declared in CR)
 - **kept**: Kept home inventory (pg_trgm, unaccent, vector declared in CR; four roles `kept_owner`/`kept_app`/`kept_auth`/`kept_system`; `kept_app` timeouts set by `../role-settings/kept.yaml`)
+- **memini**: memini shared agent memory (`vector` then `vchord` declared in CR, same pinned versions as immich; memini's own `CREATE EXTENSION IF NOT EXISTS vchord` at boot is then a no-op)
 
 ## Immich Setup
 

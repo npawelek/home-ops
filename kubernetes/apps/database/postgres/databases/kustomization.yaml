@@ -9,3 +9,4 @@ resources:
   - ./buzz.yaml
   - ./dawarich.yaml
   - ./kept.yaml
+  - ./memini.yaml

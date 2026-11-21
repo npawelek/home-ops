@@ -1,12 +1,12 @@
 # Postgres (Main)
 
 Shared CNPG PostgreSQL 18 cluster for most apps: `hass`, `firefly`, `immich`, `lubelogger`, `buzz`,
-`dawarich`. Each app has a managed role (`app/cluster.yaml` `spec.managed.roles`, password from
+`dawarich`, `kept`, `memini`. Each app has a managed role (`app/cluster.yaml` `spec.managed.roles`, password from
 `app/credentials-<app>.sops.yaml`) and a Database CR in `databases/` (see `databases/README.md`).
 Tracearr runs on the separate `timescale` cluster (`../timescale/`).
 
 - Image: `ghcr.io/cloudnative-pg/postgresql:18-minimal-trixie`, plus extension images mounted via
-  `spec.postgresql.extensions`: `pgvector` and `vchord` (immich; `vchord.so` is preloaded) and
+  `spec.postgresql.extensions`: `pgvector` and `vchord` (immich, memini; `vchord.so` is preloaded) and
   `postgis` (dawarich, with GEOS/PROJ/GDAL under `system/`).
 - 3 instances, `longhorn-local` 30Gi each, required pod anti-affinity across nodes.
 - Services: `postgres-rw.database.svc.cluster.local:5432` in-cluster (`ro`/`r` disabled), and
