@@ -41,6 +41,16 @@ spec:
     cpu: 100m
     memory: 3Gi
     memoryLimit: 4Gi
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: intel.feature.node.kubernetes.io/gpu-gen
+                operator: In
+                values:
+                  - intel-arrowlake
   extraArgs:
     - --cache-ram
     - "0"
