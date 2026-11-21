@@ -31,6 +31,7 @@ spec:
               repository: ghcr.io/jo-inc/camofox-browser
               # renovate: datasource=docker depName=ghcr.io/jo-inc/camofox-browser
               tag: 1.19.0@sha256:49f8e02f9fb0e191b406845482745efc72f835db06789e3a34e77a6ff1497046
+            command: ["node", "--max-old-space-size=1024", "server.js"]
             env:
               TZ: ${TIMEZONE}
               CAMOFOX_PORT: &port 9377
@@ -40,7 +41,6 @@ spec:
               CAMOFOX_UPLOADS_DIR: /data/uploads
               CAMOFOX_TRACES_DIR: /data/traces
               CAMOFOX_CRASH_REPORT_ENABLED: "false"
-              MAX_OLD_SPACE_SIZE: "1024"
               ENABLE_VNC: "1"
               VNC_RESOLUTION: 1920x1080
               # websockify defaults to 127.0.0.1; bind to all interfaces so the

@@ -12,6 +12,7 @@ providers:
         context_length: 131072
 platform_toolsets:
   buzz:
+    - camofox
     - clarify
     - file
     - memory
@@ -72,7 +73,6 @@ agent:
   reasoning_effort: medium
   disabled_toolsets:
     - browser
-    - camofox
     - code_execution
     - computer_use
     - connections
