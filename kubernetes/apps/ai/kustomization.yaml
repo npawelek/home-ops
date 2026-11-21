@@ -11,4 +11,5 @@ resources:
   - namespace.yaml
   - hermes/ks.yaml
   - camofox/ks.yaml
+  - llmkube-models/ks.yaml
   - open-webui/ks.yaml

@@ -1,0 +1,66 @@
+---
+apiVersion: inference.llmkube.dev/v1alpha1
+kind: Model
+metadata:
+  name: bge-m3
+spec:
+  format: gguf
+  quantization: Q8_0
+  # yamllint disable-line rule:line-length
+  source: https://huggingface.co/ggml-org/bge-m3-Q8_0-GGUF/resolve/9eba04c5d75ba5a1595e45de734d36bef4e5cb98/bge-m3-q8_0.gguf
+  sha256: aa473d51f451a22f0fcf39ba3330c14bed38a385712b1113440f69df4047a173
+---
+apiVersion: inference.llmkube.dev/v1alpha1
+kind: InferenceService
+metadata:
+  name: bge-m3
+spec:
+  modelRef: bge-m3
+  mode: embedding
+  runtime: llamacpp
+  # yamllint disable-line rule:line-length
+  image: ghcr.io/ggml-org/llama.cpp:server-b12602@sha256:ae28f5c2046de51dfd00c9116a36fe44b5e8703ef730d0aea69082781eecb1f7
+  replicas: 1
+  priority: batch
+  podSecurityContext:
+    fsGroup: 102
+  contextSize: 8192
+  parallelSlots: 2
+  batchSize: 8192
+  uBatchSize: 4096
+  resources:
+    gpu: 0
+    cpu: 100m
+    memory: 2Gi
+  extraArgs:
+    - --pooling
+    - cls
+    - --cache-ram
+    - "0"
+    - --sleep-idle-seconds
+    - "300"
+    - --alias
+    - bge-m3
+    - --metrics
+  endpoint:
+    port: 8080
+    type: ClusterIP
+  probeOverrides:
+    startup:
+      httpGet:
+        path: /health
+        port: 8080
+      periodSeconds: 10
+      failureThreshold: 60
+    liveness:
+      httpGet:
+        path: /health
+        port: 8080
+      periodSeconds: 30
+      failureThreshold: 3
+    readiness:
+      httpGet:
+        path: /health
+        port: 8080
+      periodSeconds: 10
+      failureThreshold: 3

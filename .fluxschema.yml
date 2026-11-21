@@ -12,5 +12,8 @@ validate:
   skipKind:
     # TODO: tofu-controller CRD is in neither catalog, adding todo to periodically check
     - infra.contrib.fluxcd.io/v1alpha2/Terraform
+    # TODO: LLMKube CRDs are in neither catalog, adding todo to periodically check
+    - inference.llmkube.dev/v1alpha1/Model
+    - inference.llmkube.dev/v1alpha1/InferenceService
   skipJSONPath:
     - Secret:/sops

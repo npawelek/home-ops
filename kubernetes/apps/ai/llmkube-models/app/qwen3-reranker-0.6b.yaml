@@ -1,0 +1,64 @@
+---
+apiVersion: inference.llmkube.dev/v1alpha1
+kind: Model
+metadata:
+  name: qwen3-reranker-0.6b
+spec:
+  format: gguf
+  quantization: Q8_0
+  # yamllint disable-line rule:line-length
+  source: https://huggingface.co/ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF/resolve/a02f48bb4f057028298c21fa033da2b30d7742d5/qwen3-reranker-0.6b-q8_0.gguf
+  sha256: 22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48
+---
+apiVersion: inference.llmkube.dev/v1alpha1
+kind: InferenceService
+metadata:
+  name: qwen3-reranker-0.6b
+spec:
+  modelRef: qwen3-reranker-0.6b
+  mode: rerank
+  runtime: llamacpp
+  # yamllint disable-line rule:line-length
+  image: ghcr.io/ggml-org/llama.cpp:server-b12602@sha256:ae28f5c2046de51dfd00c9116a36fe44b5e8703ef730d0aea69082781eecb1f7
+  replicas: 1
+  priority: batch
+  podSecurityContext:
+    fsGroup: 102
+  contextSize: 8192
+  parallelSlots: 2
+  batchSize: 8192
+  uBatchSize: 4096
+  resources:
+    gpu: 0
+    cpu: 100m
+    memory: 2Gi
+  extraArgs:
+    - --cache-ram
+    - "0"
+    - --sleep-idle-seconds
+    - "300"
+    - --alias
+    - qwen3-reranker-0.6b
+    - --metrics
+  endpoint:
+    port: 8080
+    type: ClusterIP
+  probeOverrides:
+    startup:
+      httpGet:
+        path: /health
+        port: 8080
+      periodSeconds: 10
+      failureThreshold: 60
+    liveness:
+      httpGet:
+        path: /health
+        port: 8080
+      periodSeconds: 30
+      failureThreshold: 3
+    readiness:
+      httpGet:
+        path: /health
+        port: 8080
+      periodSeconds: 10
+      failureThreshold: 3

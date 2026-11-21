@@ -107,6 +107,14 @@
       versioning: "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)-stable$",
     },
     {
+      description: "llama.cpp CPU server images are tagged server-bNNNNN (build number) and ship several builds a day; track that line, settled builds only",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/ggml-org/llama.cpp"],
+      versioning: "regex:^server-b(?<major>\\d+)$",
+      separateMultipleMajor: false,
+      minimumReleaseAge: "3 days",
+    },
+    {
       description: "SearXNG date-based tag versioning",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/searxng/searxng"],

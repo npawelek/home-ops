@@ -1,0 +1,16 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: llmkube
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: llmkube
+  interval: 1h
+  values:
+    modelCache:
+      mode: perService
+      size: 10Gi
+      storageClass: longhorn-local
+      prep: never
