@@ -10,7 +10,7 @@ resource "authentik_provider_proxy" "memini" {
 }
 
 resource "authentik_application" "memini" {
-  name               = "memini"
+  name               = "Memini"
   slug               = "memini"
   protocol_provider  = authentik_provider_proxy.memini.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/memini.svg"
