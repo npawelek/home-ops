@@ -29,6 +29,7 @@ resource "authentik_provider_oauth2" "wallos" {
 resource "authentik_application" "wallos" {
   name               = "Wallos"
   slug               = "wallos"
+  group              = "Budgeting"
   protocol_provider  = authentik_provider_oauth2.wallos.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/wallos.svg"
   meta_launch_url    = "https://wallos.${var.domain}"

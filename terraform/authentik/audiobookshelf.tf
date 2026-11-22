@@ -34,6 +34,7 @@ resource "authentik_provider_oauth2" "audiobookshelf" {
 resource "authentik_application" "audiobookshelf" {
   name               = "Audiobookshelf"
   slug               = "audiobookshelf"
+  group              = "Media"
   protocol_provider  = authentik_provider_oauth2.audiobookshelf.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/audiobookshelf.svg"
   meta_launch_url    = "https://audiobookshelf.${var.domain}/login?autoLaunch=1"

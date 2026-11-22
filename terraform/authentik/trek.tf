@@ -40,6 +40,7 @@ resource "authentik_provider_oauth2" "trek" {
 resource "authentik_application" "trek" {
   name               = "TREK"
   slug               = "trek"
+  group              = "Travel"
   protocol_provider  = authentik_provider_oauth2.trek.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/trek.svg"
   meta_launch_url    = "https://trek.${var.domain}"

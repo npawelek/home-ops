@@ -30,6 +30,7 @@ resource "authentik_provider_oauth2" "sonarr_anime" {
 resource "authentik_application" "sonarr_anime" {
   name               = "Sonarr Anime"
   slug               = "sonarr-anime"
+  group              = "Downloads"
   protocol_provider  = authentik_provider_oauth2.sonarr_anime.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/sonarr.svg"
   meta_launch_url    = "https://sonarr-anime.${var.domain}"

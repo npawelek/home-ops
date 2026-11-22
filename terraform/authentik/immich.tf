@@ -39,6 +39,7 @@ resource "authentik_provider_oauth2" "immich" {
 resource "authentik_application" "immich" {
   name               = "Immich"
   slug               = "immich"
+  group              = "Media"
   protocol_provider  = authentik_provider_oauth2.immich.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/immich.svg"
   meta_launch_url    = "https://immich.${var.domain}/auth/login?autoLaunch=1"

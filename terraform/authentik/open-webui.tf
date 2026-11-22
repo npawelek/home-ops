@@ -29,6 +29,7 @@ resource "authentik_provider_oauth2" "open_webui" {
 resource "authentik_application" "open_webui" {
   name               = "Open WebUI"
   slug               = "open-webui"
+  group              = "AI"
   protocol_provider  = authentik_provider_oauth2.open_webui.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/open-webui.svg"
   meta_launch_url    = "https://open-webui.${var.domain}"

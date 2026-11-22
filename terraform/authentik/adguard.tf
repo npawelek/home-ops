@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "adguard_primary" {
 resource "authentik_application" "adguard_primary" {
   name               = "AdGuard Home (Primary)"
   slug               = "adguard-primary"
+  group              = "Network"
   protocol_provider  = authentik_provider_proxy.adguard_primary.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/adguard.svg"
   meta_launch_url    = "https://adguard-primary.${var.domain}"

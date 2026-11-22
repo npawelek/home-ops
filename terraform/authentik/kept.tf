@@ -40,6 +40,7 @@ resource "authentik_provider_oauth2" "kept" {
 resource "authentik_application" "kept" {
   name               = "Kept"
   slug               = "kept"
+  group              = "Inventory Management"
   protocol_provider  = authentik_provider_oauth2.kept.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/kept.svg"
   meta_launch_url    = "https://kept.${var.domain}"

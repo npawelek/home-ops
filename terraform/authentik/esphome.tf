@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "esphome" {
 resource "authentik_application" "esphome" {
   name               = "ESPHome"
   slug               = "esphome"
+  group              = "Home Automation"
   protocol_provider  = authentik_provider_proxy.esphome.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/esphome.svg"
   meta_launch_url    = "https://esphome.${var.domain}"

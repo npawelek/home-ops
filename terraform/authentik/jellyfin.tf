@@ -34,6 +34,7 @@ resource "authentik_provider_ldap" "jellyfin" {
 resource "authentik_application" "jellyfin" {
   name              = "Jellyfin"
   slug              = "jellyfin"
+  group             = "Media"
   meta_icon         = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/jellyfin.svg"
   meta_launch_url   = "https://jellyfin.${var.domain}/"
   protocol_provider = authentik_provider_ldap.jellyfin.id

@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "hermes" {
 resource "authentik_application" "hermes" {
   name               = "Hermes"
   slug               = "hermes"
+  group              = "AI"
   protocol_provider  = authentik_provider_proxy.hermes.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/hermes.svg"
   meta_launch_url    = "https://hermes.${var.domain}"

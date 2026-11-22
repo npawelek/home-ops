@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "victoriametrics" {
 resource "authentik_application" "victoriametrics" {
   name               = "VictoriaMetrics"
   slug               = "victoriametrics"
+  group              = "Monitoring"
   protocol_provider  = authentik_provider_proxy.victoriametrics.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/victoriametrics.svg"
   meta_launch_url    = "https://victoriametrics.${var.domain}/vmui"

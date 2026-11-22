@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "firefly" {
 resource "authentik_application" "firefly" {
   name               = "Firefly III"
   slug               = "firefly-iii"
+  group              = "Budgeting"
   protocol_provider  = authentik_provider_proxy.firefly.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/firefly.svg"
   meta_launch_url    = "https://firefly.${var.domain}"

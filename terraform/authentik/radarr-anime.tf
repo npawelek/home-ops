@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "radarr_anime" {
 resource "authentik_application" "radarr_anime" {
   name               = "Radarr Anime"
   slug               = "radarr-anime"
+  group              = "Downloads"
   protocol_provider  = authentik_provider_proxy.radarr_anime.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/radarr.svg"
   meta_launch_url    = "https://radarr-anime.${var.domain}"

@@ -30,6 +30,7 @@ resource "authentik_provider_oauth2" "sonarr_remux" {
 resource "authentik_application" "sonarr_remux" {
   name               = "Sonarr Remux"
   slug               = "sonarr-remux"
+  group              = "Downloads"
   protocol_provider  = authentik_provider_oauth2.sonarr_remux.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/sonarr.svg"
   meta_launch_url    = "https://sonarr-remux.${var.domain}"

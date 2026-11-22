@@ -32,6 +32,7 @@ resource "authentik_provider_oauth2" "grafana" {
 resource "authentik_application" "grafana" {
   name               = "Grafana"
   slug               = "grafana"
+  group              = "Monitoring"
   protocol_provider  = authentik_provider_oauth2.grafana.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/grafana.svg"
   meta_launch_url    = "https://grafana.${var.domain}"

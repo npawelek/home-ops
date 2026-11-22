@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "memini" {
 resource "authentik_application" "memini" {
   name               = "Memini"
   slug               = "memini"
+  group              = "AI"
   protocol_provider  = authentik_provider_proxy.memini.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/memini.svg"
   meta_launch_url    = "https://memini.${var.domain}"

@@ -30,6 +30,7 @@ resource "authentik_provider_oauth2" "synology" {
 resource "authentik_application" "synology" {
   name               = "Synology DSM"
   slug               = "synology-dsm"
+  group              = "Storage"
   protocol_provider  = authentik_provider_oauth2.synology.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/synology.svg"
   meta_launch_url    = "https://racknas.${var.domain}"

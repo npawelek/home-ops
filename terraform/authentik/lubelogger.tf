@@ -29,6 +29,7 @@ resource "authentik_provider_oauth2" "lubelogger" {
 resource "authentik_application" "lubelogger" {
   name               = "LubeLogger"
   slug               = "lubelogger"
+  group              = "Inventory Management"
   protocol_provider  = authentik_provider_oauth2.lubelogger.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/lubelogger.png"
   meta_launch_url    = "https://lubelogger.${var.domain}"

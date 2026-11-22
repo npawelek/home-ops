@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "radarr_remux" {
 resource "authentik_application" "radarr_remux" {
   name               = "Radarr Remux"
   slug               = "radarr-remux"
+  group              = "Downloads"
   protocol_provider  = authentik_provider_proxy.radarr_remux.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/radarr.svg"
   meta_launch_url    = "https://radarr-remux.${var.domain}"

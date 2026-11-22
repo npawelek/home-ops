@@ -29,6 +29,7 @@ resource "authentik_provider_oauth2" "flux" {
 resource "authentik_application" "flux" {
   name               = "Flux"
   slug               = "flux"
+  group              = "Kubernetes"
   protocol_provider  = authentik_provider_oauth2.flux.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/flux.svg"
   meta_launch_url    = "https://flux.${var.domain}"

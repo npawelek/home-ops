@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "echo" {
 resource "authentik_application" "echo" {
   name               = "Echo"
   slug               = "echo"
+  group              = "Network"
   protocol_provider  = authentik_provider_proxy.echo.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/echo.svg"
   meta_launch_url    = "https://echo.${var.domain}"

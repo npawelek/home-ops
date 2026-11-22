@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "speedtest" {
 resource "authentik_application" "speedtest" {
   name               = "Speedtest"
   slug               = "speedtest"
+  group              = "Network"
   protocol_provider  = authentik_provider_proxy.speedtest.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/speedtest.svg"
   meta_launch_url    = "https://speedtest.${var.domain}"

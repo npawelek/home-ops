@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "unmanic" {
 resource "authentik_application" "unmanic" {
   name               = "Unmanic"
   slug               = "unmanic"
+  group              = "Downloads"
   protocol_provider  = authentik_provider_proxy.unmanic.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/unmanic.png"
   meta_launch_url    = "https://unmanic.${var.domain}"

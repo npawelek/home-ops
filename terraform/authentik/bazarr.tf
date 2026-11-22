@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "bazarr" {
 resource "authentik_application" "bazarr" {
   name               = "Bazarr"
   slug               = "bazarr"
+  group              = "Downloads"
   protocol_provider  = authentik_provider_proxy.bazarr.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/bazarr.svg"
   meta_launch_url    = "https://bazarr.${var.domain}"

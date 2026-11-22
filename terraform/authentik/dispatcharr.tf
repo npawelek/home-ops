@@ -12,6 +12,7 @@ resource "authentik_provider_proxy" "dispatcharr" {
 resource "authentik_application" "dispatcharr" {
   name               = "Dispatcharr"
   slug               = "dispatcharr"
+  group              = "Media"
   protocol_provider  = authentik_provider_proxy.dispatcharr.id
   meta_icon          = "https://raw.githubusercontent.com/npawelek/home-ops/main/terraform/authentik/icons/dispatcharr.svg"
   meta_launch_url    = "https://dispatcharr.${var.domain}"
