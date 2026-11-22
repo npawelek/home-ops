@@ -7,6 +7,8 @@ readonly DATA_DIR=/opt/data
 readonly PROXY_ENV=HTTP_PROXY,HTTPS_PROXY,NO_PROXY,http_proxy,https_proxy,no_proxy
 readonly REPO_URL=https://github.com/npawelek/home-ops.git
 readonly REPO_DIR=${DATA_DIR}/repos/home-ops
+# bump with the memini chart (lockstep versions); review the plugin diff first, --force accepts a caution scan
+readonly MEMINI_PLUGIN_REF=f81b1167713ab15028fd8e09eb832e2970b1b8fb
 
 install_config() {
   install -m 0644 -o hermes -g hermes "${CONFIG_DIR}/config.yaml" "${DATA_DIR}/config.yaml"
@@ -52,10 +54,26 @@ sync_skills() (
     && git -C "${REPO_DIR}" reset --quiet --hard FETCH_HEAD
 )
 
+hermes_cli() {
+  su - hermes -w "${PROXY_ENV}" -c "HERMES_HOME=${DATA_DIR} /opt/hermes/.venv/bin/hermes $* </dev/null"
+}
+
+plugin_revision() {
+  /opt/hermes/.venv/bin/python -c \
+    'import json, sys; print(json.load(open(sys.argv[1])).get(sys.argv[2], {}).get("revision", ""))' \
+    "${DATA_DIR}/plugins/.install-metadata.json" "$1" 2>/dev/null || true
+}
+
 install_plugins() {
-  [[ -d ${DATA_DIR}/plugins/claude-subscription-directsdk-experimental ]] && return 0
-  su - hermes -w "${PROXY_ENV}" -c "HERMES_HOME=${DATA_DIR} /opt/hermes/.venv/bin/hermes plugins install claude-subscription-directsdk </dev/null" \
+  [[ -d ${DATA_DIR}/plugins/claude-subscription-directsdk-experimental ]] \
+    || hermes_cli plugins install claude-subscription-directsdk \
     || echo "warning: claude-subscription-directsdk install failed" >&2
+
+  [[ $(plugin_revision memini) == "${MEMINI_PLUGIN_REF}" ]] && return 0
+  local force=
+  [[ -d ${DATA_DIR}/plugins/memini ]] && force=--force
+  hermes_cli plugins install ${force} --no-enable --ref "${MEMINI_PLUGIN_REF}" eleboucher/memini-hermes \
+    || echo "warning: memini-hermes install failed" >&2
 }
 
 main() {

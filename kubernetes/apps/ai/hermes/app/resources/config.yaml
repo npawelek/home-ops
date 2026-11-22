@@ -108,6 +108,7 @@ display:
       interim_assistant_messages: false
       tool_progress: 'off'
 memory:
+  provider: memini
   user_profile_enabled: true
 auxiliary:
   title_generation:
@@ -135,6 +136,7 @@ privacy:
 telemetry:
   shared_metrics:
     enabled: false
+    offer_version: 2
     send: false
 updates:
   check: false

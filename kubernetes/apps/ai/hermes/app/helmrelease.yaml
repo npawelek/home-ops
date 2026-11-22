@@ -69,6 +69,8 @@ spec:
               HERMES_GID: "1000"
               CAMOFOX_URL: http://camofox.ai.svc.cluster.local:9377
               SEARXNG_URL: http://searxng.network.svc.cluster.local:8080
+              MEMINI_BASE_URL: http://memini.ai.svc.cluster.local:8080
+              MEMINI_NAMESPACE: hermes/default
               S6_SERVICES_GRACETIME: "75000"
               S6_KILL_GRACETIME: "75000"
               HERMES_DASHBOARD: "1"
