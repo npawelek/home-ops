@@ -9,6 +9,8 @@ readonly REPO_URL=https://github.com/npawelek/home-ops.git
 readonly REPO_DIR=${DATA_DIR}/repos/home-ops
 # bump with the memini chart (lockstep versions); review the plugin diff first, --force accepts a caution scan
 readonly MEMINI_PLUGIN_REF=f81b1167713ab15028fd8e09eb832e2970b1b8fb
+readonly BUZZ_PLUGIN_SRC=/opt/hermes/plugins/platforms/buzz
+readonly BUZZ_PLUGIN_DST=${DATA_DIR}/plugins/platforms/buzz
 
 install_config() {
   install -m 0644 -o hermes -g hermes "${CONFIG_DIR}/config.yaml" "${DATA_DIR}/config.yaml"
@@ -76,6 +78,31 @@ install_plugins() {
     || echo "warning: memini-hermes install failed" >&2
 }
 
+# NousResearch/hermes-agent#104860: shadow the bundled Buzz adapter, rebuilt from the image every boot
+patch_buzz_threads() {
+  rm -rf "${DATA_DIR}/plugins/platforms"
+  if grep -qF 'thread_id = event_id' "${BUZZ_PLUGIN_SRC}/adapter.py"; then
+    echo "notice: bundled Buzz adapter has hermes-agent#104860; remove patch_buzz_threads" >&2
+    return 0
+  fi
+  mkdir -p "${BUZZ_PLUGIN_DST}"
+  cp -a "${BUZZ_PLUGIN_SRC}/." "${BUZZ_PLUGIN_DST}/"
+  /opt/hermes/.venv/bin/python - "${BUZZ_PLUGIN_DST}/adapter.py" <<'EOF' || {
+import sys
+path = sys.argv[1]
+anchor = "        thread_id = self._extract_thread_root(event)\n"
+fix = ('        if thread_id is None and not is_dm and self._reply_to_mode != "off":\n'
+       "            thread_id = event_id\n")
+src = open(path).read()
+if src.count(anchor) != 1:
+    sys.exit(1)
+open(path, "w").write(src.replace(anchor, anchor + fix))
+EOF
+    echo "warning: Buzz adapter changed; thread-session patch skipped" >&2
+    rm -rf "${DATA_DIR}/plugins/platforms"
+  }
+}
+
 main() {
   install_config
   install_mise
@@ -83,6 +110,7 @@ main() {
   install_env
   sync_skills || echo "warning: skills sync failed; keeping the previous checkout" >&2
   install_plugins
+  patch_buzz_threads
 }
 
 main "$@"

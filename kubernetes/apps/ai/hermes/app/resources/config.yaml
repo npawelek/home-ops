@@ -33,6 +33,7 @@ plugins:
   disabled: []
   enabled:
     - camofox
+    - platforms/buzz
   auto_update_check_hours: 0
   entries:
     claude-subscription-directsdk-experimental:
