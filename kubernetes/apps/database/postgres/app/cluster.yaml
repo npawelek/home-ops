@@ -20,7 +20,7 @@ spec:
       - name: pgvector
         image:
           # yamllint disable-line rule:line-length
-          reference: ghcr.io/cloudnative-pg/pgvector:0.8.7-18-trixie@sha256:8c719f4ba8796a39b1e08a450b424577be9fd9821089dfd2c90e8c2d86b7a03c
+          reference: ghcr.io/cloudnative-pg/pgvector:0.8.7-18-trixie@sha256:d2ab930be7a9cb71f6157f6d63dd81be51efbf8a541919340a49fe79c9482491
       - name: vchord
         image:
           # yamllint disable-line rule:line-length
