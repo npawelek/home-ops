@@ -45,6 +45,8 @@ For each component, determine:
 - `major` → HIGH risk baseline regardless of notes
 - `minor` → MEDIUM risk baseline
 - `patch` / `digest` → LOW risk baseline
+- Exception: a Kubernetes minor (`kubernetesVersion` in `talos/topf.yaml`) is a lifecycle upgrade.
+  Renovate labels it `minor`, but it gets a HIGH baseline like a major.
 
 **File type determines additional checks:**
 - `HelmRelease` with image tag change → container image upgrade; fetch release notes only
@@ -54,6 +56,9 @@ For each component, determine:
 **App-specific checks** (in addition to Stages 3–5):
 - `nousresearch/hermes-agent` → read `references/hermes-agent.md` and run its procedure. Hermes
   upgrades change the agent's skills, toolsets and config schema, and release notes don't show that.
+- `ghcr.io/siderolabs/kubelet` → read `references/kubernetes.md` and run its procedure. The
+  siderolabs notes are empty, and the risk is in the upstream changelog, the Talos support bound,
+  and whether every controller and CRD owner on the cluster supports the new minor.
 
 ---
 
