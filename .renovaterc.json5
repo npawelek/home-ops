@@ -158,6 +158,20 @@
       ],
     },
     {
+      description: "postgres cluster image digests in one PR; each merge rolls every instance",
+      matchDatasources: ["docker"],
+      matchFileNames: ["kubernetes/apps/database/postgres/app/**"],
+      matchPackageNames: [
+        "ghcr.io/cloudnative-pg/postgresql",
+        "ghcr.io/cloudnative-pg/pgvector",
+        "ghcr.io/cloudnative-pg/postgis-extension",
+        "ghcr.io/jdijt/cnpg-vchord",
+      ],
+      matchUpdateTypes: ["digest"],
+      groupName: "postgres cluster digests",
+      minimumReleaseAge: "3 days",
+    },
+    {
       description: "timescaledb-ha pgMAJOR.MINOR-tsX.Y.Z tags; PG major pinned via compatibility, TimescaleDB drives semver, PG minor as build",
       matchDatasources: ["docker"],
       matchPackageNames: ["timescale/timescaledb-ha"],

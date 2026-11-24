@@ -12,7 +12,7 @@ name: Renovate
         default: "debug"
         required: false
   schedule:
-    - cron: "0 */6 * * *"  # Every 6 hours
+    - cron: "0 */12 * * *"  # Every 12 hours
   push:
     branches:
       - main
