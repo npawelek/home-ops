@@ -9,8 +9,9 @@ spec:
   # yamllint disable-line rule:line-length
   imageName: ghcr.io/cloudnative-pg/postgresql:18-minimal-trixie@sha256:635bfde0a4ce2a04daad754e1ad37fb95ae096c8153b37fe1a4561b5ea417e38
   primaryUpdateStrategy: unsupervised
-  # Promote an updated replica instead of restarting the primary in place
-  primaryUpdateMethod: switchover
+  # Restart the primary in place; switchovers stranded replicas on the old timeline
+  primaryUpdateMethod: restart
+  smartShutdownTimeout: 10
   startDelay: 300
 
   postgresql:
@@ -52,6 +53,8 @@ spec:
       min_wal_size: "1GB"
       max_wal_size: "5GB"
       archive_timeout: "1h"
+      # Invalidate a stuck replica's slot instead of filling the volume
+      max_slot_wal_keep_size: "10GB"
       # Query planning
       default_statistics_target: "100"
       random_page_cost: "1.0"

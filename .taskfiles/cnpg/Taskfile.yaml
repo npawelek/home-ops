@@ -53,41 +53,255 @@ tasks:
       - test -f {{.KUBECONFIG}}
       - which kubectl
 
-  promote-authentik:
-    desc: Promote a given instance to primary in the auth namespace [NODE=required]
+  wait-streaming:
+    desc: >-
+      Block until every CNPG replica has streamed from its primary for STABLE seconds
+      [CLUSTER=ns/name EXCLUDE_NODE=host TIMEOUT=1800 STABLE=60 MAX_LAG_MS=5000]
+    vars:
+      CLUSTER: '{{.CLUSTER | default ""}}'
+      EXCLUDE_NODE: '{{.EXCLUDE_NODE | default ""}}'
+      TIMEOUT: '{{.TIMEOUT | default "1800"}}'
+      STABLE: '{{.STABLE | default "60"}}'
+      MAX_LAG_MS: '{{.MAX_LAG_MS | default "5000"}}'
+      INTERVAL: '{{.INTERVAL | default "10"}}'
+    silent: true
     cmds:
-      - kubectl cnpg status authentik-postgres -n auth
-      - kubectl cnpg promote authentik-postgres {{.NODE}} -n auth
-      - sleep 30
-      - kubectl cnpg status authentik-postgres -n auth
+      - |
+        start=$(date +%s)
+        deadline=$(( start + {{.TIMEOUT}} ))
+        echo "==> Waiting for CNPG replicas to stream for {{.STABLE}}s (guard {{.TIMEOUT}}s)..."
+        while true; do
+          clusters=$(kubectl get clusters.postgresql.cnpg.io -A -o json | jq -r '.items[]
+            | [.metadata.namespace, .metadata.name, .spec.instances, (.status.currentPrimary // "-")] | @tsv')
+          pods=$(kubectl get pods -A -l cnpg.io/podRole=instance -o json)
+          pending=""
+          while IFS=$'\t' read -r ns name instances primary; do
+            [ -n "{{.CLUSTER}}" ] && [ "{{.CLUSTER}}" != "${ns}/${name}" ] && continue
+            excluded=$(echo "${pods}" | jq -r --arg ns "${ns}" --arg c "${name}" \
+              --arg n "{{.EXCLUDE_NODE}}" --arg p "${primary}" \
+              '[.items[] | select(.metadata.namespace == $ns and .metadata.labels["cnpg.io/cluster"] == $c
+                and $n != "" and .spec.nodeName == $n and .metadata.name != $p) | .metadata.name] | join(" ")')
+            want=$(( instances - 1 - $(echo ${excluded} | wc -w) ))
+            skip="''"
+            for e in ${excluded}; do skip="${skip},'${e}'"; done
+            have=$(kubectl -n "${ns}" exec "${primary}" -c postgres -- psql -XAtq -c "
+              select count(*) from pg_stat_replication
+              where application_name like '${name}-%' and application_name not in (${skip})
+                and state = 'streaming'
+                and backend_start < now() - interval '{{.STABLE}} seconds'
+                and (replay_lsn = pg_current_wal_lsn()
+                  or replay_lag < interval '{{.MAX_LAG_MS}} milliseconds')" 2>/dev/null)
+            case "${have}" in ''|*[!0-9]*) have=0 ;; esac
+            if [ "${have}" -lt "${want}" ]; then
+              pending="${pending}    ${ns}/${name}: ${have}/${want} replicas streaming (primary ${primary})\n"
+            fi
+          done <<< "${clusters}"
+          now=$(date +%s)
+          elapsed=$(( now - start ))
+          if [ -z "${pending}" ]; then
+            printf '==> All CNPG replicas streaming after %dm%02ds.\n' $(( elapsed / 60 )) $(( elapsed % 60 ))
+            break
+          fi
+          if [ "${now}" -ge "${deadline}" ]; then
+            printf 'x Timed out after %dm waiting for CNPG replicas:\n' $(( elapsed / 60 )) >&2
+            printf '%b' "${pending}" >&2
+            echo "  A replica stuck as 'Standby (file based)' never recovers:" >&2
+            echo "    kubectl cnpg destroy <cluster> <n> -n <ns>" >&2
+            exit 1
+          fi
+          printf '    [%3dm%02ds]\n%b' $(( elapsed / 60 )) $(( elapsed % 60 )) "${pending}"
+          sleep {{.INTERVAL}}
+        done
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl jq
+
+  heal-diverged:
+    desc: >-
+      Destroy and re-clone CNPG replicas that diverged from the primary's timeline, then wait
+      for them to stream [CLUSTER=ns/name EXCLUDE_NODE=host SKIP="pods" TIMEOUT=180]
+    vars:
+      CLUSTER: '{{.CLUSTER | default ""}}'
+      EXCLUDE_NODE: '{{.EXCLUDE_NODE | default ""}}'
+      SKIP: '{{.SKIP | default ""}}'
+      TIMEOUT: '{{.TIMEOUT | default "180"}}'
+      INTERVAL: '{{.INTERVAL | default "10"}}'
+    silent: true
+    cmds:
+      - |
+        set -euo pipefail
+        deadline=$(( $(date +%s) + {{.TIMEOUT}} ))
+        healed=""
+        echo "==> Checking CNPG replicas for timeline divergence (guard {{.TIMEOUT}}s)..."
+        while true; do
+          pods=$(kubectl get pods -A -l cnpg.io/podRole=instance -o json)
+          clusters=$(kubectl get clusters.postgresql.cnpg.io -A -o json | jq -r '.items[]
+            | [.metadata.namespace, .metadata.name,
+               (.status.currentPrimary // "-"), (.status.targetPrimary // "-")] | @tsv')
+          waiting=0
+          while IFS=$'\t' read -r ns name primary tprimary; do
+            [ -n "{{.CLUSTER}}" ] && [ "{{.CLUSTER}}" != "${ns}/${name}" ] && continue
+            case " ${healed} " in *" ${ns}/${name} "*) continue ;; esac
+            if [ "${primary}" != "${tprimary}" ] || ! streaming=$(kubectl -n "${ns}" exec "${primary}" -c postgres -- \
+              psql -XAtq -c "select coalesce(string_agg(application_name, ' '), '')
+                from pg_stat_replication where state = 'streaming'" 2>/dev/null); then
+              waiting=$(( waiting + 1 ))
+              continue
+            fi
+            replicas=$(echo "${pods}" | jq -r --arg ns "${ns}" --arg c "${name}" \
+              --arg p "${primary}" --arg n "{{.EXCLUDE_NODE}}" \
+              '.items[] | select(.metadata.namespace == $ns and .metadata.labels["cnpg.io/cluster"] == $c
+                and .metadata.name != $p and ($n == "" or .spec.nodeName != $n)) | .metadata.name')
+            for pod in ${replicas}; do
+              case " ${streaming} {{.SKIP}} " in *" ${pod} "*) continue ;; esac
+              if kubectl -n "${ns}" logs "${pod}" -c postgres --since=60s 2>/dev/null \
+                | grep -qE 'forked off current database system timeline|not in this server.s history'; then
+                echo "x ${ns}/${pod} diverged from ${primary}'s timeline; destroying it for a re-clone..."
+                kubectl cnpg destroy "${name}" "${pod##*-}" -n "${ns}"
+                healed="${healed} ${ns}/${name}"
+                break
+              fi
+              waiting=$(( waiting + 1 ))
+            done
+          done <<< "${clusters}"
+          [ "${waiting}" -eq 0 ] && break
+          [ "$(date +%s)" -ge "${deadline}" ] && break
+          sleep {{.INTERVAL}}
+        done
+        if [ -z "${healed}" ]; then
+          echo "==> No diverged CNPG replicas."
+          exit 0
+        fi
+        for c in ${healed}; do
+          echo "==> Waiting for ${c} to re-clone and stream..."
+          task cnpg:wait-streaming CLUSTER="${c}" EXCLUDE_NODE="{{.EXCLUDE_NODE}}" TIMEOUT=1800
+        done
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl jq
+
+  healthy:
+    desc: >-
+      Re-clone diverged CNPG replicas, then block until every replica streams
+      [CLUSTER=ns/name EXCLUDE_NODE=host TIMEOUT=1800]
+    vars:
+      CLUSTER: '{{.CLUSTER | default ""}}'
+      EXCLUDE_NODE: '{{.EXCLUDE_NODE | default ""}}'
+      TIMEOUT: '{{.TIMEOUT | default "1800"}}'
+    cmds:
+      - task: heal-diverged
+        vars: {CLUSTER: '{{.CLUSTER}}', EXCLUDE_NODE: '{{.EXCLUDE_NODE}}'}
+      - task: wait-streaming
+        vars: {CLUSTER: '{{.CLUSTER}}', EXCLUDE_NODE: '{{.EXCLUDE_NODE}}', TIMEOUT: '{{.TIMEOUT}}'}
+
+  evacuate:
+    desc: >-
+      Promote every CNPG primary off HOST, preferring replicas on DONE nodes, else the last
+      PENDING node [HOST=required DONE="hosts" PENDING="hosts in order"]
     requires:
-      vars: [NODE]
+      vars: [HOST]
+    vars:
+      DONE: '{{.DONE | default ""}}'
+      PENDING: '{{.PENDING | default ""}}'
+    silent: true
+    cmds:
+      - |
+        set -euo pipefail
+        for _ in 1 2 3 4 5 6 7 8 9 10; do
+          pick=$(jq -nr --arg host "{{.HOST}}" --arg done "{{.DONE}}" --arg pending "{{.PENDING}}" \
+            --argjson clusters "$(kubectl get clusters.postgresql.cnpg.io -A -o json)" \
+            --argjson pods "$(kubectl get pods -A -l cnpg.io/podRole=instance -o json)" '
+            ($done | split(" ") | map(select(. != ""))) as $d
+            | ($pending | split(" ") | map(select(. != ""))) as $q
+            | ($pods.items | map({key: .metadata.name, value: .spec.nodeName}) | from_entries) as $node
+            | ([$clusters.items[] | $node[.status.currentPrimary // ""] // empty]
+               | group_by(.) | map({key: .[0], value: length}) | from_entries) as $load
+            | first($clusters.items[] | select($node[.status.currentPrimary // ""] == $host)) as $c
+            | [$pods.items[]
+                | select(.metadata.namespace == $c.metadata.namespace
+                    and .metadata.labels["cnpg.io/cluster"] == $c.metadata.name
+                    and .metadata.name != $c.status.currentPrimary
+                    and .spec.nodeName != $host
+                    and any(.status.conditions[]?; .type == "Ready" and .status == "True"))
+                | .spec.nodeName as $n
+                | {pod: .metadata.name, node: $n,
+                   rank: (if ($d | index($n)) != null then [0, ($load[$n] // 0)]
+                          elif ($q | index($n)) != null then [1, -($q | index($n))]
+                          else [2, ($load[$n] // 0)] end)}]
+            | sort_by(.rank) | first // {pod: "-", node: "-"}
+            | [$c.metadata.namespace, $c.metadata.name, .pod, .node] | @tsv')
+          if [ -z "${pick}" ]; then
+            echo "==> No CNPG primaries on {{.HOST}}."
+            exit 0
+          fi
+          IFS=$'\t' read -r ns name target node <<< "${pick}"
+          if [ "${target}" = "-" ]; then
+            echo "x ${ns}/${name}: primary is on {{.HOST}} and no Ready replica exists elsewhere" >&2
+            exit 1
+          fi
+          echo "==> Moving ${ns}/${name} primary off {{.HOST}} to ${target} (${node})..."
+          task cnpg:healthy CLUSTER="${ns}/${name}" TIMEOUT=300
+          kubectl cnpg promote "${name}" "${target}" -n "${ns}"
+          kubectl -n "${ns}" wait "clusters.postgresql.cnpg.io/${name}" --timeout=5m \
+            --for=jsonpath='{.status.currentPrimary}'="${target}"
+          task cnpg:heal-diverged CLUSTER="${ns}/${name}" EXCLUDE_NODE="{{.HOST}}"
+          task cnpg:wait-streaming CLUSTER="${ns}/${name}" EXCLUDE_NODE="{{.HOST}}" TIMEOUT=600
+        done
+        echo "x Still finding primaries on {{.HOST}} after 10 promotions" >&2
+        exit 1
+    preconditions:
+      - test -f {{.KUBECONFIG}}
+      - which kubectl jq
+
+  promote:
+    internal: true
+    requires:
+      vars: [NAMESPACE, NAME, NODE]
+    cmds:
+      - task: healthy
+        vars:
+          CLUSTER: '{{.NAMESPACE}}/{{.NAME}}'
+          TIMEOUT: '300'
+      - kubectl cnpg status {{.NAME}} -n {{.NAMESPACE}}
+      - |
+        set -euo pipefail
+        old=$(kubectl -n {{.NAMESPACE}} get clusters.postgresql.cnpg.io/{{.NAME}} \
+          -o jsonpath='{.status.currentPrimary}')
+        target="{{.NODE}}"
+        case "${target}" in *[!0-9]*) ;; *) target="{{.NAME}}-${target}" ;; esac
+        kubectl cnpg promote {{.NAME}} {{.NODE}} -n {{.NAMESPACE}}
+        kubectl -n {{.NAMESPACE}} wait clusters.postgresql.cnpg.io/{{.NAME}} --timeout=5m \
+          --for=jsonpath='{.status.currentPrimary}'="${target}"
+        task cnpg:heal-diverged CLUSTER="{{.NAMESPACE}}/{{.NAME}}" SKIP="${old}"
+      - task: wait-streaming
+        vars:
+          CLUSTER: '{{.NAMESPACE}}/{{.NAME}}'
+          TIMEOUT: '600'
+      - kubectl cnpg status {{.NAME}} -n {{.NAMESPACE}}
     preconditions:
       - test -f {{.KUBECONFIG}}
       - which kubectl
+
+  promote-authentik:
+    desc: Promote a given instance to primary in the auth namespace [NODE=required]
+    requires:
+      vars: [NODE]
+    cmds:
+      - task: promote
+        vars: {NAMESPACE: auth, NAME: authentik-postgres, NODE: '{{.NODE}}'}
 
   promote-postgres:
     desc: Promote a given instance to primary in the database namespace [NODE=required]
-    cmds:
-      - kubectl cnpg status postgres -n database
-      - kubectl cnpg promote postgres {{.NODE}} -n database
-      - sleep 30
-      - kubectl cnpg status postgres -n database
     requires:
       vars: [NODE]
-    preconditions:
-      - test -f {{.KUBECONFIG}}
-      - which kubectl
+    cmds:
+      - task: promote
+        vars: {NAMESPACE: database, NAME: postgres, NODE: '{{.NODE}}'}
 
   promote-timescale:
     desc: Promote a given instance to primary for timescale in the database namespace [NODE=required]
-    cmds:
-      - kubectl cnpg status timescale -n database
-      - kubectl cnpg promote timescale {{.NODE}} -n database
-      - sleep 30
-      - kubectl cnpg status timescale -n database
     requires:
       vars: [NODE]
-    preconditions:
-      - test -f {{.KUBECONFIG}}
-      - which kubectl
+    cmds:
+      - task: promote
+        vars: {NAMESPACE: database, NAME: timescale, NODE: '{{.NODE}}'}

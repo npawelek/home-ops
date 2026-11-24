@@ -81,7 +81,11 @@ tasks:
   upgrade:
     desc: Upgrade Talos on every node, draining each one first
     dir: '{{.TALOS_DIR}}'
-    cmd: topf upgrade
+    # topf drains nodes back to back, so CNPG switches over on its own; heal afterwards.
+    cmds:
+      - task: :cnpg:healthy
+      - topf upgrade
+      - task: :cnpg:healthy
     preconditions:
       - test -f {{.TALOS_DIR}}/topf.yaml
       - test -f {{.TALOS_DIR}}/secrets.yaml
@@ -93,7 +97,12 @@ tasks:
     desc: Upgrade Talos on a single node [HOST=required (e.g. m1)]
     dir: '{{.TALOS_DIR}}'
     # --drain defaults to true, so Longhorn PDBs gate the reboot.
-    cmd: topf upgrade --nodes-filter '^{{.HOST}}$'
+    cmds:
+      - task: :cnpg:healthy
+      - task: :cnpg:evacuate
+        vars: {HOST: '{{.HOST}}'}
+      - topf upgrade --nodes-filter '^{{.HOST}}$'
+      - task: :cnpg:healthy
     requires:
       vars: [HOST]
     preconditions:
@@ -124,15 +133,23 @@ tasks:
         hosts="{{.CONTROL_PLANES}} {{.WORKERS}}"
         total=$(echo ${hosts} | wc -w | tr -d ' ')
         count=0
+        done_hosts=""
         for host in ${hosts}; do
           count=$((count + 1))
+          pending=$(for h in ${hosts}; do
+            case " ${done_hosts} ${host} " in *" ${h} "*) ;; *) printf '%s ' "${h}" ;; esac
+          done)
           echo ""
           echo "==> [${count}/${total}] Upgrading Talos on ${host} to {{.TALOS_VERSION}}..."
+          task cnpg:healthy
+          task cnpg:evacuate HOST="${host}" DONE="${done_hosts}" PENDING="${pending}"
           topf upgrade --nodes-filter "^${host}$" --confirm=false --drain-timeout=30m
           echo "    Waiting for Longhorn to finish rebuilding before the next node..."
           task longhorn:wait-healthy
+          done_hosts="${done_hosts} ${host}"
           echo "==> [${count}/${total}] ${host} complete."
         done
+        task cnpg:healthy
         echo ""
         echo "==> All nodes upgraded to Talos {{.TALOS_VERSION}}."
     preconditions:
@@ -177,14 +194,21 @@ tasks:
         )
         total=$(echo "$nodes" | wc -l | tr -d ' ')
         count=0
+        done_hosts=""
+        all_hosts=$(echo "$nodes" | awk '{print $2}' | tr '\n' ' ')
         while IFS=' ' read -r ip hostname; do
           count=$((count + 1))
+          pending=$(for h in ${all_hosts}; do
+            case " ${done_hosts} ${hostname} " in *" ${h} "*) ;; *) printf '%s ' "${h}" ;; esac
+          done)
           echo ""
           echo "==> [${count}/${total}] Upgrading kubelet on ${hostname} (${ip})..."
-          # No CNPG pre-promotion: the drain hits each cluster's primary PDB and CNPG
-          # switches over by itself. A manual promote here demoted the old primary under
-          # the node's old kubelet, which never restarted it, and left a replica diverged
-          # by the old primary's shutdown checkpoint (see the k8s 1.36 ExecPlan).
+          # Primaries move only onto replicas with a stable stream, so a fresh replica can't
+          # miss the old primary's shutdown checkpoint (see the k8s 1.36 ExecPlan). The
+          # demoted instance on this node is excluded from the post-promote check; if its
+          # container is not restarted, the drain evicts it.
+          task cnpg:healthy
+          task cnpg:evacuate HOST="${hostname}" DONE="${done_hosts}" PENDING="${pending}"
           echo "    Draining ${hostname} (blocks until PDBs allow)..."
           kubectl drain "${hostname}" --ignore-daemonsets --delete-emptydir-data --timeout=0
           echo "    Patching kubelet image to {{.KUBERNETES_VERSION}}..."
@@ -208,8 +232,10 @@ tasks:
           # and the gate would sit until it times out.
           echo "    Waiting for Longhorn to finish rebuilding before the next node..."
           task longhorn:wait-healthy
+          done_hosts="${done_hosts} ${hostname}"
           echo "==> [${count}/${total}] ${hostname} complete."
         done <<< "$nodes"
+        task cnpg:healthy
         echo ""
         echo "==> All nodes upgraded to Kubernetes {{.KUBERNETES_VERSION}}."
     preconditions:

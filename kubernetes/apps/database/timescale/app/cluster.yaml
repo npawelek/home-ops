@@ -16,8 +16,9 @@ spec:
   postgresUID: 1000
   postgresGID: 1000
   primaryUpdateStrategy: unsupervised
-  # Promote an updated replica instead of restarting the primary in place
-  primaryUpdateMethod: switchover
+  # Restart the primary in place; switchovers stranded replicas on the old timeline
+  primaryUpdateMethod: restart
+  smartShutdownTimeout: 10
   startDelay: 300
 
   postgresql:
