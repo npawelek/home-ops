@@ -209,8 +209,8 @@ tasks:
           # container is not restarted, the drain evicts it.
           task cnpg:healthy
           task cnpg:evacuate HOST="${hostname}" DONE="${done_hosts}" PENDING="${pending}"
-          echo "    Draining ${hostname} (blocks until PDBs allow)..."
-          kubectl drain "${hostname}" --ignore-daemonsets --delete-emptydir-data --timeout=0
+          echo "    Draining ${hostname} (up to 30m for PDBs)..."
+          kubectl drain "${hostname}" --ignore-daemonsets --delete-emptydir-data --timeout=30m
           echo "    Patching kubelet image to {{.KUBERNETES_VERSION}}..."
           # Talos 1.14 multi-doc config: the kubelet image lives in the KubeletConfig
           # document, not /machine/kubelet. This matches upstream's stdpatches.WithKubeletImage.
