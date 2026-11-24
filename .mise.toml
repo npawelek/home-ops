@@ -68,7 +68,7 @@ enter = "mise run check-deps"
 "npm:renovate" = { version = "44.133.0", trust_policy_excludes = ["@yarnpkg/libzip@3.2.2"] }
 "github:fluxcd/agent-skills" = { version = "0.4.0", depends = ["aqua:controlplaneio-fluxcd/flux-operator"], postinstall = "flux-operator skills install ghcr.io/fluxcd/agent-skills --tag v$MISE_TOOL_VERSION --agent claude-code" }
 "github:fluxcd/flux-schema" = "0.18.0"
-"github:home-operations/flate" = "0.7.3"
+"github:home-operations/flate" = "0.8.0"
 "github:postfinance/topf" = "0.6.2"
 "pipx:asitop" = "0.0.24"
 "pipx:ha-mcp" = "9.2.0"
