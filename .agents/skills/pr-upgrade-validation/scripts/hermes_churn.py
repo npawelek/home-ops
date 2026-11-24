@@ -23,10 +23,12 @@ PRIVACY_RE = re.compile(r"telemetry|metric|analytic|update|catalog|share|report|
 GATING_RE = re.compile(r"platform_toolsets|known_builtin_toolsets|known_plugin_toolsets|disabled_toolsets|skills|plugins|toolset", re.I)
 
 
-def gh(path, raw=False):
+def gh(path, raw=False, jq=None):
   cmd = ["gh", "api", path]
   if raw:
     cmd += ["-H", "Accept: application/vnd.github.raw"]
+  if jq:
+    cmd += ["--jq", jq]
   r = subprocess.run(cmd, capture_output=True, text=True)
   if r.returncode != 0:
     return None
@@ -150,15 +152,51 @@ def plugin_toolsets(pdir, paths, ref):
   return names
 
 
+def ahead_by(old, new):
+  q = lambda r: urllib.parse.quote(r, safe="")
+  out = gh(f"repos/{REPO}/compare/{q(old)}...{q(new)}?per_page=1", jq=".ahead_by")
+  return int(out) if out and out.strip().isdigit() else None
+
+
+def init_catalog_names(init_src):
+  names = set()
+  for m in re.finditer(r"plugins install\b(.*)", init_src):
+    names |= {t for t in m.group(1).split() if re.fullmatch(r"[a-z0-9][\w-]*", t)}
+  return names
+
+
+def catalog_pin(name, ref):
+  meta = yaml.safe_load(raw(f"plugin-catalog/{name}.yaml", ref) or "") or {}
+  return meta.get("sha"), meta.get("version")
+
+
+def buzz_patch(init_src):
+  src = re.search(r"^readonly BUZZ_PLUGIN_SRC=(\S+)$", init_src, re.M)
+  marker = re.search(r"grep -qF '([^']+)' \"\$\{BUZZ_PLUGIN_SRC\}/adapter\.py\"", init_src)
+  anchor = re.search(r'^anchor = "(.*)\\n"$', init_src, re.M)
+  if not (src and marker and anchor and src.group(1).startswith(IMAGE_ROOT + "/")):
+    return None
+  return src.group(1)[len(IMAGE_ROOT) + 1:] + "/adapter.py", marker.group(1), anchor.group(1) + "\n"
+
+
 def main():
   ap = argparse.ArgumentParser()
   ap.add_argument("old")
   ap.add_argument("new")
   ap.add_argument("--config", default="kubernetes/apps/ai/hermes/app/resources/config.yaml")
+  ap.add_argument("--init", default="kubernetes/apps/ai/hermes/app/resources/init.sh")
+  ap.add_argument("--installed", help="live plugins/.install-metadata.json, or - for stdin")
   ap.add_argument("--platform", default="buzz")
   a = ap.parse_args()
 
   cfg = yaml.safe_load(open(a.config)) or {}
+  try:
+    init_src = open(a.init).read()
+  except OSError:
+    init_src = ""
+  installed = None
+  if a.installed:
+    installed = json.load(sys.stdin if a.installed == "-" else open(a.installed))
   plat = a.platform
   disabled_skills = set((cfg.get("skills") or {}).get("disabled") or [])
   external = (cfg.get("skills") or {}).get("external_dirs") or []
@@ -173,6 +211,10 @@ def main():
 
   old_t, new_t = tree(a.old), tree(a.new)
   print(f"# Hermes churn {a.old} -> {a.new} (platform: {plat})\n")
+  ahead = ahead_by(a.old, a.new)
+  print(f"- window: {ahead if ahead is not None else '?'} commits ahead"
+        + (" — **the compare API lists at most 250; scan the log from a blobless clone**" if ahead is None or ahead > 250 else ""))
+  print()
 
   print("## Config schema migrations")
   om, nm = migrations(a.old), migrations(a.new)
@@ -282,6 +324,63 @@ def main():
     print(f"- removed `{p}`{' — listed in plugins.enabled' if n in enabled_plugins else ''}")
   if not (np_ ^ op):
     print("- no plugin changes")
+  print()
+
+  print("## Catalog plugin pins (installed plugins move only on reinstall or auto-update)")
+  if (cfg.get("plugins") or {}).get("auto_update_check_hours", 0):
+    print("- **plugins.auto_update_check_hours is non-zero: live plugins may move to the new pins on their own**")
+  live = {}
+  for k, v in (installed or {}).items():
+    live[(v.get("catalog") or {}).get("name") or k] = v.get("revision")
+  sources = {}
+  for pname in enabled_plugins:
+    sources.setdefault(pname, []).append("plugins.enabled")
+  for pname in init_catalog_names(init_src):
+    sources.setdefault(pname, []).append("init.sh")
+  for pname in live:
+    sources.setdefault(pname, []).append("installed")
+  rows = 0
+  for pname in sorted(sources):
+    path = f"plugin-catalog/{pname}.yaml"
+    if path not in old_t and path not in new_t:
+      continue
+    rows += 1
+    (os_, ov), (ns, nv) = catalog_pin(pname, a.old), catalog_pin(pname, a.new)
+    short = lambda s: (s or "none")[:7]
+    pin = (f"pin unchanged {short(ns)} ({nv})" if os_ == ns else
+           f"pin {short(os_)} ({ov}) -> {short(ns)} ({nv})")
+    if installed is None:
+      state = "live revision unknown (pass --installed)"
+    elif pname not in live:
+      state = "not installed"
+    elif live[pname] == ns:
+      state = f"live {short(live[pname])} = new pin"
+    elif live[pname] == os_:
+      state = f"**live {short(live[pname])} = old pin; the new pin needs a reinstall**"
+    else:
+      state = f"live {short(live[pname])} matches neither pin"
+    print(f"- `{pname}` ({', '.join(sources[pname])}): {pin}; {state}")
+  if not rows:
+    print("- no catalog-installed plugins referenced")
+  print()
+
+  print("## Image patches (init.sh)")
+  bp = buzz_patch(init_src)
+  if not bp:
+    print("- no Buzz adapter patch found in init.sh")
+  else:
+    path, marker, anchor = bp
+    src = raw(path, a.new)
+    changed = " (adapter changed since " + a.old + ")" if old_t.get(path) != new_t.get(path) else ""
+    if src is None:
+      print(f"- **`{path}` missing at {a.new}: patch_buzz_threads has nothing to patch**")
+    elif marker in src:
+      print(f"- Buzz adapter at {a.new} contains `{marker}`: upstream fix landed; remove patch_buzz_threads{changed}")
+    elif src.count(anchor) != 1:
+      print(f"- **Buzz patch anchor found {src.count(anchor)}x in `{path}` at {a.new}: the patch is skipped on boot;"
+            f" update the anchor in init.sh**{changed}")
+    else:
+      print(f"- Buzz patch still applies at {a.new} (anchor found once, upstream fix absent){changed}")
   print()
 
   print("## Config keys")

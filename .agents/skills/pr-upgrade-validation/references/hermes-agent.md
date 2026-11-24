@@ -23,13 +23,18 @@ needs a decision has to land as a config.yaml edit, ideally in the same PR befor
 ## Procedure
 
 1. Take the old and new tags from the diff: the `tag:` value before `@sha256:` (e.g. `v0.23.3`).
-2. Run the churn script from the repo root (needs `gh` auth; about 30 s; static parsing only, nothing upstream runs):
+2. Run the churn script from the repo root (needs `gh` auth; about 30 s; static parsing only, nothing upstream runs).
+   Pipe in the live plugin install record so catalog pins are compared against what is actually installed
+   (a read-only exec; if `hermes-0` is down, drop the pipe and `--installed -`):
    ```bash
-   mise x -- uv run --quiet --script .agents/skills/pr-upgrade-validation/scripts/hermes_churn.py <old> <new>
+   mise x -- kubectl -n ai exec hermes-0 -c app -- cat /opt/data/plugins/.install-metadata.json \
+     | mise x -- uv run --quiet --script .agents/skills/pr-upgrade-validation/scripts/hermes_churn.py <old> <new> --installed -
    ```
    If it exits with "tree … truncated", fall back to a blobless clone
    (`git clone --filter=blob:none --no-checkout https://github.com/NousResearch/hermes-agent`, then
-   `git diff --name-status <old> <new> -- skills optional-skills plugins`).
+   `git diff --name-status <old> <new> -- skills optional-skills plugins plugin-catalog`).
+   Hermes patch tags routinely roll up 1,000+ commits with notes deferred to the next minor, so the
+   `window:` line usually asks for the SKILL.md Stage 3b Step 3 log scan; reuse the same clone.
 3. Turn every flagged line into a decision. The script reports facts; the value of this stage is the
    judgement about each one against how Hermes is used here (Buzz chat agent, local terminal in the
    pod, SearXNG search, Camofox browser, no delegation/cron/browser toolsets, all egress through the
@@ -65,12 +70,24 @@ needs a decision has to land as a config.yaml edit, ideally in the same PR befor
      remote config, sharing) should be pinned off in config.yaml. Hermes' own OTLP `monitoring.*`
      exporter is self-hosted and not a privacy concern.
    - **Changed default not pinned**: say what behaviour changes for this deployment and whether to pin it.
-4. Plugins installed outside the image (`plugins.enabled`, e.g. `camofox` from
-   `NousResearch/hermes-official-plugins`) are versioned separately. Note when the new tag's
-   `plugin-catalog/` changes their pinned version or compatibility range.
+   - **Catalog plugin pins**: an image bump does not move an installed plugin. `init.sh` installs
+     `claude-subscription-directsdk` only when it is missing, memini is pinned by `MEMINI_PLUGIN_REF`,
+     camofox lives on the PVC, and `plugins.auto_update_check_hours: 0` keeps update checks off. A pin change is
+     therefore informational unless live is on the old pin and the new tag needs the new plugin
+     version (check the plugin's compatibility range at the new pin). `live … = old pin` means a
+     manual reinstall is an option, not something the merge does.
+   - **Buzz patch**: `patch_buzz_threads` in `init.sh` patches the image's Buzz adapter at an exact anchor line.
+     "anchor found Nx" means the patch is skipped on boot (only a log warning) and Buzz loses
+     per-thread sessions (hermes-agent#104860): update the anchor in `init.sh` before merging.
+     "upstream fix landed" means drop `patch_buzz_threads` and its `BUZZ_PLUGIN_*` constants.
+4. Plugins installed outside the image are versioned in `NousResearch/hermes-official-plugins` (or
+   their own repo, for memini). When a pin changes, summarize that plugin's commits between the
+   two pins (`gh api repos/NousResearch/hermes-official-plugins/compare/<old_sha>...<new_sha>`, filtered to
+   files under `<plugin>/`), but only when live is behind the new pin.
 5. Escalate the component's risk to at least 🟡 MEDIUM and the recommendation to REVIEW REQUIRED when
    any of these appear: a `NEW, ENABLED` skill that acts through enabled tools, a used skill that vanishes, an auto-enabling or
-   default-ON toolset, a migration touching gating keys, a dropped pinned key, or a new outbound default.
+   default-ON toolset, a migration touching gating keys, a dropped pinned key, a new outbound default, or a Buzz
+   patch anchor that no longer matches.
    List the exact config.yaml edits so they can land before the merge.
 
 ## Report addition

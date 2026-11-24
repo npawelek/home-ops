@@ -90,6 +90,21 @@ Do this for every release in the version range that could contain breaking chang
 If the GitHub repo lookup returns 404, try `<owner>/<repo>-packaging` or `<owner>/<image>` as fallbacks,
 then fall back to WebFetch of the project's releases page or CHANGELOG.md.
 
+**Step 3 — Size the window and scan the commit log when the notes don't cover it:**
+```bash
+mise x -- gh api "repos/<owner>/<repo>/compare/<old_tag>...<new_tag>?per_page=1" --jq '.ahead_by'
+```
+`ahead_by` is exact, but the compare API lists at most 250 commits and 300 files and does not say it
+truncated. When `ahead_by` > 250, or the notes defer to a later release ("full notes ship with vX"),
+scan the log from a blobless clone in the scratchpad instead:
+```bash
+git clone --quiet --filter=blob:none --no-checkout https://github.com/<owner>/<repo> <scratch>/<repo>
+git -C <scratch>/<repo> log --oneline --no-merges <old_tag>..<new_tag> \
+  | grep -iE 'break|migrat|deprecat|remov|rename|default|telemetry|privacy|security|cve'
+git -C <scratch>/<repo> diff --name-status <old_tag> <new_tag> -- <paths this deployment uses>
+```
+Read the commits the grep surfaces; a signal found here counts the same as one in release notes.
+
 ### 3c. Helm chart values diff (for chart upgrades only)
 
 For each OCIRepository or chart version bump, run:
@@ -120,10 +135,15 @@ For each component, scan the collected release notes and values diff for these s
 - Text contains: `deprecated`, `removed`, `renamed`, `no longer supported`, `behavior change`
 - A default value changed in the chart that the HelmRelease does not override
 - Multiple minor versions skipped (gap > 5 releases)
+- Large window regardless of semver: more than ~200 commits in range
+- Release notes defer to a future release instead of describing this one
+
+The last two require the Stage 3b Step 3 log scan. If the scan finds nothing, the bump-type baseline
+stands; if it was skipped, the component is 🟡 MEDIUM (unknown risk ≠ no risk).
 
 **LOW risk / informational:**
 - Only bug fixes and enhancements
-- `patch` or `digest` bump with no release notes body
+- `patch` or `digest` bump with no release notes body and a small window
 
 **Do not assume date-encoded tags are nightlies.** Some projects (e.g. Jellyfin 12.x) embed a build
 timestamp in their stable image tags (e.g. `12.1.20260915-010956`). If a tag looks date-encoded,
@@ -196,6 +216,7 @@ If a component has no release notes available from any source, say so explicitly
 
 - If `gh pr diff` returns nothing: the PR may have been merged or the branch deleted. Report this and stop.
 - If the GitHub API returns 404 for a repo: try the fallback names from Stage 3b, then WebFetch.
+- If a list from the compare API has exactly 250 commits or 300 files, treat it as truncated and use the blobless clone (Stage 3b Step 3).
 - If `helm show values` fails for a version: the chart may not be available in the OCI registry for that version. Note it and skip the values diff for that component.
 - If the PR is not a Renovate PR (no package table in body): describe the diff changes found and note that automated release note fetching requires a Renovate-formatted PR body.
 - If the PR contains more than 10 components: summarize the table first, then ask the user which components they want deep analysis on before proceeding with Stages 3–5.
