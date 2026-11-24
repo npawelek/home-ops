@@ -87,7 +87,7 @@ spec:
     name: credentials-admin
 
   storage:
-    size: 30Gi
+    size: 35Gi
     storageClass: longhorn-local
 
   # TODO(1.30): replace with spec.backup.plugins once CNPG 1.30+ is deployed
