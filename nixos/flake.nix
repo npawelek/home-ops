@@ -28,7 +28,7 @@
     };
     # linux-firmware 20260916 (DMUB 0x0A004B00). 20261019 causes pageflip
     # stalls on the RX 9070 XT with two displays. Drop once a newer one is fixed.
-    nixpkgs-firmware.url = "github:NixOS/nixpkgs/72dceef3c26913631af9f826f7ead33e31796758";
+    nixpkgs-firmware.url = "github:NixOS/nixpkgs/98bfaa0bdc8a85464992542e82c5398232eb0ccb";
   };
 
   outputs = inputs@{ nixpkgs, disko, sops-nix, home-manager, ... }: {
