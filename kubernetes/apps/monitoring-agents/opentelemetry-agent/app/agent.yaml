@@ -111,12 +111,13 @@ spec:
             from: attributes.log
             to: body
           # Combine multi-line entries (Java stack traces, Python tracebacks, .NET exceptions).
-          # A new entry starts when body begins with a JSON object, ISO timestamp, or klog prefix.
+          # A new entry starts when body begins with a JSON object, ISO timestamp, klog prefix, or logfmt key.
           # Lines that don't match (stack frames, traceback lines) are folded into the previous entry.
           - type: recombine
             combine_field: body
             combine_with: "\n"
-            is_first_entry: 'body matches "^(\\{|\\d{4}-\\d{2}-\\d{2}[T\\s]|[A-Z]\\d{4}\\s)"'
+            # yamllint disable-line rule:line-length
+            is_first_entry: 'body matches "^(\\{|\\d{4}-\\d{2}-\\d{2}[T\\s]|[A-Z]\\d{4}\\s|(\\[[^\\]]+\\] )?(level|lvl|time|ts|t)=)"'
             source_identifier: attributes["log.file.path"]
             max_unmatched_batch_size: 100
             timeout: 5s
