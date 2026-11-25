@@ -9,9 +9,11 @@
     ":disableRateLimiting",
     ":semanticCommits",
   ],
-  dependencyDashboard: true,
+  dependencyDashboard: {
+    enabled: true,
+    title: "Renovate Dashboard 🤖",
+  },
   separateMultipleMajor: true,
-  dependencyDashboardTitle: "Renovate Dashboard 🤖",
   prConcurrentLimit: 0,
   prHourlyLimit: 0,
   ignorePaths: ["**/*.sops.*"],
