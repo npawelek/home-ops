@@ -33,6 +33,17 @@
         "ha-mcp"
       ]
     },
+    "open-knowledge": {
+      "type": "stdio",
+      "command": "mise",
+      "args": [
+        "x",
+        "--",
+        "sh",
+        "-c",
+        "exec mcp-remote \"https://ok.${SECRET_DOMAIN}/mcp\" --header \"Authorization: Basic $(printf '%s' \"open-knowledge-mcp:${OPEN_KNOWLEDGE_MCP_TOKEN}\" | base64)\""
+      ]
+    },
     "trek": {
       "type": "stdio",
       "command": "mise",

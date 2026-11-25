@@ -13,6 +13,16 @@ providers:
     models:
       ${OLLAMA_MODEL}:
         context_length: 131072
+mcp_servers:
+  open-knowledge:
+    url: http://open-knowledge.ai.svc.cluster.local:8080/mcp
+    headers:
+      Host: ok.${SECRET_DOMAIN}
+    tools:
+      exclude:
+        - import
+        - install
+        - share_link
 platform_toolsets:
   buzz:
     - camofox

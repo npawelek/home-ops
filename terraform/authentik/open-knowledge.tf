@@ -29,3 +29,16 @@ resource "authentik_policy_binding" "open_knowledge_admins_access" {
   group  = data.authentik_group.authentik_admins.id
   order  = 0
 }
+
+resource "authentik_user" "open_knowledge_mcp" {
+  username = "open-knowledge-mcp"
+  name     = "OpenKnowledge MCP"
+  path     = "service-accounts"
+  type     = "service_account"
+}
+
+resource "authentik_policy_binding" "open_knowledge_mcp_access" {
+  target = authentik_application.open_knowledge.uuid
+  user   = authentik_user.open_knowledge_mcp.id
+  order  = 1
+}

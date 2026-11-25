@@ -12,6 +12,7 @@ HOMEASSISTANT_TOKEN = { value = "{{exec(command='if [ -f age.key ] && command -v
 GRAFANA_URL = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .GRAFANA_URL; fi')}}", tools = true, redact = true }
 GRAFANA_SERVICE_ACCOUNT_TOKEN = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .GRAFANA_SERVICE_ACCOUNT_TOKEN; fi')}}", tools = true, redact = true }
 JELLYFIN_COLLECTIONS_TOKEN = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .JELLYFIN_COLLECTIONS_TOKEN; fi')}}", tools = true, redact = true }
+OPEN_KNOWLEDGE_MCP_TOKEN = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .OPEN_KNOWLEDGE_MCP_TOKEN; fi')}}", tools = true, redact = true }
 UNIFI_NETWORK_USERNAME = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .UNIFI_NETWORK_USERNAME; fi')}}", tools = true, redact = true }
 UNIFI_NETWORK_PASSWORD = { value = "{{exec(command='if [ -f age.key ] && command -v sops >/dev/null; then sops -d env.sops.yaml | yq .UNIFI_NETWORK_PASSWORD; fi')}}", tools = true, redact = true }
 GRAFANA_ORG_ID = "1"
