@@ -48,6 +48,11 @@
   },
   packageRules: [
     {
+      description: "Settle period for all container images and Helm charts; later rules may shorten it, and the dashboard can force an update early",
+      matchDatasources: ["docker", "helm"],
+      minimumReleaseAge: "3 days",
+    },
+    {
       description: "Separate authentik Terraform provider updates from Helm chart updates",
       matchManagers: ["terraform"],
       matchPackageNames: ["goauthentik/authentik"],
@@ -216,6 +221,14 @@
       automerge: true,
       automergeType: "branch",
       minimumReleaseAge: "2 days",
+    },
+    {
+      description: "Own images from npawelek/containers: auto-merge patch and digest (base-image rebuilds) after the settle period; minor and major (0.x minors are breaking) need review",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/npawelek/**"],
+      matchUpdateTypes: ["patch", "digest"],
+      automerge: true,
+      automergeType: "branch",
     },
     {
       description: "Node runs only npm:renovate; hold to Renovate's engines range (^24.11.0)",
