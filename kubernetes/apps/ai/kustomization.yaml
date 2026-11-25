@@ -13,4 +13,5 @@ resources:
   - camofox/ks.yaml
   - llmkube-models/ks.yaml
   - memini/ks.yaml
+  - open-knowledge/ks.yaml
   - open-webui/ks.yaml

@@ -1,0 +1,114 @@
+# yamllint disable-line rule:line-length
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/app-template-5.3.0/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app open-knowledge
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  interval: 1h
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      *app :
+        type: statefulset
+        containers:
+          app:
+            image:
+              repository: ghcr.io/npawelek/open-knowledge
+              # renovate: datasource=docker depName=ghcr.io/npawelek/open-knowledge
+              tag: 0.89.16@sha256:8c17a3d41a2b85b680bd7328b6579e265a368da5d27b617fbf30e51b2f346618
+            env:
+              TZ: ${TIMEZONE}
+              OK_ALLOW_EXTERNAL: "1"
+              OK_EXTERNAL_URL: https://ok.${SECRET_DOMAIN}
+              OK_IDLE_SHUTDOWN: "off"
+              DO_NOT_TRACK: "1"
+              DISABLE_TELEMETRY: "1"
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8080
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /readyz
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /readyz
+                    port: *port
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 60
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames:
+          - ok.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: gateway
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    persistence:
+      data:
+        existingClaim: *app
+        advancedMounts:
+          *app :
+            app:
+              - path: /data
+                subPath: project
+              - path: /home/node
+                subPath: home
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
