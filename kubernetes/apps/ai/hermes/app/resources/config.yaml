@@ -157,8 +157,14 @@ gateway:
   platforms:
     buzz:
       enabled: true
+      home_channel:
+        platform: buzz
+        chat_id: 15bfbfcd-a4f6-4c7b-847b-c54be23086bf
+        name: clanker
       extra:
-        require_mention: true
+        channels:
+          - 15bfbfcd-a4f6-4c7b-847b-c54be23086bf
+        require_mention: false
         allow_all_users: false
 _config_version: 54
 _left_core_installed:
