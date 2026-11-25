@@ -11,6 +11,8 @@ spec:
   dependsOn:
     - name: longhorn
       namespace: longhorn-system
+    - name: envoy-gateway
+      namespace: gateway
   path: ./kubernetes/apps/ai/camofox/app
   prune: true
   sourceRef:

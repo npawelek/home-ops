@@ -12,6 +12,8 @@ spec:
     - name: database-postgres-databases
       namespace: database
     - name: llmkube-models
+    - name: envoy-gateway
+      namespace: gateway
   path: ./kubernetes/apps/ai/memini/app
   prune: true
   sourceRef:

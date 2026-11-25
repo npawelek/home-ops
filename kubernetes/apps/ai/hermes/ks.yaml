@@ -13,6 +13,8 @@ spec:
       namespace: buzz
     - name: longhorn
       namespace: longhorn-system
+    - name: envoy-gateway
+      namespace: gateway
     - name: network-externalname
       namespace: network
   path: ./kubernetes/apps/ai/hermes/app
