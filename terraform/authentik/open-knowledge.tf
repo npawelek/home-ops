@@ -42,3 +42,16 @@ resource "authentik_policy_binding" "open_knowledge_mcp_access" {
   user   = authentik_user.open_knowledge_mcp.id
   order  = 1
 }
+
+resource "authentik_user" "open_knowledge_hermes" {
+  username = "open-knowledge-hermes"
+  name     = "OpenKnowledge Hermes"
+  path     = "service-accounts"
+  type     = "service_account"
+}
+
+resource "authentik_policy_binding" "open_knowledge_hermes_access" {
+  target = authentik_application.open_knowledge.uuid
+  user   = authentik_user.open_knowledge_hermes.id
+  order  = 2
+}
