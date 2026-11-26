@@ -37,6 +37,11 @@ spec:
               ENABLE_LOGIN_FORM: "false"
               OAUTH_MERGE_ACCOUNTS_BY_EMAIL: "true"
               OAUTH_AUTO_REDIRECT: "true"
+              ENABLE_PERSISTENT_CONFIG: "false"
+              DEFAULT_MODEL_METADATA: '{"capabilities":{"web_search":true},"defaultFeatureIds":["web_search"]}'
+              RAG_TOP_K: "3"
+              RAG_TOP_K_RERANKER: "3"
+              CHUNK_SIZE: "1000"
               ENABLE_WEB_SEARCH: "true"
               WEB_SEARCH_ENGINE: searxng
               SEARXNG_QUERY_URL: http://searxng.network.svc.cluster.local:8080/search?q=<query>
