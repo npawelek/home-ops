@@ -27,7 +27,7 @@ spec:
               TZ: ${TIMEZONE}
               OLLAMA_BASE_URL: http://ollama.network.svc.cluster.local:11434
               WEBUI_URL: https://{{.Release.Name}}.${SECRET_DOMAIN}
-              ENABLE_UPDATE_CHECKER: "false"
+              ENABLE_VERSION_UPDATE_CHECK: "false"
               OAUTH_PROVIDER_NAME: authentik
               OAUTH_CLIENT_ID: open-webui
               # yamllint disable-line rule:line-length
@@ -37,6 +37,18 @@ spec:
               ENABLE_LOGIN_FORM: "false"
               OAUTH_MERGE_ACCOUNTS_BY_EMAIL: "true"
               OAUTH_AUTO_REDIRECT: "true"
+              ENABLE_WEB_SEARCH: "true"
+              WEB_SEARCH_ENGINE: searxng
+              SEARXNG_QUERY_URL: http://searxng.network.svc.cluster.local:8080/search?q=<query>
+              ENABLE_COMMUNITY_SHARING: "false"
+              ENABLE_EVALUATION_ARENA_MODELS: "false"
+              ENABLE_OPENAI_API: "false"
+              HTTP_PROXY: ${HTTP_PROXY}
+              HTTPS_PROXY: ${HTTPS_PROXY}
+              NO_PROXY: ${NO_PROXY}
+              http_proxy: ${HTTP_PROXY}
+              https_proxy: ${HTTPS_PROXY}
+              no_proxy: ${NO_PROXY}
             envFrom:
               - secretRef:
                   name: open-webui-secret
