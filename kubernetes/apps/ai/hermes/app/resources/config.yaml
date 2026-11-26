@@ -15,9 +15,9 @@ providers:
         context_length: 131072
 mcp_servers:
   open-knowledge:
-    url: http://open-knowledge.ai.svc.cluster.local:8080/mcp
+    url: https://ok.${SECRET_DOMAIN}/mcp
     headers:
-      Host: ok.${SECRET_DOMAIN}
+      Authorization: Basic $${OPEN_KNOWLEDGE_MCP_BASIC}
     tools:
       exclude:
         - import

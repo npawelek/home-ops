@@ -17,9 +17,6 @@ spec:
           podSelector:
             matchLabels:
               gateway.envoyproxy.io/owning-gateway-name: envoy-internal
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/name: hermes
       ports:
         - port: 8080
           protocol: TCP
