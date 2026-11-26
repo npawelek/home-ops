@@ -116,3 +116,7 @@ spec:
           value: https://buzz.${SECRET_DOMAIN}
         - name: RUST_LOG
           value: buzz_relay=info,buzz_db=info,buzz_auth=info,buzz_pubsub=info,tower_http=info
+        - name: BUZZ_PUSH_ENABLED
+          value: "false"
+        - name: BUZZ_FEATURE_FLAGS_PROVIDER
+          value: static
