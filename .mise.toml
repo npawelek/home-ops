@@ -65,7 +65,7 @@ enter = "mise run check-deps"
 "node" = "24.22.3"
 "npm:mcp-remote" = "0.16.7"
 # libzip 3.2.2: maintainer (arcanis) manual publish without provenance, 3.2.0 had it; accepted 2026-10-04
-"npm:renovate" = { version = "44.261.2", trust_policy_excludes = ["@yarnpkg/libzip@3.2.2"] }
+"npm:renovate" = { version = "45.3.2", trust_policy_excludes = ["@yarnpkg/libzip@3.2.2"] }
 "github:fluxcd/agent-skills" = { version = "0.4.0", depends = ["aqua:controlplaneio-fluxcd/flux-operator"], postinstall = "flux-operator skills install ghcr.io/fluxcd/agent-skills --tag v$MISE_TOOL_VERSION --agent claude-code" }
 "github:fluxcd/flux-schema" = "0.18.0"
 "github:home-operations/flate" = "0.8.0"
