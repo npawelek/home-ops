@@ -35,7 +35,7 @@ enter = "mise run check-deps"
 
 [tools]
 "aqua:astral-sh/uv" = "0.13.9"
-"aqua:awscli" = "2.42.1"
+"aqua:awscli" = "2.42.3"
 "aqua:BurntSushi/ripgrep" = "16.0.0"
 "aqua:cilium/cilium-cli" = "0.20.3"
 "aqua:cli/cli" = "2.105.0"
